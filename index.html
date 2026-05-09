@@ -1268,6 +1268,24 @@ function toggleChip(pid,mid){
   renderMPD(mid);
 }
 
+
+function setStatut(key, val, mid) {
+  if (!APP.pmd[key]) APP.pmd[key] = {};
+  APP.pmd[key].statut = val;
+  // When set as Remplaçant → reset minutes to 0 (will be updated when they enter)
+  if (val === 'R') {
+    APP.pmd[key].min = 0;
+    APP.pmd[key]._benchStart = true; // flag: not yet entered
+  } else if (val === 'T') {
+    // Titulaire → default 90 min if not set
+    if (!APP.pmd[key].min || APP.pmd[key]._benchStart) {
+      APP.pmd[key].min = 90;
+      APP.pmd[key]._benchStart = false;
+    }
+  }
+  renderMPD(mid);
+  try { renderRecap(); } catch(e) {}
+}
 function renderMPD(mid){
   var sel=APP.players.filter(function(p){var d=APP.pmd[p.id+'_'+mid];return d&&(d.statut==='T'||d.statut==='R');});
   var c=document.getElementById('mpd');if(!c)return;
@@ -1275,7 +1293,7 @@ function renderMPD(mid){
   var rows='';
   sel.forEach(function(p){
     var key=p.id+'_'+mid;var d=APP.pmd[key]||{};
-    var statSel='<select style="border:1.5px solid var(--border);border-radius:4px;padding:4px 8px;font-size:13px" onchange="updPMD(\''+key+'\',\'statut\',this.value)"><option'+(d.statut==='T'?' selected':'')+' value="T">Titulaire</option><option'+(d.statut==='R'?' selected':'')+' value="R">Remplaçant</option></select>';
+    var statSel='<select style="border:1.5px solid var(--border);border-radius:4px;padding:4px 8px;font-size:13px" onchange="setStatut(\''+key+'\',this.value,\''+mid+'\')" ><option'+(d.statut==='T'?' selected':'')+' value="T">Titulaire</option><option'+(d.statut==='R'?' selected':'')+' value="R">Remplaçant</option></select>';
     var cartonBtns=
       '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
         '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;border:1.5px solid #ffd700;background:'+(d.c_j?'#FFD700':'#fffbeb')+';color:'+(d.c_j?'#000':'#856404')+'" onclick="setCarton(\''+key+'\',\'jaune\',\''+mid+'\')">🟨 J</button>'+
@@ -1284,7 +1302,7 @@ function renderMPD(mid){
         '<input type="number" min="0" max="120" placeholder="min" value="'+(d.c_j2_min||'')+'" class="min-in" style="width:44px" onchange="updPMD(\''+key+'\',\'c_j2_min\',this.value)">'+
         '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;border:1.5px solid var(--red);background:'+(d.c_r?'var(--red)':'#fff0f0')+';color:'+(d.c_r?'#fff':'var(--red)')+'" onclick="setCarton(\''+key+'\',\'rouge\',\''+mid+'\')">🟥 R</button>'+
         '<input type="number" min="0" max="120" placeholder="min" value="'+(d.c_r_min||'')+'" class="min-in" style="width:44px" onchange="updPMD(\''+key+'\',\'c_r_min\',this.value)">'+
-      '</div>';rows+='<tr><td style="padding:8px;font-weight:700;white-space:nowrap;font-size:13px">'+p.num+' '+p.name+'</td><td style="padding:8px">'+statSel+'</td><td style="padding:8px"><input type="number" class="det-in" value="'+(d.min||90)+'" min="0" max="120" onchange="updPMD(\''+key+'\',\'min\',+this.value)"></td><td style="padding:8px;white-space:nowrap"><input type="number" class="det-in" style="width:36px" value="'+(d.buts||0)+'" min="0" onchange="updPMD(\''+key+'\',\'buts\',+this.value)"> <span style="color:#888;font-size:11px">buts @</span> <input type="number" class="min-in" value="'+(d.but_min||'')+'" placeholder="min" onchange="updPMD(\''+key+'\',\'but_min\',this.value)"></td><td style="padding:8px"><div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">'+cartonBtns+'</div></td></tr>';
+      '</div>';rows+='<tr><td style="padding:8px;font-weight:700;white-space:nowrap;font-size:13px">'+p.num+' '+p.name+'</td><td style="padding:8px">'+statSel+'</td><td style="padding:8px"><input type="number" class="det-in" value="'+(d.statut==='R'&&d._benchStart?(0):(d.min||90))+'" min="0" max="120" '+(d.statut==='R'&&d._benchStart?'style="color:#aaa" title="0 min — joueur sur le banc, entrera en jeu via le Live"':'')+'  onchange="updPMD(\''+key+'\',\'min\',+this.value)"></td><td style="padding:8px;white-space:nowrap"><input type="number" class="det-in" style="width:36px" value="'+(d.buts||0)+'" min="0" onchange="updPMD(\''+key+'\',\'buts\',+this.value)"> <span style="color:#888;font-size:11px">buts @</span> <input type="number" class="min-in" value="'+(d.but_min||'')+'" placeholder="min" onchange="updPMD(\''+key+'\',\'but_min\',this.value)"></td><td style="padding:8px"><div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">'+cartonBtns+'</div></td></tr>';
   });
   c.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#f5f3ef"><th style="padding:8px;text-align:left">Joueur</th><th style="padding:8px">Statut</th><th style="padding:8px">Min</th><th style="padding:8px">Buts</th><th style="padding:8px">Cartons (type + min)</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
@@ -1694,12 +1712,13 @@ function livePause() {
 
 function liveHalfTime() {
   livePause();
+  // Store 1st half elapsed for total time computation
+  _LIVE.firstHalfElapsed = _LIVE.elapsed;
   _LIVE.half = 2;
   _LIVE.elapsed = 0;
   _LIVE.startTime = null;
   liveTickUI();
   liveRenderControls();
-  // Add halftime marker
   _LIVE.events.push({ min: 45, type: 'mi-temps', label: '⏸ Mi-temps' });
   liveRenderLog();
 }
@@ -1707,16 +1726,111 @@ function liveHalfTime() {
 function liveEnd() {
   livePause();
   var finalMin = liveGetMin();
-  _LIVE.events.push({ min: finalMin, type: 'fin', label: '🏁 Fin du match' });
+  // Use real elapsed time for total match duration
+  var firstHalf = _LIVE.firstHalfElapsed || 0;
+  var totalMs = firstHalf + _LIVE.elapsed;
+  var totalMatchMin = Math.min(120, Math.floor(totalMs / 60000));
+
+  _LIVE.events.push({ min: finalMin, type: 'fin', label: '🏁 Fin du match (' + finalMin + '\')' });
   liveRenderLog();
-  // Auto-save score if entered
+
+  // ── Auto-save score ────────────────────────────────────────────
   var scoreEl = document.getElementById('live-score');
   if (scoreEl && scoreEl.value) {
-    var m = APP.matches[_LIVE.comp].find(function(x) { return x.id === _LIVE.matchId; });
-    if (m) { m.score = scoreEl.value; m.res = getRes(m.score, m.name); renderCompStats(); renderMatchList(); }
+    var m = APP.matches[_LIVE.comp].find(function(x){ return x.id === _LIVE.matchId; });
+    if (m) {
+      m.score = scoreEl.value;
+      m.res = getRes(m.score, m.name);
+    }
   }
+
+  // ── Compute minutes for every player from live events ──────────
+  var comp = _LIVE.comp;
+  var mid = _LIVE.matchId;
+  var isCDF = comp === 'CDF';
+
+  // Build substitution map: who went out at what minute, who came in
+  var subsOut = {}; // pid -> minute when subbed out
+  var subsIn  = {}; // pid -> minute when subbed in
+  _LIVE.events.forEach(function(ev) {
+    if (ev.type === 'changement') {
+      if (ev.pid)  subsOut[ev.pid]  = ev.min;
+      if (ev.pid2) subsIn[ev.pid2]  = ev.min;
+    }
+  });
+
+  // For each player with pmd data on this match
+  APP.players.forEach(function(p) {
+    var key = p.id + '_' + mid;
+    var d = APP.pmd[key] || {};
+    if (!d.statut) return; // not selected for this match
+
+    var minPlayed;
+    if (subsOut[p.id] !== undefined) {
+      // Player was substituted out
+      minPlayed = subsOut[p.id];
+    } else if (subsIn[p.id] !== undefined) {
+      // Player came in as substitute
+      minPlayed = finalMin - subsIn[p.id];
+    } else if (d.statut === 'R' && d._benchStart) {
+      // Remplaçant who never entered — stays at 0 min
+      minPlayed = 0;
+    } else {
+      // Played full match
+      minPlayed = finalMin;
+    }
+    minPlayed = Math.max(0, minPlayed);
+
+    // Write minutes back to pmd
+    if (!APP.pmd[key]) APP.pmd[key] = {};
+    APP.pmd[key].min = minPlayed;
+
+    // Update statut if subbed in (they are remplacant)
+    if (subsIn[p.id] !== undefined) {
+      APP.pmd[key].statut = 'R';
+    }
+  });
+
+  // ── Apply buts from live events to pmd ─────────────────────────
+  // Count goals per player from events
+  var butsCount = {};
+  _LIVE.events.forEach(function(ev) {
+    if (ev.type === 'but' && ev.pid) {
+      butsCount[ev.pid] = (butsCount[ev.pid] || 0) + 1;
+    }
+  });
+  Object.keys(butsCount).forEach(function(pid) {
+    var key = pid + '_' + mid;
+    if (!APP.pmd[key]) APP.pmd[key] = {};
+    APP.pmd[key].buts = butsCount[pid];
+  });
+
+  // ── Refresh all UI ─────────────────────────────────────────────
+  renderCompStats();
+  renderMatchList();
+  try { renderRecap(); } catch(e) {}
   liveRenderControls();
+
+  // ── Summary alert ──────────────────────────────────────────────
+  var summary = '🏁 Match terminé (' + finalMin + '\')\n\n';
+  var statsLines = [];
+  APP.players.forEach(function(p) {
+    var key = p.id + '_' + mid;
+    var d = APP.pmd[key] || {};
+    if (!d.statut) return;
+    var line = p.name + ' — ' + (d.min || 0) + ' min';
+    if (d.buts) line += ' · ⚽ ' + d.buts + ' but' + (d.buts > 1 ? 's' : '');
+    if (d.c_j) line += ' · 🟨';
+    if (d.c_j2) line += ' · 🟥 2J';
+    if (d.c_r) line += ' · 🟥 R';
+    statsLines.push(line);
+  });
+  if (statsLines.length) {
+    summary += statsLines.join('\n');
+    alert(summary);
+  }
 }
+
 
 function liveTickUI() {
   var el = document.getElementById('live-clock');
@@ -1937,9 +2051,13 @@ function liveConfirmSub() {
   var keyIn = pIn.id + '_' + _LIVE.matchId;
   if (!APP.pmd[keyOut]) APP.pmd[keyOut] = {};
   if (!APP.pmd[keyIn]) APP.pmd[keyIn] = {};
+  // Outgoing player: cap their minutes
   APP.pmd[keyOut].min = min;
+  APP.pmd[keyOut]._benchStart = false;
+  // Incoming player: set their actual minutes played
   APP.pmd[keyIn].statut = 'R';
   APP.pmd[keyIn].min = 90 - min;
+  APP.pmd[keyIn]._benchStart = false; // they are now on the pitch
   var ev = { min: min, type: 'changement', pid: pOut.id, pid2: pIn.id,
     label: '↑ ' + pOut.name + ' → ↓ ' + pIn.name };
   _LIVE.events.push(ev);
