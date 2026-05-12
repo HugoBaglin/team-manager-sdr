@@ -931,7 +931,14 @@ function renderCompStats() {
 
 
 function renderMatchList() {
-  var ms = APP.matches[curComp];
+  var ms = APP.matches[curComp].slice().sort(function(a, b) {
+    var da = a.date || '', db = b.date || '';
+    if (da && db && da !== db) return da < db ? -1 : 1;
+    var orderCDF = {'7T':1,'8T':2,'32F':3,'16F':4,'8F':5,'QF':6,'SF':7,'F':8};
+    var na = orderCDF[a.j] !== undefined ? orderCDF[a.j] : parseInt((a.j||'').replace(/[^0-9]/g,'')) || 999;
+    var nb = orderCDF[b.j] !== undefined ? orderCDF[b.j] : parseInt((b.j||'').replace(/[^0-9]/g,'')) || 999;
+    return na - nb;
+  });
   var isCDF = curComp==='CDF';
   var el = document.getElementById('match-list');
   if (!el) return;
