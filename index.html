@@ -50,7 +50,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 .mi-arr{color:rgba(255,255,255,.3);font-size:13px}
 .grp-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:6px 0 10px;display:inline-block}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:12px;margin-bottom:18px}
-.pc{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .15s;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.pc{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s;box-shadow:0 2px 10px rgba(0,0,0,.1)}
 .pc:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.15)}
 .pc-head{background:linear-gradient(135deg,#130306,#200810 35%,#380d18 65%,#280910);padding:14px;position:relative;display:flex;align-items:center;gap:10px;min-height:72px}
 .pc-av{width:46px;height:46px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:#fff;flex-shrink:0;z-index:1;overflow:hidden}
@@ -59,7 +59,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 .pc-txt{z-index:1;flex:1;min-width:0}
 .pc-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;color:#fff;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc-pos{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
-.pc-body{background:#fff;padding:12px 14px 10px;border:1px solid #e0dbd6;border-top:none;border-radius:0 0 8px 8px}
+.pc-body{background:transparent;padding:12px 14px 10px;border:1px solid #e0dbd6;border-top:none;border-radius:0 0 8px 8px}
 .pc-stats{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid #eee}
 .pcs{text-align:center}
 .pcs-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;color:#1a1a1a;line-height:1}
@@ -162,21 +162,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.6}}
 @keyframes fadeInDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-/* === STATUS CARDS === */
 .pc-pret   { border:3px solid #3b82f6 !important; }
-.pc-pret .pc-head { background: linear-gradient(135deg,#1e3a8a,#1d4ed8) !important; }
-.pc-pret .pc-body { background: #eff6ff !important; }
 
-.pc-vendu  { border:3px solid #6b7280 !important; opacity:0.65; filter:grayscale(0.4); }
-.pc-vendu .pc-head { background: linear-gradient(135deg,#1f2937,#374151) !important; }
-.pc-vendu .pc-body { background: #f3f4f6 !important; }
 
-.pc-blesse { border:3px solid #ef4444 !important; }
-.pc-blesse .pc-head { background: linear-gradient(135deg,#7f1d1d,#991b1b) !important; }
-.pc-blesse .pc-body { background: #fff1f2 !important; }
 
-.pc-actif  { }
-/* =================== */
+
 
 </style>
 </head>
@@ -973,53 +963,17 @@ function renderPlayers() {
     if (fStat!=='all' && (p.status||'actif')!==fStat) return false;
     return true;
   });
-  // Sort list
   if (fSort==='name') list.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
   else if (fSort==='pos') list.sort(function(a,b){return (a.pos||'').localeCompare(b.pos||'');});
   else list.sort(function(a,b){return parseInt(a.num||999)-parseInt(b.num||999);});
   var groups = [];
   list.forEach(function(p){ if (groups.indexOf(p.group)<0) groups.push(p.group); });
   var html = '';
-  groups.forEach(function(g) {
-    var gp = list.filter(function(p){ return p.group===g; });
-    html += '<div class="grp-lbl">'+g+'</div><div class="pgrid">';
-    gp.forEach(function(p) {
-      var st = p.status||'actif';
-      var tm=0,tM=0,tB=0;
-      APP.matches.L2.concat(APP.matches.CDF).forEach(function(m){
-        var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
-        if(d.statut==='T'||d.statut==='R'){tm++;tM+=(d.min||0);tB+=(d.buts||0);}
-      });
-      var ph = p.photo ? '<img src="'+p.photo+'">' : (p.name[0]||'?');
-      var bannerColor = st==='pret'?'#1d4ed8':st==='vendu'?'#374151':st==='blesse'?'#dc2626':'transparent';
-      var bannerText = st==='pret'?'📤 PRÊT':st==='vendu'?'💼 VENDU':st==='blesse'?'🏥 BLESSÉ':'';
-      var statusBanner = bannerText ? '<div style="position:absolute;top:0;left:0;right:0;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px;background:'+bannerColor+';color:#fff;z-index:1">'+bannerText+'</div>' : '';
-      html += '<div class="pc pc-'+st+'" data-pid="'+p.id+'" onclick="if(!event.target.closest(\'[data-edit-btn]\'))showPlayerModal(\''+p.id+'\')">'+'<div class="pc-head">'+statusBanner+'<div class="pc-av">'+ph+'</div>'+'<div class="pc-txt"><div class="pc-name">'+(p.firstName?p.firstName+' ':'' )+p.name+'</div><div class="pc-pos">'+p.pos+'</div></div>'+'<div class="pc-num">'+p.num+'</div></div>'+'<div class="pc-body"><div class="pc-stats">'+'<div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div>'+'<div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div>'+'<div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div>'+'</div><div class="pc-foot">'+'<span style="display:flex;align-items:center;gap:3px">'+(p.nat||'')+' <span style="font-size:10px;color:#888">'+(p.natText||'')+'</span></span>'+'<span class="pc-badge">'+p.group+'</span>'+'<span class="pc-st s-'+st+'">'+st+'</span>'+'</div></div>'+'<button data-edit-pid="'+p.id+'" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.25);border:none;border-radius:20px;padding:3px 9px;color:#fff;font-size:12px;cursor:pointer">✏️</button>'+'</div>';
-    });
-    html += '</div>';
-  });
-  var c = document.getElementById('players-container');
-  if (c) c.innerHTML = html;
-}
 
-function renderPlayers() {
-  var list = APP.players.filter(function(p) {
-    if (fSearch && p.name.toLowerCase().indexOf(fSearch)<0) return false;
-    if (fGrp!=='all' && p.group!==fGrp) return false;
-    if (fPos!=='all' && p.pos!==fPos) return false;
-    if (fStat!=='all' && (p.status||'actif')!==fStat) return false;
-    return true;
-  });
-  // Sort list
-  if (fSort==='name') list.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-  else if (fSort==='pos') list.sort(function(a,b){return (a.pos||'').localeCompare(b.pos||'');});
-  else list.sort(function(a,b){return parseInt(a.num||999)-parseInt(b.num||999);});
-  var groups = [];
-  list.forEach(function(p){ if (groups.indexOf(p.group)<0) groups.push(p.group); });
-  var html = '';
   groups.forEach(function(g) {
     var gp = list.filter(function(p){ return p.group===g; });
     html += '<div class="grp-lbl">'+g+'</div><div class="pgrid">';
+
     gp.forEach(function(p) {
       var st = p.status||'actif';
       var tm=0,tM=0,tB=0;
@@ -1028,10 +982,136 @@ function renderPlayers() {
         if(d.statut==='T'||d.statut==='R'){tm++;tM+=(d.min||0);tB+=(d.buts||0);}
       });
       var ph = p.photo ? '<img src="'+p.photo+'">' : (p.name[0]||'?');
-      html += '<div class="pc" data-pid="'+p.id+'" onclick="if(!event.target.closest(\'[data-edit-btn]\'))showPlayerModal(\''+p.id+'\')"><div class="pc-head"><div class="pc-av">'+ph+'</div><div class="pc-txt"><div class="pc-name">'+p.name+'</div><div class="pc-pos">'+p.pos+'</div></div><div class="pc-num">'+p.num+'</div></div><div class="pc-body"><div class="pc-stats"><div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div><div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div><div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div></div><div class="pc-foot"><span class="pc-flag">'+(p.nat||'')+'</span><span class="pc-badge">'+p.group+'</span><span class="pc-st s-'+st+'">'+st+'</span></div></div></div>';
+      var displayName = p.name;
+
+      // ── Themes par statut ──────────────────────────────────────
+      var cardWrap, headGrad, avBg, bodyBg, statsBg, statsValColor, footBg,
+          numColor, posColor, natColor, groupBadgeBg, groupBadgeColor,
+          banner, editBtnBg, wrapperStyle;
+
+      if (st === 'pret') {
+        // ── PRÊT : bleu vif ──
+        cardWrap   = 'position:relative;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s;box-shadow:0 4px 18px rgba(29,78,216,.35);border:3px solid #2563eb;';
+        headGrad   = 'background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 55%,#3b82f6 100%)';
+        avBg       = '#60a5fa';
+        bodyBg     = 'background:#dbeafe';
+        statsBg    = 'background:#bfdbfe;border-radius:6px;padding:10px 0;margin-bottom:10px';
+        statsValColor = '#1d4ed8';
+        footBg     = '';
+        numColor   = 'rgba(191,219,254,0.35)';
+        posColor   = 'rgba(191,219,254,0.7)';
+        natColor   = '#1d4ed8';
+        groupBadgeBg    = '#1d4ed8';
+        groupBadgeColor = '#fff';
+        banner = '<div style="background:linear-gradient(90deg,#1d4ed8,#2563eb);color:#fff;text-align:center;'+
+          'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:12px;text-transform:uppercase;'+
+          'letter-spacing:3px;padding:6px 0;display:flex;align-items:center;justify-content:center;gap:6px">'+
+          '<span style="font-size:14px">📤</span> EN PRÊT</div>';
+        editBtnBg = 'rgba(29,78,216,0.5)';
+
+      } else if (st === 'vendu') {
+        // ── VENDU : gris barré ──
+        cardWrap   = 'position:relative;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);border:3px solid #6b7280;filter:grayscale(0.3);opacity:0.75;';
+        headGrad   = 'background:linear-gradient(135deg,#111827 0%,#374151 55%,#4b5563 100%)';
+        avBg       = '#6b7280';
+        bodyBg     = 'background:#e5e7eb';
+        statsBg    = 'background:#d1d5db;border-radius:6px;padding:10px 0;margin-bottom:10px';
+        statsValColor = '#374151';
+        footBg     = '';
+        numColor   = 'rgba(209,213,219,0.3)';
+        posColor   = 'rgba(209,213,219,0.6)';
+        natColor   = '#6b7280';
+        groupBadgeBg    = '#6b7280';
+        groupBadgeColor = '#fff';
+        banner = '<div style="background:linear-gradient(90deg,#374151,#4b5563);color:#d1d5db;text-align:center;'+
+          'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:12px;text-transform:uppercase;'+
+          'letter-spacing:3px;padding:6px 0;display:flex;align-items:center;justify-content:center;gap:6px">'+
+          '<span style="font-size:14px">💼</span> VENDU</div>';
+        editBtnBg = 'rgba(75,85,99,0.5)';
+
+      } else if (st === 'blesse') {
+        // ── BLESSÉ : orange ambré ──
+        cardWrap   = 'position:relative;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s;box-shadow:0 4px 16px rgba(217,119,6,.3);border:3px solid #d97706;';
+        headGrad   = 'background:linear-gradient(135deg,#78350f 0%,#b45309 55%,#d97706 100%)';
+        avBg       = '#f59e0b';
+        bodyBg     = 'background:#fffbeb';
+        statsBg    = 'background:#fef3c7;border-radius:6px;padding:10px 0;margin-bottom:10px';
+        statsValColor = '#92400e';
+        footBg     = '';
+        numColor   = 'rgba(253,230,138,0.3)';
+        posColor   = 'rgba(253,230,138,0.7)';
+        natColor   = '#b45309';
+        groupBadgeBg    = '#b45309';
+        groupBadgeColor = '#fff';
+        banner = '<div style="background:linear-gradient(90deg,#b45309,#d97706);color:#fff;text-align:center;'+
+          'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:12px;text-transform:uppercase;'+
+          'letter-spacing:3px;padding:6px 0;display:flex;align-items:center;justify-content:center;gap:6px">'+
+          '<span style="font-size:14px">🏥</span> BLESSÉ — INDISPONIBLE</div>';
+        editBtnBg = 'rgba(180,83,9,0.5)';
+
+      } else {
+        // ── ACTIF : design SDR standard ──
+        cardWrap   = 'position:relative;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s;box-shadow:0 2px 10px rgba(0,0,0,.1);';
+        headGrad   = '';
+        avBg       = 'var(--red)';
+        bodyBg     = 'background:#fff';
+        statsBg    = 'display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid #eee';
+        statsValColor = '#1a1a1a';
+        footBg     = '';
+        numColor   = 'rgba(255,255,255,0.3)';
+        posColor   = 'rgba(255,255,255,.45)';
+        natColor   = '#888';
+        groupBadgeBg    = '#f5f2ee';
+        groupBadgeColor = '#777';
+        banner = '';
+        editBtnBg = 'rgba(0,0,0,0.25)';
+      }
+
+      // ── Stats block ──────────────────────────────────────────
+      var statsHtml;
+      if (st === 'actif') {
+        statsHtml = '<div style="'+statsBg+'">' +
+          '<div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div>' +
+          '<div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div>' +
+          '<div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div>' +
+          '</div>';
+      } else {
+        statsHtml = '<div style="'+statsBg+';display:flex;justify-content:space-around">' +
+          '<div class="pcs"><div class="pcs-val" style="color:'+statsValColor+'">'+tm+'</div><div class="pcs-lbl">Matchs</div></div>' +
+          '<div class="pcs"><div class="pcs-val" style="color:'+statsValColor+(tB>0?';font-size:22px':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div>' +
+          '<div class="pcs"><div class="pcs-val" style="color:'+statsValColor+'">'+tM+'</div><div class="pcs-lbl">Min</div></div>' +
+          '</div>';
+      }
+
+      // ── Footer ────────────────────────────────────────────────
+      var footHtml = '<div class="pc-foot">' +
+        '<span style="font-size:14px">'+(p.nat||'')+'</span>' +
+        '<span style="font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;border:1px solid rgba(0,0,0,0.1);background:'+groupBadgeBg+';color:'+groupBadgeColor+'">'+p.group+'</span>' +
+        '<span class="pc-st s-'+st+'">'+st+'</span>' +
+        '</div>';
+
+      // ── Assemble card ─────────────────────────────────────────
+      html += '<div style="'+cardWrap+'" data-pid="'+p.id+'" onclick="if(!event.target.closest(\'[data-edit-btn]\'))showPlayerModal(\''+p.id+'\')">' +
+        banner +
+        '<div class="pc-head" style="'+(headGrad||'')+'">' +
+          '<div class="pc-av" style="background:'+avBg+'">'+ph+'</div>' +
+          '<div class="pc-txt">' +
+            '<div class="pc-name">'+displayName+'</div>' +
+            '<div class="pc-pos" style="color:'+posColor+'">'+p.pos+'</div>' +
+          '</div>' +
+          '<div class="pc-num" style="color:'+numColor+'">'+p.num+'</div>' +
+        '</div>' +
+        '<div class="pc-body" style="'+(bodyBg.replace('background:','background:'))+(st!=='actif'?';border:1px solid rgba(0,0,0,0.08);border-top:none;border-radius:0 0 8px 8px':'')+'">' +
+          statsHtml +
+          footHtml +
+        '</div>' +
+        '<button data-edit-pid="'+p.id+'" style="position:absolute;top:'+(banner?'38':'10')+'px;right:56px;background:'+editBtnBg+';border:none;border-radius:20px;padding:3px 9px;color:#fff;font-size:12px;cursor:pointer;z-index:2">✏️</button>' +
+      '</div>';
     });
+
     html += '</div>';
   });
+
   var c = document.getElementById('players-container');
   if (c) c.innerHTML = html;
 }
@@ -1056,10 +1136,23 @@ function renderStaff() {
 }
 
 function renderStaffCartons() {
-  var rounds = APP.matches.L2;
+  // Merge L2 + CDF sorted by date
+  var allMatches = APP.matches.L2.map(function(m){return Object.assign({},m,{comp:'L2'});})
+    .concat(APP.matches.CDF.map(function(m){return Object.assign({},m,{comp:'CDF'});}));
+  allMatches.sort(function(a,b){
+    if(a.date&&b.date&&a.date!==b.date) return a.date<b.date?-1:1;
+    return 0;
+  });
+  var rounds = allMatches;
+
   var hdr = '<th class="stk sk0">#</th><th class="stk sk1">Nom</th>';
   rounds.forEach(function(m){
-    hdr += '<th style="min-width:52px;padding:8px 5px"><div>'+m.j+'</div><div style="font-size:9px;opacity:.55;font-weight:400;max-width:50px;overflow:hidden;text-overflow:ellipsis">'+m.adv+'</div></th>';
+    var compBadge = m.comp==='CDF'
+      ? '<span style="font-size:8px;background:#f59e0b;color:#fff;border-radius:3px;padding:1px 3px;font-weight:700;margin-left:2px">CDF</span>'
+      : '<span style="font-size:8px;background:#3b82f6;color:#fff;border-radius:3px;padding:1px 3px;font-weight:700;margin-left:2px">L2</span>';
+    hdr += '<th style="min-width:52px;padding:8px 5px;text-align:center">'
+      +'<div style="display:flex;align-items:center;justify-content:center;gap:2px">'+m.j+compBadge+'</div>'
+      +'<div style="font-size:9px;opacity:.55;font-weight:400;max-width:50px;overflow:hidden;text-overflow:ellipsis">'+m.adv+'</div></th>';
   });
   hdr += '<th style="color:var(--gold);min-width:46px">J</th><th style="color:var(--red);min-width:46px">R</th><th class="v-h" style="min-width:46px">S</th>';
 
@@ -1075,18 +1168,18 @@ function renderStaffCartons() {
       else if(d.carton==='dj'){cell='<span class="yc"></span><span class="rc"></span>';tJ+=2;tR++;}
       else if(d.carton==='rouge'){cell='<span class="rc">'+(d.carton_num||'')+'</span>';tR++;}
       else if(d.carton==='jaune'){cell='<span class="yc">'+(d.carton_num||'')+'</span>';tJ++;}
-      cells += '<td style="cursor:pointer;min-width:44px;text-align:center" '+
-        'onclick="showSanctionMenu(event,\''+key+'\',\'renderStaffCartons\')">' +
-        (cell||'<span style="color:#ddd;font-size:14px">·</span>') + '</td>';
+      cells += '<td style="cursor:pointer;min-width:44px;text-align:center" '
+        +'onclick="showSanctionMenu(event,\''+key+'\',\'renderStaffCartons\')">'
+        +(cell||'<span style="color:#ddd;font-size:14px">·</span>')+'</td>';
     });
-    body += '<tr>'+
-      '<td class="stk sk0"><div class="nbadge" style="background:#444">'+s.init+'</div></td>'+
-      '<td class="stk sk1">'+s.name+'</td>'+
-      cells+
-      '<td style="color:var(--gold);font-weight:700">'+(tJ||'–')+'</td>'+
-      '<td style="color:var(--red);font-weight:700">'+(tR||'–')+'</td>'+
-      '<td style="color:#c084fc;font-weight:700">'+(tS||'–')+'</td>'+
-    '</tr>';
+    body += '<tr>'
+      +'<td class="stk sk0"><div class="nbadge" style="background:#444">'+s.init+'</div></td>'
+      +'<td class="stk sk1">'+s.name+'</td>'
+      +cells
+      +'<td style="color:var(--gold);font-weight:700">'+(tJ||'–')+'</td>'
+      +'<td style="color:var(--red);font-weight:700">'+(tR||'–')+'</td>'
+      +'<td style="color:#c084fc;font-weight:700">'+(tS||'–')+'</td>'
+      +'</tr>';
   });
 
   var th = document.getElementById('staff-disc-hdr');
@@ -1094,6 +1187,7 @@ function renderStaffCartons() {
   if(th) th.innerHTML = hdr;
   if(tb) tb.innerHTML = body;
 }
+
 
 
 function toggleStaffSusp(sid, mid) {
