@@ -168,6 +168,60 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 
 
 
+
+/* ── DARK MODE ───────────────────────────────────────────── */
+body.dark{background:#0f1117;color:#e2e8f0}
+body.dark .hdr{background:linear-gradient(110deg,#7a0000,#a01808 50%,#8a1204)}
+body.dark .nav{background:#1a1d27;border-bottom-color:var(--red)}
+body.dark .nb{color:#94a3b8}
+body.dark .nb.active{color:var(--red)}
+body.dark .main{background:#0f1117}
+body.dark .page-title{color:#e2e8f0}
+body.dark .tab{background:#1e2130;border-color:#2d3148;color:#94a3b8}
+body.dark .tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+body.dark .box{background:#1e2130}
+body.dark .si{background:#1e2130;border-color:#2d3148;color:#e2e8f0}
+body.dark .fs{background:#1e2130;border-color:#2d3148;color:#e2e8f0}
+body.dark .mi{background:#1e2130}
+body.dark .mo{background:#1a1d27;color:#e2e8f0}
+body.dark .mo-hdr{background:linear-gradient(110deg,#7a0000,#a01808)}
+body.dark .mo-body{background:#1a1d27}
+body.dark .mo-foot{background:#1a1d27;border-top-color:#2d3148}
+body.dark .fi{background:#0f1117;border-color:#2d3148;color:#e2e8f0}
+body.dark .fsel{background:#0f1117;border-color:#2d3148;color:#e2e8f0}
+body.dark .fl{color:#94a3b8}
+body.dark .btn-c{background:#2d3148;color:#e2e8f0}
+body.dark .scard{background:#1e2130}
+body.dark .chip{background:#1e2130;border-color:#2d3148;color:#e2e8f0}
+body.dark .chip.sel{background:var(--red);border-color:var(--red);color:#fff}
+body.dark table{color:#e2e8f0}
+body.dark thead tr{background:#1e2130 !important}
+body.dark th,body.dark td{border-color:#2d3148}
+body.dark input,body.dark select{background:#0f1117;border-color:#2d3148;color:#e2e8f0}
+body.dark .sec-hdr{color:#94a3b8;border-bottom-color:#2d3148}
+body.dark .grp-lbl{color:#94a3b8}
+#dark-toggle{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+/* ── MATCH DU JOUR ───────────────────────────────────────── */
+#match-du-jour{display:none;background:linear-gradient(110deg,#8B0000,var(--red));color:#fff;border-radius:10px;padding:16px 18px;margin-bottom:18px;position:relative;overflow:hidden}
+.mdj-label{font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:3px;opacity:.75;margin-bottom:5px}
+.mdj-name{font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;margin-bottom:3px}
+.mdj-sub{font-size:12px;opacity:.7;margin-bottom:12px}
+.mdj-btn{background:#fff;color:var(--red);border:none;border-radius:6px;padding:8px 16px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;cursor:pointer}
+/* ── FAB LIVE ────────────────────────────────────────────── */
+#live-fab{position:fixed;bottom:24px;right:16px;z-index:8500;display:none;flex-direction:column;align-items:flex-end;gap:8px}
+#live-fab-actions{display:none;flex-direction:column;align-items:flex-end;gap:6px}
+.fab-main{width:56px;height:56px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(200,32,16,.45);display:flex;align-items:center;justify-content:center;animation:livePulse 1.5s infinite}
+.fab-action{display:flex;align-items:center;gap:8px;background:#fff;border-radius:24px;padding:8px 16px;box-shadow:0 2px 12px rgba(0,0,0,.2);cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;white-space:nowrap;border:none}
+/* ── LIVE COMPO TAB ─────────────────────────────────────── */
+.live-tab-btn{flex:1;padding:9px 0;border:none;background:none;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;cursor:pointer;border-bottom:3px solid transparent}
+.live-tab-btn.active{color:var(--red);border-bottom-color:var(--red)}
+.compo-player{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;margin-bottom:4px;background:#f9f9f9;border:1px solid #eee}
+.compo-player.subbed-out{opacity:.45}
+.compo-player.subbed-in{background:#f0fdf4;border-color:#86efac}
+.compo-num{width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.compo-name{font-weight:700;font-size:13px;flex:1}
+.compo-evt{font-size:11px;color:#888;display:flex;gap:3px}
+.compo-group-lbl{font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#aaa;margin:10px 0 5px}
 </style>
 </head>
 <body>
@@ -182,6 +236,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
   </div>
   <div class="hdr-right">
     <div class="season-btn" id="season-display">2025/2026 ▼</div>
+    <div id="dark-toggle" title="Mode sombre">🌙</div>
     <div class="plus-btn" onclick="showNewSeasonModal()" title="Nouvelle saison">+</div>
     <div class="plus-btn" onclick="showShareModal()" title="Partager" style="background:rgba(255,255,255,0.15);font-size:18px">🔗</div>
   </div>
@@ -202,6 +257,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 <!-- COMPETITIONS -->
 <div id="page-competitions">
   <div class="page-title">Compétitions</div>
+  <div id="match-du-jour"></div>
   <div class="tab-row">
     <div class="tab active" onclick="switchComp('L2',this)">🏆 <span id="champ-tab-lbl">Championnat L2</span></div>
     <div class="tab" onclick="switchComp('CDF',this)">🏆 Coupe de France</div>
@@ -266,6 +322,34 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
       <button class="btn-exp" onclick="exportData('cartons','xlsx')">⬇ Excel</button>
     </div>
   </div>
+  <div class="toolbar" style="flex-wrap:wrap;gap:6px;padding-top:0">
+    <select class="fs" onchange="fCGrp=this.value;renderCartons()">
+      <option value="all">Tous les groupes</option>
+      <option value="Pro1">Pro 1</option>
+      <option value="Pro2">Pro 2</option>
+    </select>
+    <select class="fs" onchange="fCPos=this.value;renderCartons()">
+      <option value="all">Tous les postes</option>
+      <option value="Gardien">Gardien</option>
+      <option value="Defenseur">Défenseur</option>
+      <option value="Milieu">Milieu</option>
+      <option value="Attaquant">Attaquant</option>
+    </select>
+    <select class="fs" onchange="fCStat=this.value;renderCartons()">
+      <option value="all">Tous les statuts</option>
+      <option value="actif">Actif</option>
+      <option value="blesse">Blessé</option>
+      <option value="pret">Prêt</option>
+      <option value="vendu">Vendu</option>
+    </select>
+    <select class="fs" onchange="fCSort=this.value;renderCartons()">
+      <option value="num">Trier par numéro</option>
+      <option value="pos">Trier par poste</option>
+      <option value="grp">Trier par groupe</option>
+      <option value="stat">Trier par statut</option>
+      <option value="name">Trier par nom</option>
+    </select>
+  </div>
   <div class="tab-row">
     <div class="tab active" id="carton-tab-all" onclick="setCartonComp('all',this)">📋 Toutes</div>
     <div class="tab" id="carton-tab-l2" onclick="setCartonComp('L2',this)">🏆 <span id="carton-champ-lbl">Championnat L2</span></div>
@@ -321,6 +405,16 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 </div><!-- /main -->
+
+<!-- FAB LIVE -->
+<div id="live-fab">
+  <div id="live-fab-actions">
+    <button class="fab-action" id="fab-btn-but" style="color:#1a5c30">⚽ But</button>
+    <button class="fab-action" id="fab-btn-carton" style="color:#856404">🟨 Carton</button>
+    <button class="fab-action" id="fab-btn-change" style="color:#1d4ed8">🔄 Changement</button>
+  </div>
+  <button class="fab-main" id="fab-main-btn">🔴</button>
+</div>
 
 <!-- MODAL -->
 <div id="ov" class="ov hidden" onclick="if(event.target===this)closeModal()">
@@ -830,7 +924,7 @@ clearAllMatchData();
 
 // ── GLOBAL FILTERS ───────────────────────────────────────────────────────────
 var fSearch='', fGrp='all', fPos='all', fStat='all', fSort='num';
-var fCSearch='', fCComp='all';
+var fCSearch='', fCComp='all', fCGrp='all', fCPos='all', fCStat='all', fCSort='num';
 var fRSearch='', fRGrp='all', rSort='num';
 var curComp='L2';
 
@@ -1177,7 +1271,22 @@ function renderCartons() {
     });
     rounds = all;
   }
-  var players = APP.players.filter(function(p){ return !fCSearch||p.name.toLowerCase().indexOf(fCSearch)>=0; });
+  var posOrder = {Gardien:0, Defenseur:1, Milieu:2, Attaquant:3};
+  var statOrder = {actif:0, blesse:1, pret:2, vendu:3};
+  var players = APP.players.filter(function(p){
+    if (fCSearch && p.name.toLowerCase().indexOf(fCSearch)<0) return false;
+    if (fCGrp !== 'all' && p.group !== fCGrp) return false;
+    if (fCPos !== 'all' && p.pos !== fCPos) return false;
+    if (fCStat !== 'all' && (p.status||'actif') !== fCStat) return false;
+    return true;
+  });
+  players.sort(function(a,b){
+    if (fCSort==='name') return (a.name||'').localeCompare(b.name||'');
+    if (fCSort==='pos') { var d=(posOrder[a.pos]||9)-(posOrder[b.pos]||9); return d||((parseInt(a.num)||999)-(parseInt(b.num)||999)); }
+    if (fCSort==='grp') { var d2=(a.group||'').localeCompare(b.group||''); return d2||((parseInt(a.num)||999)-(parseInt(b.num)||999)); }
+    if (fCSort==='stat') { var d3=(statOrder[a.status||'actif']||0)-(statOrder[b.status||'actif']||0); return d3||((parseInt(a.num)||999)-(parseInt(b.num)||999)); }
+    return (parseInt(a.num)||999)-(parseInt(b.num)||999); // default: num
+  });
 
   var hdr = '<th class="stk sk0">#</th><th class="stk sk1">Joueur</th>';
   rounds.forEach(function(r){
@@ -3583,6 +3692,209 @@ function setStaffMatchCarton(sid,type,mid){
 function updStaffMatchPMD(sid,mid,field,val){
   var key=sid+'_'+mid;if(!APP.pmd[key])APP.pmd[key]={};APP.pmd[key][field]=val;
 }
+
+
+// ═══════════════════════════════════════════════════
+// 🌙 DARK MODE
+// ═══════════════════════════════════════════════════
+function toggleDarkMode(){
+  var d=document.body.classList.toggle('dark');
+  localStorage.setItem('sdr_dark',d?'1':'0');
+  var b=document.getElementById('dark-toggle');
+  if(b)b.textContent=d?'☀️':'🌙';
+}
+(function(){
+  if(localStorage.getItem('sdr_dark')==='1'){
+    document.body.classList.add('dark');
+    var b=document.getElementById('dark-toggle');
+    if(b)b.textContent='☀️';
+  }
+})();
+document.addEventListener('DOMContentLoaded',function(){
+  var dt=document.getElementById('dark-toggle');
+  if(dt)dt.addEventListener('click',toggleDarkMode);
+});
+
+// ═══════════════════════════════════════════════════
+// 📅 MATCH DU JOUR
+// ═══════════════════════════════════════════════════
+function checkMatchDuJour(){
+  var el=document.getElementById('match-du-jour');if(!el)return;
+  var today=new Date().toISOString().split('T')[0];
+  var found=null,foundComp=null;
+  ['L2','CDF','AMI'].forEach(function(c){
+    if(found)return;
+    (APP.matches[c]||[]).forEach(function(m){
+      if(found)return;
+      if((m.date||'')===today){found=m;foundComp=c;}
+    });
+  });
+  if(!found){el.style.display='none';return;}
+  var cLabel=foundComp==='L2'?(APP.champName||'L2'):foundComp==='CDF'?'Coupe de France':'Amical';
+  var hasScore=!!(found.score&&found.score.trim());
+  if(hasScore){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML='<div class="mdj-label">🔴 Match du jour · '+cLabel+' '+found.j+'</div>'+
+    '<div class="mdj-name">'+found.name+'</div>'+
+    '<div class="mdj-sub">'+found.date+'</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    '<button class="mdj-btn" id="mdj-live">🔴 Lancer le Live</button>'+
+    '<button class="mdj-btn" id="mdj-edit" style="background:rgba(255,255,255,.2);color:#fff">✏️ Modifier</button></div>';
+  var lb=document.getElementById('mdj-live');
+  if(lb)lb.addEventListener('click',function(){curComp=foundComp;showLiveModal(found.id,foundComp);});
+  var eb=document.getElementById('mdj-edit');
+  if(eb)eb.addEventListener('click',function(){curComp=foundComp;showEditMatchModal(found.id);});
+}
+var _origShowPage=window.showPage;
+window.showPage=function(page,btn){
+  if(typeof _origShowPage==='function')_origShowPage(page,btn);
+  if(page==='competitions'){try{checkMatchDuJour();}catch(e){}}
+};
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){try{checkMatchDuJour();}catch(e){}},600);
+});
+
+// ═══════════════════════════════════════════════════
+// ⚡ FAB LIVE
+// ═══════════════════════════════════════════════════
+var _fabOpen=false;
+function fabUpdate(){
+  var f=document.getElementById('live-fab');
+  if(!f)return;
+  if(_LIVE&&_LIVE.active){f.style.display='flex';}
+  else{f.style.display='none';fabClose();}
+}
+function fabClose(){
+  _fabOpen=false;
+  var fa=document.getElementById('live-fab-actions');
+  if(fa)fa.style.display='none';
+  var b=document.getElementById('fab-main-btn');
+  if(b)b.textContent='🔴';
+}
+function fabToggle(){
+  _fabOpen=!_fabOpen;
+  var fa=document.getElementById('live-fab-actions');
+  if(fa)fa.style.display=_fabOpen?'flex':'none';
+  var b=document.getElementById('fab-main-btn');
+  if(b)b.textContent=_fabOpen?'×':'🔴';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var mb=document.getElementById('fab-main-btn');
+  if(mb)mb.addEventListener('click',function(){
+    if(!_LIVE||!_LIVE.active){if(_LIVE&&_LIVE.matchId)showLiveModal(_LIVE.matchId,_LIVE.comp,true);return;}
+    fabToggle();
+  });
+  function fabAction(id,action){
+    var b=document.getElementById(id);
+    if(b)b.addEventListener('click',function(){
+      fabClose();
+      if(!document.getElementById('live-clock'))showLiveModal(_LIVE.matchId,_LIVE.comp,true);
+      setTimeout(function(){try{liveAction(action);}catch(e){}},200);
+    });
+  }
+  fabAction('fab-btn-but','but');
+  fabAction('fab-btn-carton','jaune');
+  fabAction('fab-btn-change','changement');
+});
+// Patch liveStart/liveEnd to show/hide FAB
+var _origLS=window.liveStart;
+window.liveStart=function(){if(typeof _origLS==='function')_origLS.apply(this,arguments);fabUpdate();};
+var _origLE=window.liveEnd;
+window.liveEnd=function(){if(typeof _origLE==='function')_origLE.apply(this,arguments);fabUpdate();};
+var _origLSt=window.liveStop;
+window.liveStop=function(){if(typeof _origLSt==='function')_origLSt.apply(this,arguments);};
+
+// ═══════════════════════════════════════════════════
+// 🔴 LIVE COMPO EN DIRECT
+// ═══════════════════════════════════════════════════
+function liveRenderCompo(){
+  var el=document.getElementById('live-compo');if(!el)return;
+  var mid=_LIVE.matchId;
+  var subsOut={},subsIn={},cartons={},buts={};
+  _LIVE.events.forEach(function(ev){
+    if(ev.type==='changement'){
+      if(ev.pid)subsOut[ev.pid]={min:ev.min};
+      if(ev.pid2)subsIn[ev.pid2]={min:ev.min};
+    }
+    if(ev.type==='jaune'||ev.type==='dj'||ev.type==='rouge'){
+      if(!cartons[ev.pid])cartons[ev.pid]=[];
+      cartons[ev.pid].push(ev.type==='jaune'?'🟨':ev.type==='dj'?'2J🟥':'🟥');
+    }
+    if(ev.type==='but'&&ev.pid)buts[ev.pid]=(buts[ev.pid]||0)+1;
+  });
+  var players=APP.players.filter(function(p){var d=APP.pmd[p.id+'_'+mid]||{};return d.statut==='T'||d.statut==='R';});
+  var posOrder={Gardien:0,Defenseur:1,Milieu:2,Attaquant:3};
+  var groups={};
+  players.forEach(function(p){var g=p.pos||'Autre';if(!groups[g])groups[g]=[];groups[g].push(p);});
+  var html='';
+  ['Gardien','Defenseur','Milieu','Attaquant'].concat(Object.keys(groups).filter(function(k){return !posOrder.hasOwnProperty(k);})).forEach(function(pos){
+    var grp=groups[pos];if(!grp||!grp.length)return;
+    html+='<div class="compo-group-lbl">'+pos+'</div>';
+    grp.sort(function(a,b){return parseInt(a.num||99)-parseInt(b.num||99);}).forEach(function(p){
+      var so=subsOut[p.id],si=subsIn[p.id];
+      var cls=so?' subbed-out':si?' subbed-in':'';
+      var evt='';
+      if(so)evt+='<span>🔄 '+so.min+'\'</span> ';
+      if(si)evt+='<span>↗ '+si.min+'\'</span> ';
+      if(cartons[p.id])evt+=cartons[p.id].join(' ')+' ';
+      if(buts[p.id])evt+='<span>⚽×'+buts[p.id]+'</span>';
+      html+='<div class="compo-player'+cls+'"><div class="compo-num">'+p.num+'</div>'+
+        '<div class="compo-name">'+p.name+'</div>'+
+        '<div class="compo-evt">'+evt+'</div></div>';
+    });
+  });
+  var subs=_LIVE.events.filter(function(ev){return ev.type==='changement';});
+  if(subs.length){
+    html+='<div class="compo-group-lbl">🔄 Changements</div>';
+    subs.forEach(function(ev){
+      html+='<div style="font-size:13px;padding:3px 0;color:#666">'+'<span style="color:var(--red);font-weight:700">'+ev.min+'\'</span> '+ev.label+'</div>';
+    });
+  }
+  if(!players.length)html='<div style="color:#aaa;font-size:13px;text-align:center;padding:20px">Aucun joueur assigné</div>';
+  el.innerHTML=html;
+}
+function liveSwitchTab(tab){
+  var ta=document.getElementById('lt-actions'),tc=document.getElementById('lt-compo');
+  var log=document.getElementById('live-log'),logRow=log?log.previousElementSibling:null;
+  var compo=document.getElementById('live-compo');
+  if(!log||!compo)return;
+  if(tab==='actions'){
+    if(ta)ta.classList.add('active');if(tc)tc.classList.remove('active');
+    log.style.display='';if(logRow)logRow.style.display='';
+    compo.style.display='none';
+  }else{
+    if(tc)tc.classList.add('active');if(ta)ta.classList.remove('active');
+    log.style.display='none';if(logRow)logRow.style.display='none';
+    compo.style.display='';liveRenderCompo();
+  }
+}
+// Patch liveRenderLog to refresh compo tab if open
+var _origLRL=window.liveRenderLog;
+window.liveRenderLog=function(){
+  if(typeof _origLRL==='function')_origLRL();
+  var tc=document.getElementById('lt-compo');
+  if(tc&&tc.classList.contains('active'))liveRenderCompo();
+};
+// Patch showLiveModal to inject compo tabs
+var _origSLM=window.showLiveModal;
+window.showLiveModal=function(id,comp,restore){
+  if(typeof _origSLM==='function')_origSLM(id,comp,restore);
+  setTimeout(function(){
+    var body=document.querySelector('.mo-body');if(!body)return;
+    if(document.getElementById('lt-actions'))return; // already added
+    var log=document.getElementById('live-log');if(!log)return;
+    var tabRow=document.createElement('div');
+    tabRow.style.cssText='display:flex;border-bottom:1.5px solid var(--border);margin:4px 0';
+    tabRow.innerHTML='<button class="live-tab-btn active" id="lt-actions" onclick="liveSwitchTab(\'actions\')">Actions</button>'+
+      '<button class="live-tab-btn" id="lt-compo" onclick="liveSwitchTab(\'compo\')">Compo en direct</button>';
+    var logLbl=log.previousElementSibling;
+    if(logLbl)log.parentNode.insertBefore(tabRow,logLbl);else log.parentNode.insertBefore(tabRow,log);
+    var compoDiv=document.createElement('div');
+    compoDiv.id='live-compo';
+    compoDiv.style.cssText='display:none;padding:14px 16px;max-height:300px;overflow-y:auto';
+    log.parentNode.insertBefore(compoDiv,log.nextSibling);
+  },60);
+};
 
 </script>
 </body></html>
