@@ -1078,7 +1078,7 @@ function renderPlayers() {
                 : st==='vendu' ? '<div style="background:#4b5563;color:#fff;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px">💼 VENDU</div>'
                 : st==='blesse' ? '<div style="background:#dc2626;color:#fff;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px">🏥 BLESSÉ</div>' : '';
       var avEl = '<div class="pc-av" style="background:'+avBg+'">'+ph+'</div>';
-      html += '<div class="pc" data-pid="'+p.id+'" onclick="if(!event.target.closest(\'[data-edit-btn]\'))showPlayerModal(\''+p.id+'\')" style="'+cardOp+'">'+badge+'<div class="pc-head" style="'+hdBg+'">'+avEl+'<div class="pc-txt"><div class="pc-name">'+(p.firstName?p.firstName+' ':'')+p.name+'</div><div class="pc-pos">'+p.pos+'</div></div>'+'<div class="pc-num">'+p.num+'</div></div>'+'<div class="pc-body" style="'+bodyBg+'">'+'<div class="pc-stats">'+'<div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div>'+'<div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div>'+'<div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div>'+'</div><div class="pc-foot">'+'<span>'+(p.nat||'')+' <span style="font-size:10px;color:#888">'+(p.natText||'')+'</span></span>'+'<span class="pc-badge">'+p.group+'</span>'+'<span class="pc-st s-'+st+'">'+st+'</span>'+'</div></div>'+'<button data-edit-pid="'+p.id+'" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.25);border:none;border-radius:20px;padding:3px 9px;color:#fff;font-size:12px;cursor:pointer">✏️</button>'+'</div>';
+      html += '<div class="pc" data-pid="'+p.id+'" onclick="if(!event.target.closest(\'[data-edit-btn]\'))showPlayerModal(\''+p.id+'\')" style="'+cardOp+'">'+badge+'<div class="pc-head" style="'+hdBg+'">'+avEl+'<div class="pc-txt"><div class="pc-name">'+p.name+'</div><div class="pc-pos">'+p.pos+'</div></div>'+'<div class="pc-num">'+p.num+'</div></div>'+'<div class="pc-body" style="'+bodyBg+'">'+'<div class="pc-stats">'+'<div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div>'+'<div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div>'+'<div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div>'+'</div><div class="pc-foot">'+'<span>'+(p.nat||'')+' <span style="font-size:10px;color:#888">'+(p.natText||'')+'</span></span>'+'<span class="pc-badge">'+p.group+'</span>'+'<span class="pc-st s-'+st+'">'+st+'</span>'+'</div></div>'+'<button data-edit-pid="'+p.id+'" style="position:absolute;top:10px;right:52px;background:rgba(0,0,0,0.25);border:none;border-radius:20px;padding:3px 9px;color:#fff;font-size:12px;cursor:pointer">✏️</button>'+'</div>';
     });
     html += '</div>';
   });
@@ -1087,41 +1087,6 @@ function renderPlayers() {
 ;
 }
 
-function renderPlayers() {
-  var list = APP.players.filter(function(p) {
-    if (fSearch && p.name.toLowerCase().indexOf(fSearch)<0) return false;
-    if (fGrp!=='all' && p.group!==fGrp) return false;
-    if (fPos!=='all' && p.pos!==fPos) return false;
-    if (fStat!=='all' && (p.status||'actif')!==fStat) return false;
-    return true;
-  });
-  // Sort list
-  if (fSort==='name') list.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-  else if (fSort==='pos') list.sort(function(a,b){return (a.pos||'').localeCompare(b.pos||'');});
-  else list.sort(function(a,b){return parseInt(a.num||999)-parseInt(b.num||999);});
-  var groups = [];
-  list.forEach(function(p){ if (groups.indexOf(p.group)<0) groups.push(p.group); });
-  var html = '';
-  groups.forEach(function(g) {
-    var gp = list.filter(function(p){ return p.group===g; });
-    html += '<div class="grp-lbl">'+g+'</div><div class="pgrid">';
-    gp.forEach(function(p) {
-      var st = p.status||'actif';
-      var tm=0,tM=0,tB=0;
-      APP.matches.L2.concat(APP.matches.CDF).forEach(function(m){
-        var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
-        if(d.statut==='T'||d.statut==='R'){tm++;tM+=(d.min||0);tB+=(d.buts||0);}
-      });
-      var ph = p.photo ? '<img src="'+p.photo+'">' : (p.name[0]||'?');
-      html += '<div class="pc" data-pid="'+p.id+'" onclick="if(!event.target.closest(\'[data-edit-btn]\'))showPlayerModal(\''+p.id+'\')"><div class="pc-head"><div class="pc-av">'+ph+'</div><div class="pc-txt"><div class="pc-name">'+p.name+'</div><div class="pc-pos">'+p.pos+'</div></div><div class="pc-num">'+p.num+'</div></div><div class="pc-body"><div class="pc-stats"><div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div><div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div><div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div></div><div class="pc-foot"><span class="pc-flag">'+(p.nat||'')+'</span><span class="pc-badge">'+p.group+'</span><span class="pc-st s-'+st+'">'+st+'</span></div></div></div>';
-    });
-    html += '</div>';
-  });
-  var c = document.getElementById('players-container');
-  if (c) c.innerHTML = html;
-}
-
-// ── STAFF ────────────────────────────────────────────────────────────────────
 function renderStaff() {
   var html = '';
   APP.staff.forEach(function(s) {
@@ -1599,7 +1564,7 @@ function prevPhoto(input,pid,did){
 function savePlayer(id){
   var ns=document.getElementById('p-nat').value,nc=(document.getElementById('p-nat-c').value||'').trim();
   var nt=(ns==='Autre...'&&nc)?nc:ns;
-  var FLAGS={'France':'🇫🇷','Belgique':'🇧🇪','Ouganda':'🇺🇬','Japon':'🇯🇵','El Salvador':'🇸🇻','Gambie':'🇬🇲','Suisse':'🇨🇭','Espagne':'🇪🇸','Portugal':'🇵🇹','Maroc':'🇲🇦','Sénégal':'🇸🇳','Mali':'🇲🇱',"Côte d'Ivoire":'🇨🇮','Guinée':'🇬🇳','Cameroun':'🇨🇲','Brésil':'🇧🇷','Allemagne':'🇩🇪','Angleterre':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Italie':'🇮🇹'};
+  var FLAGS={'France':'🇫🇷','Belgique':'🇧🇪','Ouganda':'🇺🇬','Japon':'🇯🇵','El Salvador':'🇸🇻','Gambie':'🇬🇲','Suisse':'🇨🇭','Espagne':'🇪🇸','Portugal':'🇵🇹','Maroc':'🇲🇦','Sénégal':'🇸🇳','Mali':'🇲🇱',"Côte d'Ivoire":'🇨🇮','Guinée':'🇬🇳','Cameroun':'🇨🇲','Brésil':'🇧🇷','Allemagne':'🇩🇪','Angleterre':'🇬🇧','Italie':'🇮🇹'};
   var data={num:document.getElementById('p-num').value,nomMaillot:(document.getElementById('p-maillot')||{value:''}).value,name:(document.getElementById('p-name').value||'').toUpperCase(),prenom:document.getElementById('p-prenom').value,firstName:document.getElementById('p-prenom').value,group:document.getElementById('p-grp').value,pos:document.getElementById('p-pos').value,status:document.getElementById('p-stat').value,natText:nt,nat:FLAGS[nt]||'🌍',passport:document.getElementById('p-pass').value,passportPhoto:document.getElementById('ppd').value,photo:document.getElementById('pd').value,departDate:(document.getElementById('p-dep')||{}).value||'',club:(document.getElementById('p-club')||{}).value||''};
   if(id){var idx=APP.players.findIndex(function(x){return x.id===id;});if(idx>=0)APP.players[idx]=Object.assign(APP.players[idx],data);}
   else{data.id='p'+Date.now();data.l2_matchs=data.l2_tit=data.l2_rempl=data.l2_min=data.l2_buts=data.cdf_matchs=data.cdf_min=data.cdf_buts=0;APP.players.push(data);}
