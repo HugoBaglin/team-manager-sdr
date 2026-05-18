@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -150,13 +149,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 .ed-cell{cursor:pointer}.ed-cell:hover{background:rgba(232,48,26,.05)!important}
 .hidden{display:none}
 
-.live-btn{font-family:‘Barlow Condensed’,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;padding:9px 20px;border:none;border-radius:6px;cursor:pointer;background:#333;color:#fff;transition:all .15s}
+.live-btn{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;padding:9px 20px;border:none;border-radius:6px;cursor:pointer;background:#333;color:#fff;transition:all .15s}
 .live-btn.green{background:#1a5c30}
 .live-btn.orange{background:#c05000}
-.live-btn.red{background:var(–red)}
+.live-btn.red{background:var(--red)}
 .live-btn:active{transform:scale(.97)}
-.live-act-btn{font-family:‘Barlow Condensed’,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;padding:12px 10px;border:none;border-radius:6px;cursor:pointer;transition:all .15s;text-align:center}
+.live-act-btn{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;padding:12px 10px;border:none;border-radius:6px;cursor:pointer;transition:all .15s;text-align:center}
 .live-act-btn:active{transform:scale(.97)}
+
 
 @keyframes goalBounce{0%{transform:scale(0.3) translateY(60px);opacity:0}60%{transform:scale(1.2) translateY(-10px);opacity:1}80%{transform:scale(.95)}100%{transform:scale(1) translateY(0);opacity:1}}
 @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.6}}
@@ -164,10 +164,15 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 
 .pc-pret   { border:3px solid #3b82f6 !important; }
 
+
+
+
+
 </style>
 </head>
 <body>
 <div id="sb-bar" style="background:#0a0a0a;padding:6px 18px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-family:Barlow Condensed,sans-serif;letter-spacing:.5px"><span id="sb-status" style="color:#888;font-weight:700">⚫ Sync désactivée</span><div style="display:flex;gap:12px;align-items:center"><span id="sb-room-link" style="color:#555;font-size:11px;cursor:pointer;font-weight:600" onclick="sbCopyLink()">🔗 Copier le lien</span><button onclick="sbSetup()" style="background:rgba(22,163,74,.15);border:1.5px solid rgba(22,163,74,.6);color:#16a34a;border-radius:4px;padding:3px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:Barlow Condensed,sans-serif;text-transform:uppercase;letter-spacing:1px">⚡ Supabase</button></div></div>
+
 
 <div class="hdr">
   <div class="hdr-logo"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCABAAFADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDz1EEaKqjAAwKZczi3iLnr0A9TUtY97cefMcH5F4H+NfjUVzM/tiT5UQMxdizHJPJNWLG1+0PuYfu16+/tUEUTTSKi9TXU+H9Avdd1Kz0nSbSS9v7l/Lgt4gC8j4JwM9+DWrb+GO7MdIpzm7Jbk2i+G9U8Q6pDpumadcXt/LE00drDGS7xqpYsB3AUE59q5y+uGmiVowxtixXzQDtZhyQD04yOK+lfhj8SPH3iLwBB4Y8OfDxvFA0cJbvrVldSWl5DGJvOjg89SpC5GNgPK9RzXCfHDxd4w+K/ilNEvPBcPhe88OW91dXGiacmxYwQss9w6nAzsCksM5GDzmu76rTVJVYybb/uvftfbTX1Pn4ZpiJYyWGqU4xjG93zxbSW0nHf3tNGlbq3fTxetKysNmJJR83UKe1N0+0yBM491B/nWhXnSl0R9HGPVhVW6v1gyq/O/wCgqK9vtuY4jz3YdvpWdRGF9WOU+iNbUJ/JgwPvPwPp3rJqe9m864Yg5VeBTbaHz5lTt1P0q4rlREnzMv6bb+XH5h+83T2Fep/s4kD47+Bs99TUf+OPXnAGBgcAVZ8L+M5/A/jnQdftU86XSL2K8EWcCTawLJn3XK/jToSSrQnLZNP7mc2PpSq4OrRhvKMkvVpo9O+E2q28fwi8U23izSbjUfAtzr9tHJcaRctHqVremMlZIkxtkQIvKsR7Z7dDbeFNS8K/tDfEzTdX1q48SXUPhbVWfU7wYlnV7BXTcOxCsFwOBt4wOKTVPFa/A7w5PceFZJprDVfE9p4o8M6ko/0e5tQjpNaSMPuSx7jG6Nzg5q34z1fTtGHjz4gwC/tpfG0L6foNpqrZujDME+2XJySREoUxRk9QwxwBX0EnGnCMW9YWb9Pe+++lvVW3PgF7SvXqVIRtCtdLzk/Zrb7LS5nK2/K7pOB8+L90fQVTv7zyh5aH5z1PpU93cC3iLfxHhRWMSWJJOSeSa+ahG+rP0ucraCVcsrHzsO/EfYf3qbY2n2htzf6tT+ftWt0qpStoiYxvqzn60tLh2xtIercD6VmgZOB1Nb0UYijVB/CMU5vSwQWtxJ5RDEznsOKg0bw1e6/a391A0CQ2YVppJ5NoG7dt7Hrsbk4GcAnJFRarL8qRjv8AMa9G+A/hOTxDJrF1Dfrp09s0ESTm0SYx+ZHcMzktIh2KkTllXcW4wrFa3wtL2k1G25wZjifqtCVa9rW/NLoT/DzVfGngKyvrfSNR0rUtJmtF1SbTLkR3tqwxlJBFKuBLgEjb8xCHPTFXtd8C+OvH2vW+parfW2r6lqSqzTSXyM0ANsblEkVR+6BhDMqgY4IHPFbVl4T1TQLDSLXSNfnF2+hWmpSRrbIFdRHCsUBw5Zl/0tgd4AbBOOeO01nw5rnhS508zeI9NitIr6WzgnttIU/a7WPTpoYLic7+NyRTwDcQqbXcnjNekqDqLknzWTWl1ZfifJ1MfChN1qPIpyT15Zczsutl/wAPp2PlXXoJLLV7q0keORraRoi0TFkJB5wSBnn2qlBCZ5VRe/f0Fbfj7TptI8b69ZTxGGa3vZI3QwiEgg/3AzhfXAZhz1NVtNg8uLzD95/5V5VRezbXY+0oS9tCM73ukyzGgiQIowo6U6iiuQ7TGsU8y6Qdhya2ayNKuIPMkYzRDAx98f41pG7gUZ8+Lj/poP8AGtZp3MoSjbci1LRr5bh2eEBQqH76nhs7T174NWNG03V4LuP7NJLb4kEn7m42ZZE3q3BHIDEg+5x1rnDdwlifOjyST98f41f0qeAmRjPF2HLj/GtXeK0OP3puzkvu/wCCdgdR16fT7djqV69pBE3kq145WJAyghV3fKM7eB6D0rMefXxfRvZX13DIjptkhvWRg7KzKchsg4Z/pub1NU/tcAGfPi/7+D/GsB72F3ZjNHknP3x/jUQ573KqQjyuK5dfL/gmzFo+o6vcecxNzJNIvmSvMGZmcFssSckkA5J/GtCS0lgjDNGVTgA/VQR+hrD0qaAyO5miwBgfOP8AGtP7XD/z3i/7+D/Gpnds1pXX2lb0/wCCSUVF9qg/57xf9/B/jR9qg/57xf8Afwf41nZnTzR7n//Z" alt="SDR"></div>
@@ -195,7 +200,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 <div class="main">
 
 <!-- COMPETITIONS -->
-
 <div id="page-competitions">
   <div class="page-title">Compétitions</div>
   <div class="tab-row">
@@ -216,7 +220,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <!-- JOUEURS -->
-
 <div id="page-joueurs" class="hidden">
   <div class="page-title">Joueurs</div>
   <div class="toolbar">
@@ -239,7 +242,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <!-- STAFF -->
-
 <div id="page-staff" class="hidden">
   <div class="page-title">Staff</div>
   <div class="toolbar">
@@ -255,7 +257,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <!-- CARTONS -->
-
 <div id="page-cartons" class="hidden">
   <div class="page-title">Cartons</div>
   <div class="toolbar">
@@ -276,7 +277,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <!-- RECAP -->
-
 <div id="page-recap" class="hidden">
   <div class="page-title">Récapitulatif <span style="font-size:16px;color:var(--muted);font-weight:400" id="recap-season-lbl"></span></div>
   <div id="recap-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:18px"></div>
@@ -307,7 +307,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <!-- PASSEPORT -->
-
 <div id="page-passeport" class="hidden">
   <div class="page-title" style="border-left-color:var(--gold)">⚠️ Alertes Passeport</div>
   <div id="passport-alerts"></div>
@@ -324,7 +323,6 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div><!-- /main -->
 
 <!-- MODAL -->
-
 <div id="ov" class="ov hidden" onclick="if(event.target===this)closeModal()">
   <div class="mo" id="mo"></div>
 </div>
@@ -643,7 +641,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
-
 <script>
 // ── APP STATE ────────────────────────────────────────────────────────────────
 var APP = {
@@ -2179,1420 +2176,1412 @@ function exportData(type,format){
     dlFile(csv,filename+'.csv','text/csv;charset=utf-8;');
   } else {
     var style='<style>body{font-family:Arial,sans-serif;font-size:12px}table{border-collapse:collapse;width:100%}th{background:#1C1C1C;color:#fff;padding:8px 12px;font-weight:700;text-align:left}td{border:1px solid #ddd;padding:7px 12px}tr:nth-child(even){background:#f9f9f9}</style>';
-
-```
-var tbl=headers.map(function(h){return'<th>'+h+'</th>';}).join('');
-tbl='<tr>'+tbl+'</tr>';
-data.forEach(function(row){tbl+='<tr>'+row.map(function(c){return'<td>'+(c||'')+'</td>';}).join('')+'</tr>';});
-var xls='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'+
-  '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>'+filename+'</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'+style+'</head>'+
-  '<body><table>'+tbl+'</table></body></html>';
-dlFile(xls,filename+'.xls','application/vnd.ms-excel;charset=utf-8;');
-```
-
-}
+    var tbl=headers.map(function(h){return'<th>'+h+'</th>';}).join('');
+    tbl='<tr>'+tbl+'</tr>';
+    data.forEach(function(row){tbl+='<tr>'+row.map(function(c){return'<td>'+(c||'')+'</td>';}).join('')+'</tr>';});
+    var xls='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'+
+      '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>'+filename+'</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'+style+'</head>'+
+      '<body><table>'+tbl+'</table></body></html>';
+    dlFile(xls,filename+'.xls','application/vnd.ms-excel;charset=utf-8;');
+  }
 }
 
 function dlFile(content,filename,mime){
-var blob=new Blob([content],{type:mime});
-var url=URL.createObjectURL(blob);
-var a=document.createElement(‘a’);
-a.href=url;a.download=filename;
-document.body.appendChild(a);a.click();
-setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},200);
+  var blob=new Blob([content],{type:mime});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},200);
 }
 
+
 function editCell(cell,pid,field){
-var p=APP.players.find(function(x){return x.id===pid;});
-if(!p)return;
-var inp;
-if(field===‘group’){
-inp=document.createElement(‘select’);
-[‘Pro1’,‘Pro2’].forEach(function(v){
-var o=document.createElement(‘option’);
-o.value=v;o.textContent=v;
-if(p.group===v)o.selected=true;
-inp.appendChild(o);
-});
-} else {
-inp=document.createElement(‘input’);
-inp.type=‘number’;inp.min=‘0’;
-inp.value=(p[field]!==undefined)?p[field]:0;
-}
-inp.style.cssText=‘border:2px solid var(–red);border-radius:4px;padding:4px 7px;font-size:14px;width:80px;font-family:Barlow,sans-serif;color:#111;background:#fff;display:block’;
-var orig=cell.innerHTML;
-cell.innerHTML=’’;cell.appendChild(inp);
-try{inp.focus();}catch(e){}
-var done=false;
-function save(){
-if(done)return;done=true;
-if(field===‘group’)p.group=inp.value;
-else if(field!==‘matchs’)p[field]=+inp.value;
-renderRecap();
-}
-inp.addEventListener(‘blur’,save);
-inp.addEventListener(‘keydown’,function(e){
-if(e.key===‘Enter’){e.preventDefault();save();}
-if(e.key===‘Escape’){done=true;cell.innerHTML=orig;}
-});
+  var p=APP.players.find(function(x){return x.id===pid;});
+  if(!p)return;
+  var inp;
+  if(field==='group'){
+    inp=document.createElement('select');
+    ['Pro1','Pro2'].forEach(function(v){
+      var o=document.createElement('option');
+      o.value=v;o.textContent=v;
+      if(p.group===v)o.selected=true;
+      inp.appendChild(o);
+    });
+  } else {
+    inp=document.createElement('input');
+    inp.type='number';inp.min='0';
+    inp.value=(p[field]!==undefined)?p[field]:0;
+  }
+  inp.style.cssText='border:2px solid var(--red);border-radius:4px;padding:4px 7px;font-size:14px;width:80px;font-family:Barlow,sans-serif;color:#111;background:#fff;display:block';
+  var orig=cell.innerHTML;
+  cell.innerHTML='';cell.appendChild(inp);
+  try{inp.focus();}catch(e){}
+  var done=false;
+  function save(){
+    if(done)return;done=true;
+    if(field==='group')p.group=inp.value;
+    else if(field!=='matchs')p[field]=+inp.value;
+    renderRecap();
+  }
+  inp.addEventListener('blur',save);
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){e.preventDefault();save();}
+    if(e.key==='Escape'){done=true;cell.innerHTML=orig;}
+  });
 }
 
 function showShareModal(){
-openModal(
-‘<div class="mo-hdr"><div class="mo-title">Partager</div><button class="mo-x" onclick="closeModal()">x</button></div>’+
-‘<div class="mo-body">’+
-‘<p style="font-size:15px;line-height:1.7;color:#333">Pour partager cette application avec un collegue :<br><br>’+
-‘<strong>1. Fichier HTML</strong> — Envoie le fichier par email ou AirDrop.<br><br>’+
-‘<strong>2. Google Drive</strong> — Heberge le fichier et partage le lien.<br><br>’+
-‘<strong>3. Export CSV/Excel</strong> — Exporte les donnees et partage.</p>’+
-‘<div style="display:flex;gap:8px;margin-top:14px">’+
-‘<button class="btn-export" onclick="exportData(&apos;recap&apos;,&apos;csv&apos;);closeModal()">CSV</button>’+
-‘<button class="btn-export" onclick="exportData(&apos;recap&apos;,&apos;xlsx&apos;);closeModal()">Excel</button>’+
-‘</div>’+
-‘</div>’+
-‘<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>’
-);
+  openModal(
+    '<div class="mo-hdr"><div class="mo-title">Partager</div><button class="mo-x" onclick="closeModal()">x</button></div>'+
+    '<div class="mo-body">'+
+      '<p style="font-size:15px;line-height:1.7;color:#333">Pour partager cette application avec un collegue :<br><br>'+
+      '<strong>1. Fichier HTML</strong> — Envoie le fichier par email ou AirDrop.<br><br>'+
+      '<strong>2. Google Drive</strong> — Heberge le fichier et partage le lien.<br><br>'+
+      '<strong>3. Export CSV/Excel</strong> — Exporte les donnees et partage.</p>'+
+      '<div style="display:flex;gap:8px;margin-top:14px">'+
+        '<button class="btn-export" onclick="exportData(&apos;recap&apos;,&apos;csv&apos;);closeModal()">CSV</button>'+
+        '<button class="btn-export" onclick="exportData(&apos;recap&apos;,&apos;xlsx&apos;);closeModal()">Excel</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>'
+  );
 }
 
 // Event delegation for recap table
-document.addEventListener(‘click’,function(e){
-var cell=e.target;
-while(cell&&cell!==document.body){
-if(cell.classList&&cell.classList.contains(‘ed-cell’)&&cell.getAttribute(‘data-pid’)){
-editCell(cell,cell.getAttribute(‘data-pid’),cell.getAttribute(‘data-field’));
-return;
-}
-cell=cell.parentElement;
-}
+document.addEventListener('click',function(e){
+  var cell=e.target;
+  while(cell&&cell!==document.body){
+    if(cell.classList&&cell.classList.contains('ed-cell')&&cell.getAttribute('data-pid')){
+      editCell(cell,cell.getAttribute('data-pid'),cell.getAttribute('data-field'));
+      return;
+    }
+    cell=cell.parentElement;
+  }
 });
+
 
 // ═══════════════════════════════════════════════════════════════════
 // MODE LIVE MATCH — Chronomètre + Actions en temps réel
 // ═══════════════════════════════════════════════════════════════════
 var _LIVE = {
-matchId: null,
-comp: null,
-startTime: null,
-elapsed: 0,
-running: false,
-half: 1,
-timer: null,
-firstHalfElapsed: 0,
-events: [],
-scoreSDR: 0,          // SDR goals
-scoreADV: 0,          // Opponent goals
-active: false         // True = live is running in background
+  matchId: null,
+  comp: null,
+  startTime: null,
+  elapsed: 0,
+  running: false,
+  half: 1,
+  timer: null,
+  firstHalfElapsed: 0,
+  events: [],
+  scoreSDR: 0,          // SDR goals
+  scoreADV: 0,          // Opponent goals
+  active: false         // True = live is running in background
 };
 
 function liveGetMin() {
-var ms = _LIVE.elapsed + (_LIVE.running ? Date.now() - _LIVE.startTime : 0);
-var baseMin = _LIVE.half === 2 ? 45 : 0;
-return baseMin + Math.floor(ms / 60000);
+  var ms = _LIVE.elapsed + (_LIVE.running ? Date.now() - _LIVE.startTime : 0);
+  var baseMin = _LIVE.half === 2 ? 45 : 0;
+  return baseMin + Math.floor(ms / 60000);
 }
 
 function liveGetDisplay() {
-var ms = _LIVE.elapsed + (_LIVE.running ? Date.now() - _LIVE.startTime : 0);
-var totalSec = Math.floor(ms / 1000);
-var base = _LIVE.half === 1 ? 0 : 45;
-var gameMin = base + Math.floor(totalSec / 60);
-var gameSec = totalSec % 60;
-var secStr = (gameSec < 10 ? ‘0’ : ‘’) + gameSec;
-var extra = _LIVE.half === 1 ? Math.max(0, gameMin - 45) : Math.max(0, gameMin - 90);
-var display, minLabel;
-if (_LIVE.half === 1 && gameMin > 45) {
-display = ‘45+’ + extra + “’” + ‘<span style="font-size:36px;opacity:.7">:’ + secStr + ‘</span>’;
-minLabel = ‘45+’ + extra + “’”;
-} else if (_LIVE.half === 2 && gameMin > 90) {
-display = ‘90+’ + extra + “’” + ‘<span style="font-size:36px;opacity:.7">:’ + secStr + ‘</span>’;
-minLabel = ‘90+’ + extra + “’”;
-} else {
-display = gameMin + “’” + ‘<span style="font-size:36px;opacity:.7">:’ + secStr + ‘</span>’;
-minLabel = gameMin + “’”;
-}
-return { display: display, min: gameMin, sec: gameSec, minLabel: minLabel };
+  var ms = _LIVE.elapsed + (_LIVE.running ? Date.now() - _LIVE.startTime : 0);
+  var totalSec = Math.floor(ms / 1000);
+  var base = _LIVE.half === 1 ? 0 : 45;
+  var gameMin = base + Math.floor(totalSec / 60);
+  var gameSec = totalSec % 60;
+  var secStr = (gameSec < 10 ? '0' : '') + gameSec;
+  var extra = _LIVE.half === 1 ? Math.max(0, gameMin - 45) : Math.max(0, gameMin - 90);
+  var display, minLabel;
+  if (_LIVE.half === 1 && gameMin > 45) {
+    display = '45+' + extra + "'" + '<span style="font-size:36px;opacity:.7">:' + secStr + '</span>';
+    minLabel = '45+' + extra + "'";
+  } else if (_LIVE.half === 2 && gameMin > 90) {
+    display = '90+' + extra + "'" + '<span style="font-size:36px;opacity:.7">:' + secStr + '</span>';
+    minLabel = '90+' + extra + "'";
+  } else {
+    display = gameMin + "'" + '<span style="font-size:36px;opacity:.7">:' + secStr + '</span>';
+    minLabel = gameMin + "'";
+  }
+  return { display: display, min: gameMin, sec: gameSec, minLabel: minLabel };
 }
 
 function liveStart() {
-if (_LIVE.running) return;
-_LIVE.startTime = Date.now();
-_LIVE.running = true;
-_LIVE.active = true;
-_LIVE.timer = setInterval(function(){
-liveTickUI();
-liveUpdateIndicator();
-}, 500);
-liveTickUI();
-liveRenderControls();
+  if (_LIVE.running) return;
+  _LIVE.startTime = Date.now();
+  _LIVE.running = true;
+  _LIVE.active = true;
+  _LIVE.timer = setInterval(function(){
+    liveTickUI();
+    liveUpdateIndicator();
+  }, 500);
+  liveTickUI();
+  liveRenderControls();
 }
 
 function livePause() {
-if (!_LIVE.running) return;
-_LIVE.elapsed += Date.now() - _LIVE.startTime;
-_LIVE.running = false;
-clearInterval(_LIVE.timer);
-liveTickUI();
-liveRenderControls();
-liveUpdateIndicator();
+  if (!_LIVE.running) return;
+  _LIVE.elapsed += Date.now() - _LIVE.startTime;
+  _LIVE.running = false;
+  clearInterval(_LIVE.timer);
+  liveTickUI();
+  liveRenderControls();
+  liveUpdateIndicator();
 }
 
 function liveHalfTime() {
-livePause();
-// Store 1st half elapsed for total time computation
-_LIVE.firstHalfElapsed = _LIVE.elapsed;
-_LIVE.half = 2;
-_LIVE.elapsed = 0;
-_LIVE.startTime = null;
-liveTickUI();
-liveRenderControls();
-_LIVE.events.push({ min: 45, type: ‘mi-temps’, label: ‘⏸ Mi-temps’ });
-liveRenderLog();
+  livePause();
+  // Store 1st half elapsed for total time computation
+  _LIVE.firstHalfElapsed = _LIVE.elapsed;
+  _LIVE.half = 2;
+  _LIVE.elapsed = 0;
+  _LIVE.startTime = null;
+  liveTickUI();
+  liveRenderControls();
+  _LIVE.events.push({ min: 45, type: 'mi-temps', label: '⏸ Mi-temps' });
+  liveRenderLog();
 }
 
 function liveEnd() {
-livePause();
-var finalMin = liveGetMin();
-// Use real elapsed time for total match duration
-var firstHalf = _LIVE.firstHalfElapsed || 0;
-var totalMs = firstHalf + _LIVE.elapsed;
-var totalMatchMin = Math.min(120, Math.floor(totalMs / 60000));
+  livePause();
+  var finalMin = liveGetMin();
+  // Use real elapsed time for total match duration
+  var firstHalf = _LIVE.firstHalfElapsed || 0;
+  var totalMs = firstHalf + _LIVE.elapsed;
+  var totalMatchMin = Math.min(120, Math.floor(totalMs / 60000));
 
-_LIVE.events.push({ min: finalMin, type: ‘fin’, label: ‘🏁 Fin du match (’ + finalMin + ‘')’ });
-liveRenderLog();
+  _LIVE.events.push({ min: finalMin, type: 'fin', label: '🏁 Fin du match (' + finalMin + '\')' });
+  liveRenderLog();
 
-// ── Auto-save score ────────────────────────────────────────────
-var scoreEl = document.getElementById(‘live-score’);
-if (scoreEl && scoreEl.value) {
-var m = APP.matches[_LIVE.comp].find(function(x){ return x.id === _LIVE.matchId; });
-if (m) {
-m.score = scoreEl.value;
-m.res = getRes(m.score, m.name);
+  // ── Auto-save score ────────────────────────────────────────────
+  var scoreEl = document.getElementById('live-score');
+  if (scoreEl && scoreEl.value) {
+    var m = APP.matches[_LIVE.comp].find(function(x){ return x.id === _LIVE.matchId; });
+    if (m) {
+      m.score = scoreEl.value;
+      m.res = getRes(m.score, m.name);
+    }
+  }
+
+  // ── Compute minutes for every player from live events ──────────
+  var comp = _LIVE.comp;
+  var mid = _LIVE.matchId;
+  var isCDF = comp === 'CDF';
+
+  // Build substitution map: who went out at what minute, who came in
+  var subsOut = {}; // pid -> minute when subbed out
+  var subsIn  = {}; // pid -> minute when subbed in
+  _LIVE.events.forEach(function(ev) {
+    if (ev.type === 'changement') {
+      if (ev.pid)  subsOut[ev.pid]  = ev.min;
+      if (ev.pid2) subsIn[ev.pid2]  = ev.min;
+    }
+  });
+
+  // For each player with pmd data on this match
+  APP.players.forEach(function(p) {
+    var key = p.id + '_' + mid;
+    var d = APP.pmd[key] || {};
+    if (!d.statut) return; // not selected for this match
+
+    var minPlayed;
+    if (subsOut[p.id] !== undefined) {
+      // Player was substituted out
+      minPlayed = subsOut[p.id];
+    } else if (subsIn[p.id] !== undefined) {
+      // Player came in as substitute
+      minPlayed = finalMin - subsIn[p.id];
+    } else if (d.statut === 'R' && d._benchStart) {
+      // Remplaçant who never entered — stays at 0 min
+      minPlayed = 0;
+    } else {
+      // Played full match
+      minPlayed = finalMin;
+    }
+    minPlayed = Math.max(0, minPlayed);
+
+    // Write minutes back to pmd
+    if (!APP.pmd[key]) APP.pmd[key] = {};
+    APP.pmd[key].min = minPlayed;
+
+    // Update statut if subbed in (they are remplacant)
+    if (subsIn[p.id] !== undefined) {
+      APP.pmd[key].statut = 'R';
+    }
+  });
+
+  // ── Apply buts from live events to pmd ─────────────────────────
+  var butsCount = {};
+  _LIVE.events.forEach(function(ev) {
+    if (ev.type === 'but' && ev.pid) {
+      butsCount[ev.pid] = (butsCount[ev.pid] || 0) + 1;
+    }
+  });
+  Object.keys(butsCount).forEach(function(pid) {
+    var key = pid + '_' + mid;
+    if (!APP.pmd[key]) APP.pmd[key] = {};
+    APP.pmd[key].buts = butsCount[pid];
+  });
+  // Update final score in match
+  liveAutoUpdateScore();
+
+  // ── Refresh all UI ─────────────────────────────────────────────
+  renderCompStats();
+  renderMatchList();
+  try { renderRecap(); } catch(e) {}
+  _LIVE.active = false;
+  liveHideIndicator();
+
+  // ── Show save confirmation screen ────────────────────────────
+  liveSaveAndShow(comp, mid, finalMin);
+  // ── Summary alert ──────────────────────────────────────────────
+  var summary = '🏁 Match terminé (' + finalMin + '\')\n\n';
+  var statsLines = [];
+  APP.players.forEach(function(p) {
+    var key = p.id + '_' + mid;
+    var d = APP.pmd[key] || {};
+    if (!d.statut) return;
+    var line = p.name + ' — ' + (d.min || 0) + ' min';
+    if (d.buts) line += ' · ⚽ ' + d.buts + ' but' + (d.buts > 1 ? 's' : '');
+    if (d.c_j) line += ' · 🟨';
+    if (d.c_j2) line += ' · 🟥 2J';
+    if (d.c_r) line += ' · 🟥 R';
+    statsLines.push(line);
+  });
+  if (statsLines.length) {
+    summary += statsLines.join('\n');
+    alert(summary);
+  }
 }
-}
 
-// ── Compute minutes for every player from live events ──────────
-var comp = _LIVE.comp;
-var mid = _LIVE.matchId;
-var isCDF = comp === ‘CDF’;
-
-// Build substitution map: who went out at what minute, who came in
-var subsOut = {}; // pid -> minute when subbed out
-var subsIn  = {}; // pid -> minute when subbed in
-_LIVE.events.forEach(function(ev) {
-if (ev.type === ‘changement’) {
-if (ev.pid)  subsOut[ev.pid]  = ev.min;
-if (ev.pid2) subsIn[ev.pid2]  = ev.min;
-}
-});
-
-// For each player with pmd data on this match
-APP.players.forEach(function(p) {
-var key = p.id + ‘_’ + mid;
-var d = APP.pmd[key] || {};
-if (!d.statut) return; // not selected for this match
-
-```
-var minPlayed;
-if (subsOut[p.id] !== undefined) {
-  // Player was substituted out
-  minPlayed = subsOut[p.id];
-} else if (subsIn[p.id] !== undefined) {
-  // Player came in as substitute
-  minPlayed = finalMin - subsIn[p.id];
-} else if (d.statut === 'R' && d._benchStart) {
-  // Remplaçant who never entered — stays at 0 min
-  minPlayed = 0;
-} else {
-  // Played full match
-  minPlayed = finalMin;
-}
-minPlayed = Math.max(0, minPlayed);
-
-// Write minutes back to pmd
-if (!APP.pmd[key]) APP.pmd[key] = {};
-APP.pmd[key].min = minPlayed;
-
-// Update statut if subbed in (they are remplacant)
-if (subsIn[p.id] !== undefined) {
-  APP.pmd[key].statut = 'R';
-}
-```
-
-});
-
-// ── Apply buts from live events to pmd ─────────────────────────
-var butsCount = {};
-*LIVE.events.forEach(function(ev) {
-if (ev.type === ‘but’ && ev.pid) {
-butsCount[ev.pid] = (butsCount[ev.pid] || 0) + 1;
-}
-});
-Object.keys(butsCount).forEach(function(pid) {
-var key = pid + ’*’ + mid;
-if (!APP.pmd[key]) APP.pmd[key] = {};
-APP.pmd[key].buts = butsCount[pid];
-});
-// Update final score in match
-liveAutoUpdateScore();
-
-// ── Refresh all UI ─────────────────────────────────────────────
-renderCompStats();
-renderMatchList();
-try { renderRecap(); } catch(e) {}
-_LIVE.active = false;
-liveHideIndicator();
-
-// ── Show save confirmation screen ────────────────────────────
-liveSaveAndShow(comp, mid, finalMin);
-// ── Summary alert ──────────────────────────────────────────────
-var summary = ‘🏁 Match terminé (’ + finalMin + ‘')\n\n’;
-var statsLines = [];
-APP.players.forEach(function(p) {
-var key = p.id + ‘_’ + mid;
-var d = APP.pmd[key] || {};
-if (!d.statut) return;
-var line = p.name + ’ — ’ + (d.min || 0) + ’ min’;
-if (d.buts) line += ’ · ⚽ ’ + d.buts + ’ but’ + (d.buts > 1 ? ‘s’ : ‘’);
-if (d.c_j) line += ’ · 🟨’;
-if (d.c_j2) line += ’ · 🟥 2J’;
-if (d.c_r) line += ’ · 🟥 R’;
-statsLines.push(line);
-});
-if (statsLines.length) {
-summary += statsLines.join(’\n’);
-alert(summary);
-}
-}
 
 function liveTickUI() {
-var el = document.getElementById(‘live-clock’);
-if (el) {
-var t = liveGetDisplay();
-el.innerHTML = t.display;
-el.style.color = _LIVE.running ? ‘var(–red)’ : ‘#888’;
-}
-// Auto-update the minute field in the picker if open
-if (_LIVE.running) {
-var minEl = document.getElementById(‘live-pick-min’);
-if (minEl && !minEl.dataset.edited) {
-minEl.value = liveGetMin();
-}
-}
+  var el = document.getElementById('live-clock');
+  if (el) {
+    var t = liveGetDisplay();
+    el.innerHTML = t.display;
+    el.style.color = _LIVE.running ? 'var(--red)' : '#888';
+  }
+  // Auto-update the minute field in the picker if open
+  if (_LIVE.running) {
+    var minEl = document.getElementById('live-pick-min');
+    if (minEl && !minEl.dataset.edited) {
+      minEl.value = liveGetMin();
+    }
+  }
 }
 
 function liveStop() {
-// Custom confirmation — avoid iOS confirm() issues
-var overlay = document.createElement(‘div’);
-overlay.style.cssText = ‘position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px’;
-overlay.innerHTML =
-‘<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;width:100%;text-align:center">’ +
-‘<div style="font-size:48px;margin-bottom:12px">⛔</div>’ +
-‘<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:20px;text-transform:uppercase;margin-bottom:8px">Arrêter le live ?</div>’ +
-‘<div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.5">Le chronomètre s'arrête et toutes les données du live seront effacées.</div>’ +
-‘<div style="display:flex;gap:10px;justify-content:center">’ +
-‘<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;cursor:pointer;background:#fff">Annuler</button>’ +
-‘<button id="live-stop-confirm" style="flex:1;padding:12px;background:#C82010;border:none;border-radius:8px;color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">⛔ Stop</button>’ +
-‘</div></div>’;
-document.body.appendChild(overlay);
-document.getElementById(‘live-stop-confirm’).onclick = function() {
-overlay.remove();
-clearInterval(_LIVE.timer);
-_LIVE.running = false;
-_LIVE.active = false;
-_LIVE.matchId = null;
-_LIVE.comp = null;
-_LIVE.startTime = null;
-_LIVE.elapsed = 0;
-_LIVE.firstHalfElapsed = 0;
-_LIVE.half = 1;
-_LIVE.events = [];
-_LIVE.scoreSDR = 0;
-_LIVE.scoreADV = 0;
-liveHideIndicator();
-closeModal();
-};
+  // Custom confirmation — avoid iOS confirm() issues
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML =
+    '<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;width:100%;text-align:center">' +
+    '<div style="font-size:48px;margin-bottom:12px">⛔</div>' +
+    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:20px;text-transform:uppercase;margin-bottom:8px">Arrêter le live ?</div>' +
+    '<div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.5">Le chronomètre s\'arrête et toutes les données du live seront effacées.</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center">' +
+    '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;cursor:pointer;background:#fff">Annuler</button>' +
+    '<button id="live-stop-confirm" style="flex:1;padding:12px;background:#C82010;border:none;border-radius:8px;color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">⛔ Stop</button>' +
+    '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('live-stop-confirm').onclick = function() {
+    overlay.remove();
+    clearInterval(_LIVE.timer);
+    _LIVE.running = false;
+    _LIVE.active = false;
+    _LIVE.matchId = null;
+    _LIVE.comp = null;
+    _LIVE.startTime = null;
+    _LIVE.elapsed = 0;
+    _LIVE.firstHalfElapsed = 0;
+    _LIVE.half = 1;
+    _LIVE.events = [];
+    _LIVE.scoreSDR = 0;
+    _LIVE.scoreADV = 0;
+    liveHideIndicator();
+    closeModal();
+  };
 }
 
 function liveRenderControls() {
-var el = document.getElementById(‘live-ctrl-row’);
-if (!el) return;
-var btns = ‘’;
-if (!_LIVE.running && _LIVE.half === 1 && _LIVE.elapsed === 0) {
-btns = ‘<button class="live-btn green" onclick="liveStart()">▶ Démarrer</button>’;
-} else if (_LIVE.running && _LIVE.half === 1) {
-btns = ‘<button class="live-btn" onclick="livePause()">⏸ Pause</button>’ +
-‘<button class="live-btn orange" onclick="liveHalfTime()">🔔 Mi-temps</button>’;
-} else if (!_LIVE.running && _LIVE.half === 1 && _LIVE.elapsed > 0) {
-btns = ‘<button class="live-btn green" onclick="liveStart()">▶ Reprendre</button>’ +
-‘<button class="live-btn orange" onclick="liveHalfTime()">🔔 Mi-temps</button>’;
-} else if (!_LIVE.running && _LIVE.half === 2 && _LIVE.elapsed === 0) {
-btns = ‘<button class="live-btn green" onclick="liveStart()">▶ 2ème mi-temps (45'→90')</button>’;
-} else if (_LIVE.running && _LIVE.half === 2) {
-btns = ‘<button class="live-btn" onclick="livePause()">⏸ Pause</button>’ +
-‘<button class="live-btn red" onclick="liveEnd()">🏁 Fin du match</button>’;
-} else if (!_LIVE.running && _LIVE.half === 2 && _LIVE.elapsed > 0) {
-btns = ‘<button class="live-btn green" onclick="liveStart()">▶ Reprendre</button>’ +
-‘<button class="live-btn red" onclick="liveEnd()">🏁 Fin du match</button>’;
-}
-btns += ‘<button class="live-btn" onclick="liveStop()" style="background:#333;font-size:12px;padding:7px 14px;margin-top:4px">⛔ Stop</button>’;
-el.innerHTML = btns;
+  var el = document.getElementById('live-ctrl-row');
+  if (!el) return;
+  var btns = '';
+  if (!_LIVE.running && _LIVE.half === 1 && _LIVE.elapsed === 0) {
+    btns = '<button class="live-btn green" onclick="liveStart()">▶ Démarrer</button>';
+  } else if (_LIVE.running && _LIVE.half === 1) {
+    btns = '<button class="live-btn" onclick="livePause()">⏸ Pause</button>' +
+           '<button class="live-btn orange" onclick="liveHalfTime()">🔔 Mi-temps</button>';
+  } else if (!_LIVE.running && _LIVE.half === 1 && _LIVE.elapsed > 0) {
+    btns = '<button class="live-btn green" onclick="liveStart()">▶ Reprendre</button>' +
+           '<button class="live-btn orange" onclick="liveHalfTime()">🔔 Mi-temps</button>';
+  } else if (!_LIVE.running && _LIVE.half === 2 && _LIVE.elapsed === 0) {
+    btns = '<button class="live-btn green" onclick="liveStart()">▶ 2ème mi-temps (45\'→90\')</button>';
+  } else if (_LIVE.running && _LIVE.half === 2) {
+    btns = '<button class="live-btn" onclick="livePause()">⏸ Pause</button>' +
+           '<button class="live-btn red" onclick="liveEnd()">🏁 Fin du match</button>';
+  } else if (!_LIVE.running && _LIVE.half === 2 && _LIVE.elapsed > 0) {
+    btns = '<button class="live-btn green" onclick="liveStart()">▶ Reprendre</button>' +
+           '<button class="live-btn red" onclick="liveEnd()">🏁 Fin du match</button>';
+  }
+  btns += '<button class="live-btn" onclick="liveStop()" style="background:#333;font-size:12px;padding:7px 14px;margin-top:4px">⛔ Stop</button>';
+  el.innerHTML = btns;
 }
 
 function liveRenderLog() {
-var el = document.getElementById(‘live-log’);
-if (!el) return;
-if (!_LIVE.events.length) {
-el.innerHTML = ‘<div style="color:#aaa;font-size:13px;text-align:center;padding:16px">Aucune action pour le moment</div>’;
-return;
-}
-var sorted = _LIVE.events.slice().sort(function(a,b){return b.min-a.min;});
-el.innerHTML = sorted.map(function(ev) {
-var icon = ‘’; // icon already included in ev.label
-var minInput = ‘<input type=“number” value=”’+ev.min+’” min=“0” max=“120” ’ +
-‘style=“width:44px;border:1.5px solid var(–border);border-radius:4px;padding:2px 4px;font-size:13px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(–red)” ’ +
-‘onchange=“liveEditEventMin(this,’+_LIVE.events.indexOf(ev)+’)” ’ +
-‘onclick=“this.select()”>’;
-return ‘<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f0ede8;font-size:14px">’ +
-‘<span style="font-size:11px;font-weight:800;font-family:Barlow Condensed,sans-serif;color:var(--red)">’ + minInput + ‘</span>’ +
-
-```
-  '<span style="flex:1;font-weight:600">' + ev.label + '</span>' +
-  '<button onclick="liveDeleteEvent('+_LIVE.events.indexOf(ev)+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;padding:2px 6px" title="Supprimer">✕</button>' +
-'</div>';
-```
-
-}).join(’’);
+  var el = document.getElementById('live-log');
+  if (!el) return;
+  if (!_LIVE.events.length) {
+    el.innerHTML = '<div style="color:#aaa;font-size:13px;text-align:center;padding:16px">Aucune action pour le moment</div>';
+    return;
+  }
+  var sorted = _LIVE.events.slice().sort(function(a,b){return b.min-a.min;});
+  el.innerHTML = sorted.map(function(ev) {
+    var icon = ''; // icon already included in ev.label
+    var minInput = '<input type="number" value="'+ev.min+'" min="0" max="120" ' +
+      'style="width:44px;border:1.5px solid var(--border);border-radius:4px;padding:2px 4px;font-size:13px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(--red)" ' +
+      'onchange="liveEditEventMin(this,'+_LIVE.events.indexOf(ev)+')" ' +
+      'onclick="this.select()">';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f0ede8;font-size:14px">' +
+      '<span style="font-size:11px;font-weight:800;font-family:Barlow Condensed,sans-serif;color:var(--red)">' + minInput + '</span>' +
+      
+      '<span style="flex:1;font-weight:600">' + ev.label + '</span>' +
+      '<button onclick="liveDeleteEvent('+_LIVE.events.indexOf(ev)+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;padding:2px 6px" title="Supprimer">✕</button>' +
+    '</div>';
+  }).join('');
 }
 
 function liveEditEventMin(input, idx) {
-if (_LIVE.events[idx]) {
-_LIVE.events[idx].min = +input.value;
-liveApplyEventToPMD(_LIVE.events[idx]);
-}
+  if (_LIVE.events[idx]) {
+    _LIVE.events[idx].min = +input.value;
+    liveApplyEventToPMD(_LIVE.events[idx]);
+  }
 }
 
 function liveDeleteEvent(idx) {
-_LIVE.events.splice(idx, 1);
-liveRenderLog();
+  _LIVE.events.splice(idx, 1);
+  liveRenderLog();
 }
 
 function liveApplyEventToPMD(ev) {
-if (!ev.pid) return;
-var key = ev.pid + ‘_’ + _LIVE.matchId;
-if (!APP.pmd[key]) APP.pmd[key] = {};
-var d = APP.pmd[key];
-if (ev.type === ‘but’) {
-d.buts = (d.buts||0);
-d.but_min = ev.min;
-} else if (ev.type === ‘jaune’) {
-d.c_j = true; d.c_j_min = ev.min; d.carton = ‘jaune’;
-} else if (ev.type === ‘dj’) {
-d.c_j2 = true; d.c_j2_min = ev.min; d.carton = ‘dj’;
-} else if (ev.type === ‘rouge’) {
-d.c_r = true; d.c_r_min = ev.min; d.carton = ‘rouge’;
-}
-try { renderRecap(); } catch(e) {}
+  if (!ev.pid) return;
+  var key = ev.pid + '_' + _LIVE.matchId;
+  if (!APP.pmd[key]) APP.pmd[key] = {};
+  var d = APP.pmd[key];
+  if (ev.type === 'but') {
+    d.buts = (d.buts||0);
+    d.but_min = ev.min;
+  } else if (ev.type === 'jaune') {
+    d.c_j = true; d.c_j_min = ev.min; d.carton = 'jaune';
+  } else if (ev.type === 'dj') {
+    d.c_j2 = true; d.c_j2_min = ev.min; d.carton = 'dj';
+  } else if (ev.type === 'rouge') {
+    d.c_r = true; d.c_r_min = ev.min; d.carton = 'rouge';
+  }
+  try { renderRecap(); } catch(e) {}
 }
 
 // ── Action buttons ─────────────────────────────────────────────────
 function liveAction(type) {
-var min = liveGetMin();
-// For “but” — first choose which team scored
-if (type === ‘but’) {
-liveShowTeamPicker(min);
-return;
-}
-// Show player picker modal
-var players = APP.players.filter(function(p) {
-var d = APP.pmd[p.id+’_’+_LIVE.matchId]||{};
-return d.statut===‘T’||d.statut===‘R’;
-});
-if (!players.length) {
-alert(‘Aucun joueur sélectionné pour ce match.\nModifie le match pour ajouter des joueurs.’);
-return;
-}
-var icons = {but:‘⚽ But’,jaune:‘🟨 Carton Jaune’,rouge:‘🟥 Rouge Direct’,dj:‘🟥 2ème Jaune = Rouge’,changement:‘🔄 Changement’};
-var chips = players.map(function(p) {
-return ‘<div onclick=“livePick('’+type+’','’+p.id+’',this)” ’ +
-‘style=“padding:10px 14px;border:2px solid var(–border);border-radius:6px;cursor:pointer;’ +
-‘font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;’ +
-’transition:all .15s” ’ +
-‘onmouseover=“this.style.borderColor='var(–red)';this.style.background='#fff8f8'” ’ +
-‘onmouseout=“this.style.borderColor='var(–border)';this.style.background=''”> ’ +
-‘<div style="background:var(--red);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">’ + p.num + ‘</div>’ +
-‘<span>’ + p.name + ‘</span>’ +
-‘</div>’;
-}).join(’’);
+  var min = liveGetMin();
+  // For "but" — first choose which team scored
+  if (type === 'but') {
+    liveShowTeamPicker(min);
+    return;
+  }
+  // Show player picker modal
+  var players = APP.players.filter(function(p) {
+    var d = APP.pmd[p.id+'_'+_LIVE.matchId]||{};
+    return d.statut==='T'||d.statut==='R';
+  });
+  if (!players.length) {
+    alert('Aucun joueur sélectionné pour ce match.\nModifie le match pour ajouter des joueurs.');
+    return;
+  }
+  var icons = {but:'⚽ But',jaune:'🟨 Carton Jaune',rouge:'🟥 Rouge Direct',dj:'🟥 2ème Jaune = Rouge',changement:'🔄 Changement'};
+  var chips = players.map(function(p) {
+    return '<div onclick="livePick(\''+type+'\',\''+p.id+'\',this)" ' +
+      'style="padding:10px 14px;border:2px solid var(--border);border-radius:6px;cursor:pointer;' +
+      'font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;' +
+      'transition:all .15s" ' +
+      'onmouseover="this.style.borderColor=\'var(--red)\';this.style.background=\'#fff8f8\'" ' +
+      'onmouseout="this.style.borderColor=\'var(--border)\';this.style.background=\'\'"> ' +
+      '<div style="background:var(--red);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">' + p.num + '</div>' +
+      '<span>' + p.name + '</span>' +
+    '</div>';
+  }).join('');
 
-var minField = ‘<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px;background:#f5f3ef;border-radius:8px">’ +
-‘<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>’ +
-‘<input id=“live-pick-min” type=“number” value=”’+min+’” min=“0” max=“120” ’ +
-‘style=“width:64px;border:2px solid var(–red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(–red)”>’ +
-‘<span style="font-size:12px;color:#888">(modifiable)</span>’ +
-‘</div>’;
+  var minField = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px;background:#f5f3ef;border-radius:8px">' +
+    '<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>' +
+    '<input id="live-pick-min" type="number" value="'+min+'" min="0" max="120" ' +
+    'style="width:64px;border:2px solid var(--red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(--red)">' +
+    '<span style="font-size:12px;color:#888">(modifiable)</span>' +
+    '</div>';
 
-// For changement, need 2 players
-if (type === ‘changement’) {
-liveShowChangement(min, players);
-return;
-}
+  // For changement, need 2 players
+  if (type === 'changement') {
+    liveShowChangement(min, players);
+    return;
+  }
 
-document.getElementById(‘live-picker-title’).textContent = icons[type] || type;
-document.getElementById(‘live-picker-content’).innerHTML = minField +
-‘<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:300px;overflow-y:auto">’ + chips + ‘</div>’;
-document.getElementById(‘live-picker-type’).value = type;
-document.getElementById(‘live-picker’).style.display = ‘flex’;
+  document.getElementById('live-picker-title').textContent = icons[type] || type;
+  document.getElementById('live-picker-content').innerHTML = minField +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:300px;overflow-y:auto">' + chips + '</div>';
+  document.getElementById('live-picker-type').value = type;
+  document.getElementById('live-picker').style.display = 'flex';
 }
 
 function liveShowChangement(min, players) {
-// Sort = Titulaires only
-var titulaires = players.filter(function(p) {
-var d = APP.pmd[p.id+’_’+*LIVE.matchId]||{};
-return d.statut === ‘T’;
-});
-// Entre = Remplaçants only (on bench, not yet entered)
-var remplacants = players.filter(function(p) {
-var d = APP.pmd[p.id+’*’+_LIVE.matchId]||{};
-return d.statut === ‘R’;
-});
+  // Sort = Titulaires only
+  var titulaires = players.filter(function(p) {
+    var d = APP.pmd[p.id+'_'+_LIVE.matchId]||{};
+    return d.statut === 'T';
+  });
+  // Entre = Remplaçants only (on bench, not yet entered)
+  var remplacants = players.filter(function(p) {
+    var d = APP.pmd[p.id+'_'+_LIVE.matchId]||{};
+    return d.statut === 'R';
+  });
 
-function makeChip(p, colorOut, onclick) {
-return ‘<div onclick=”’+onclick+’” ‘+
-‘style=“padding:10px 14px;border:2px solid var(–border);border-radius:6px;cursor:pointer;’+
-‘font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:6px” ‘+
-‘onmouseover=“this.style.borderColor='’+colorOut+’'” ‘+
-‘onmouseout=“this.style.borderColor='var(–border)'”>’ +
-‘<div style="background:'+colorOut+';color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">’+p.num+’</div>’+
-‘<span>’+p.name+’</span>’+
-‘</div>’;
+  function makeChip(p, colorOut, onclick) {
+    return '<div onclick="'+onclick+'" '+
+      'style="padding:10px 14px;border:2px solid var(--border);border-radius:6px;cursor:pointer;'+
+      'font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:6px" '+
+      'onmouseover="this.style.borderColor=\''+colorOut+'\'" '+
+      'onmouseout="this.style.borderColor=\'var(--border)\'">' +
+      '<div style="background:'+colorOut+';color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">'+p.num+'</div>'+
+      '<span>'+p.name+'</span>'+
+    '</div>';
+  }
+
+  var outChips = titulaires.length
+    ? titulaires.map(function(p) {
+        return makeChip(p, 'var(--red)', "livePickSub('"+p.id+"',this)");
+      }).join('')
+    : '<div style="color:#aaa;font-size:13px;padding:10px">Aucun titulaire sélectionné</div>';
+
+  var inChips = remplacants.length
+    ? remplacants.map(function(p) {
+        return makeChip(p, '#22c55e', "livePickIn('"+p.id+"',this)");
+      }).join('')
+    : '<div style="color:#aaa;font-size:13px;padding:10px">Aucun remplaçant sélectionné</div>';
+
+  document.getElementById('live-picker-title').textContent = '🔄 Changement';
+  document.getElementById('live-picker-content').innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px;background:#f5f3ef;border-radius:8px">' +
+    '<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>' +
+    '<input id="live-pick-min" oninput="this.dataset.edited=1" type="number" value="'+min+'" min="0" max="120" ' +
+    'style="width:64px;border:2px solid var(--red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(--red)">' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+    '<div>' +
+      '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:8px">↑ Sort (Tit.)</div>' +
+      '<div id="sub-out-list">'+outChips+'</div>' +
+    '</div>' +
+    '<div>' +
+      '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;margin-bottom:8px">↓ Entre (Rem.)</div>' +
+      '<div id="sub-in-list">'+inChips+'</div>' +
+    '</div>' +
+    '</div>' +
+    '<div id="sub-preview" style="display:none;margin-top:12px;padding:10px;background:#f0fdf4;border-radius:6px;font-weight:700;font-size:14px;text-align:center"></div>' +
+    '<button id="sub-confirm-btn" onclick="liveConfirmSub()" style="display:none;margin-top:10px;width:100%;background:#22c55e;color:#fff;border:none;border-radius:6px;padding:10px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;cursor:pointer">✅ Confirmer</button>';
+
+  document.getElementById('live-picker-type').value = 'changement';
+  document.getElementById('live-picker').style.display = 'flex';
+  window._liveSubOut = null;
+  window._liveSubIn = null;
 }
 
-var outChips = titulaires.length
-? titulaires.map(function(p) {
-return makeChip(p, ‘var(–red)’, “livePickSub(’”+p.id+”’,this)”);
-}).join(’’)
-: ‘<div style="color:#aaa;font-size:13px;padding:10px">Aucun titulaire sélectionné</div>’;
-
-var inChips = remplacants.length
-? remplacants.map(function(p) {
-return makeChip(p, ‘#22c55e’, “livePickIn(’”+p.id+”’,this)”);
-}).join(’’)
-: ‘<div style="color:#aaa;font-size:13px;padding:10px">Aucun remplaçant sélectionné</div>’;
-
-document.getElementById(‘live-picker-title’).textContent = ‘🔄 Changement’;
-document.getElementById(‘live-picker-content’).innerHTML =
-‘<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px;background:#f5f3ef;border-radius:8px">’ +
-‘<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>’ +
-‘<input id=“live-pick-min” oninput=“this.dataset.edited=1” type=“number” value=”’+min+’” min=“0” max=“120” ’ +
-‘style=“width:64px;border:2px solid var(–red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(–red)”>’ +
-‘</div>’ +
-‘<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">’ +
-‘<div>’ +
-‘<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:8px">↑ Sort (Tit.)</div>’ +
-‘<div id="sub-out-list">’+outChips+’</div>’ +
-‘</div>’ +
-‘<div>’ +
-‘<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#22c55e;margin-bottom:8px">↓ Entre (Rem.)</div>’ +
-‘<div id="sub-in-list">’+inChips+’</div>’ +
-‘</div>’ +
-‘</div>’ +
-‘<div id="sub-preview" style="display:none;margin-top:12px;padding:10px;background:#f0fdf4;border-radius:6px;font-weight:700;font-size:14px;text-align:center"></div>’ +
-‘<button id="sub-confirm-btn" onclick="liveConfirmSub()" style="display:none;margin-top:10px;width:100%;background:#22c55e;color:#fff;border:none;border-radius:6px;padding:10px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;cursor:pointer">✅ Confirmer</button>’;
-
-document.getElementById(‘live-picker-type’).value = ‘changement’;
-document.getElementById(‘live-picker’).style.display = ‘flex’;
-window._liveSubOut = null;
-window._liveSubIn = null;
-}
 
 function livePickSub(pid, el) {
-document.querySelectorAll(’#sub-out-list > div’).forEach(function(d) { d.style.borderColor=‘var(–border)’;d.style.background=’’; });
-el.style.borderColor = ‘var(–red)’; el.style.background = ‘#fff8f8’;
-window._liveSubOut = pid;
-liveUpdateSubPreview();
+  document.querySelectorAll('#sub-out-list > div').forEach(function(d) { d.style.borderColor='var(--border)';d.style.background=''; });
+  el.style.borderColor = 'var(--red)'; el.style.background = '#fff8f8';
+  window._liveSubOut = pid;
+  liveUpdateSubPreview();
 }
 
 function livePickIn(pid, el) {
-document.querySelectorAll(’#sub-in-list > div’).forEach(function(d) { d.style.borderColor=‘var(–border)’;d.style.background=’’; });
-el.style.borderColor = ‘#22c55e’; el.style.background = ‘#f0fdf4’;
-window._liveSubIn = pid;
-liveUpdateSubPreview();
+  document.querySelectorAll('#sub-in-list > div').forEach(function(d) { d.style.borderColor='var(--border)';d.style.background=''; });
+  el.style.borderColor = '#22c55e'; el.style.background = '#f0fdf4';
+  window._liveSubIn = pid;
+  liveUpdateSubPreview();
 }
 
 function liveUpdateSubPreview() {
-var prev = document.getElementById(‘sub-preview’);
-var btn = document.getElementById(‘sub-confirm-btn’);
-if (!prev || !btn) return;
-if (window._liveSubOut && window._liveSubIn) {
-var pOut = APP.players.find(function(p){return p.id===window._liveSubOut;});
-var pIn = APP.players.find(function(p){return p.id===window._liveSubIn;});
-prev.style.display = ‘block’;
-prev.innerHTML = ‘↑ ’ + (pOut?pOut.name:’?’) + ’ <span style="color:var(--red)">→</span> ↓ ’ + (pIn?pIn.name:’?’);
-btn.style.display = ‘block’;
-} else {
-prev.style.display = ‘none’;
-btn.style.display = ‘none’;
-}
+  var prev = document.getElementById('sub-preview');
+  var btn = document.getElementById('sub-confirm-btn');
+  if (!prev || !btn) return;
+  if (window._liveSubOut && window._liveSubIn) {
+    var pOut = APP.players.find(function(p){return p.id===window._liveSubOut;});
+    var pIn = APP.players.find(function(p){return p.id===window._liveSubIn;});
+    prev.style.display = 'block';
+    prev.innerHTML = '↑ ' + (pOut?pOut.name:'?') + ' <span style="color:var(--red)">→</span> ↓ ' + (pIn?pIn.name:'?');
+    btn.style.display = 'block';
+  } else {
+    prev.style.display = 'none';
+    btn.style.display = 'none';
+  }
 }
 
 function liveConfirmSub() {
-var min = +(document.getElementById(‘live-pick-min’)||{value:liveGetMin()}).value;
-var pOut = APP.players.find(function(p){return p.id===window._liveSubOut;});
-var pIn = APP.players.find(function(p){return p.id===window.*liveSubIn;});
-if (!pOut || !pIn) return;
-// Update pmd: outgoing player gets his minutes capped, incoming player enters
-var keyOut = pOut.id + ’*’ + *LIVE.matchId;
-var keyIn = pIn.id + ’*’ + _LIVE.matchId;
-if (!APP.pmd[keyOut]) APP.pmd[keyOut] = {};
-if (!APP.pmd[keyIn]) APP.pmd[keyIn] = {};
-// Outgoing player: cap their minutes
-APP.pmd[keyOut].min = min;
-APP.pmd[keyOut]._benchStart = false;
-// Incoming player: set their actual minutes played
-APP.pmd[keyIn].statut = ‘R’;
-APP.pmd[keyIn].min = 90 - min;
-APP.pmd[keyIn]._benchStart = false; // they are now on the pitch
-var ev = { min: min, type: ‘changement’, pid: pOut.id, pid2: pIn.id,
-label: ’↑ ’ + pOut.name + ’ → ↓ ’ + pIn.name };
-_LIVE.events.push(ev);
-document.getElementById(‘live-picker’).style.display = ‘none’;
-liveRenderLog();
-try { renderRecap(); } catch(e) {}
+  var min = +(document.getElementById('live-pick-min')||{value:liveGetMin()}).value;
+  var pOut = APP.players.find(function(p){return p.id===window._liveSubOut;});
+  var pIn = APP.players.find(function(p){return p.id===window._liveSubIn;});
+  if (!pOut || !pIn) return;
+  // Update pmd: outgoing player gets his minutes capped, incoming player enters
+  var keyOut = pOut.id + '_' + _LIVE.matchId;
+  var keyIn = pIn.id + '_' + _LIVE.matchId;
+  if (!APP.pmd[keyOut]) APP.pmd[keyOut] = {};
+  if (!APP.pmd[keyIn]) APP.pmd[keyIn] = {};
+  // Outgoing player: cap their minutes
+  APP.pmd[keyOut].min = min;
+  APP.pmd[keyOut]._benchStart = false;
+  // Incoming player: set their actual minutes played
+  APP.pmd[keyIn].statut = 'R';
+  APP.pmd[keyIn].min = 90 - min;
+  APP.pmd[keyIn]._benchStart = false; // they are now on the pitch
+  var ev = { min: min, type: 'changement', pid: pOut.id, pid2: pIn.id,
+    label: '↑ ' + pOut.name + ' → ↓ ' + pIn.name };
+  _LIVE.events.push(ev);
+  document.getElementById('live-picker').style.display = 'none';
+  liveRenderLog();
+  try { renderRecap(); } catch(e) {}
 }
 
 function livePick(type, pid, el) {
-var min = +(document.getElementById(‘live-pick-min’)||{value:liveGetMin()}).value;
-var p = APP.players.find(function(x){return x.id===pid;});
-if (!p) return;
-var icons = {but:‘⚽’,jaune:‘🟨’,rouge:‘🟥 R’,dj:‘🟥 2J=R’};
-var ev = { min: min, type: type, pid: pid, label: (icons[type]||’’) + ’ ’ + p.name };
-*LIVE.events.push(ev);
-liveApplyEventToPMD(ev);
-// For buts, increment count + update score
-if (type === ‘but’) {
-var key = pid+’*’+_LIVE.matchId;
-if (!APP.pmd[key]) APP.pmd[key]={};
-APP.pmd[key].buts = (APP.pmd[key].buts||0) + 1;
-_LIVE.scoreSDR++;
-liveUpdateScore();
-liveGoalAnimation(true);
-}
-document.getElementById(‘live-picker’).style.display = ‘none’;
-liveRenderLog();
+  var min = +(document.getElementById('live-pick-min')||{value:liveGetMin()}).value;
+  var p = APP.players.find(function(x){return x.id===pid;});
+  if (!p) return;
+  var icons = {but:'⚽',jaune:'🟨',rouge:'🟥 R',dj:'🟥 2J=R'};
+  var ev = { min: min, type: type, pid: pid, label: (icons[type]||'') + ' ' + p.name };
+  _LIVE.events.push(ev);
+  liveApplyEventToPMD(ev);
+  // For buts, increment count + update score
+  if (type === 'but') {
+    var key = pid+'_'+_LIVE.matchId;
+    if (!APP.pmd[key]) APP.pmd[key]={};
+    APP.pmd[key].buts = (APP.pmd[key].buts||0) + 1;
+    _LIVE.scoreSDR++;
+    liveUpdateScore();
+    liveGoalAnimation(true);
+  }
+  document.getElementById('live-picker').style.display = 'none';
+  liveRenderLog();
 }
 
 function liveClosePicker() {
-document.getElementById(‘live-picker’).style.display = ‘none’;
+  document.getElementById('live-picker').style.display = 'none';
 }
 
 // ── Open live modal ────────────────────────────────────────────────
 function showLiveModal(id, comp, restore) {
-var m = APP.matches[comp].find(function(x){return x.id===id;});
-if (!m) return;
-// If restoring existing live session, don’t reset state
-if (!restore || _LIVE.matchId !== id) {
-_LIVE.matchId = id;
-_LIVE.comp = comp;
-_LIVE.startTime = null;
-_LIVE.elapsed = 0;
-_LIVE.running = false;
-_LIVE.half = 1;
-_LIVE.firstHalfElapsed = 0;
-_LIVE.events = [];
-_LIVE.scoreSDR = 0;
-_LIVE.scoreADV = 0;
-_LIVE.active = false;
-clearInterval(_LIVE.timer);
-} else {
-clearInterval(_LIVE.timer);
-if (_LIVE.running) {
-_LIVE.timer = setInterval(function(){
-liveTickUI();
-liveUpdateIndicator();
-}, 500);
-}
-}
-liveHideIndicator();
+  var m = APP.matches[comp].find(function(x){return x.id===id;});
+  if (!m) return;
+  // If restoring existing live session, don't reset state
+  if (!restore || _LIVE.matchId !== id) {
+    _LIVE.matchId = id;
+    _LIVE.comp = comp;
+    _LIVE.startTime = null;
+    _LIVE.elapsed = 0;
+    _LIVE.running = false;
+    _LIVE.half = 1;
+    _LIVE.firstHalfElapsed = 0;
+    _LIVE.events = [];
+    _LIVE.scoreSDR = 0;
+    _LIVE.scoreADV = 0;
+    _LIVE.active = false;
+    clearInterval(_LIVE.timer);
+  } else {
+    clearInterval(_LIVE.timer);
+    if (_LIVE.running) {
+      _LIVE.timer = setInterval(function(){
+        liveTickUI();
+        liveUpdateIndicator();
+      }, 500);
+    }
+  }
+  liveHideIndicator();
 
-// Check if players are assigned
-var assigned = APP.players.filter(function(p){
-var d=APP.pmd[p.id+’_’+id]||{};return d.statut===‘T’||d.statut===‘R’;
-}).length;
+  // Check if players are assigned
+  var assigned = APP.players.filter(function(p){
+    var d=APP.pmd[p.id+'_'+id]||{};return d.statut==='T'||d.statut==='R';
+  }).length;
 
-var warnHtml = assigned === 0 ?
-‘<div style="background:#fff3cd;border-radius:6px;padding:10px 14px;font-size:13px;color:#856404;margin-bottom:14px">’+
-‘⚠️ Aucun joueur sélectionné — <button onclick="closeModal();showEditMatchModal(\''+id+'\')" style="background:none;border:none;color:var(--red);cursor:pointer;font-weight:700;font-size:13px;text-decoration:underline">Modifier le match</button> pour ajouter des joueurs avant le live.’+
-‘</div>’ : ‘’;
+  var warnHtml = assigned === 0 ?
+    '<div style="background:#fff3cd;border-radius:6px;padding:10px 14px;font-size:13px;color:#856404;margin-bottom:14px">'+
+    '⚠️ Aucun joueur sélectionné — <button onclick="closeModal();showEditMatchModal(\''+id+'\')" style="background:none;border:none;color:var(--red);cursor:pointer;font-weight:700;font-size:13px;text-decoration:underline">Modifier le match</button> pour ajouter des joueurs avant le live.'+
+    '</div>' : '';
 
-openModal(
-‘<div class="mo-hdr"><div class="mo-title">🔴 LIVE — ‘+m.j+’ · ‘+m.name+’</div>’+
-‘<button class="mo-x" onclick="closeModal()">✕</button></div>’+
-‘<div class="mo-body" style="padding:0">’+
+  openModal(
+    '<div class="mo-hdr"><div class="mo-title">🔴 LIVE — '+m.j+' · '+m.name+'</div>'+
+    '<button class="mo-x" onclick="closeModal()">✕</button></div>'+
+    '<div class="mo-body" style="padding:0">'+
 
-```
-// Clock
-'<div style="background:var(--dark);padding:20px;text-align:center;position:relative">'+
-  '<div id="live-clock" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:72px;color:#888;letter-spacing:-2px;line-height:1">0\'</div>'+
-  '<div style="font-size:12px;color:rgba(255,255,255,0.4);font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-top:4px">'+m.name+'</div>'+
-  '<div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:12px">'+
-    '<div style="text-align:center;min-width:60px">'+
-      '<div style="font-size:11px;color:rgba(255,255,255,0.45);font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">SDR</div>'+
-      '<div id="live-score-sdr" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:52px;color:#fff;line-height:1">'+_LIVE.scoreSDR+'</div>'+
+    // Clock
+    '<div style="background:var(--dark);padding:20px;text-align:center;position:relative">'+
+      '<div id="live-clock" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:72px;color:#888;letter-spacing:-2px;line-height:1">0\'</div>'+
+      '<div style="font-size:12px;color:rgba(255,255,255,0.4);font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-top:4px">'+m.name+'</div>'+
+      '<div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:12px">'+
+        '<div style="text-align:center;min-width:60px">'+
+          '<div style="font-size:11px;color:rgba(255,255,255,0.45);font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">SDR</div>'+
+          '<div id="live-score-sdr" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:52px;color:#fff;line-height:1">'+_LIVE.scoreSDR+'</div>'+
+        '</div>'+
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:36px;color:rgba(255,255,255,0.3);margin-top:16px">—</div>'+
+        '<div style="text-align:center;min-width:60px">'+
+          '<div style="font-size:11px;color:rgba(255,255,255,0.45);font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">ADV</div>'+
+          '<div id="live-score-adv" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:52px;color:rgba(255,255,255,0.7);line-height:1">'+_LIVE.scoreADV+'</div>'+
+        '</div>'+
+        '<input id="live-score" type="hidden" value="'+(m.score||'')+'">'+
+      '</div>'+
     '</div>'+
-    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:36px;color:rgba(255,255,255,0.3);margin-top:16px">—</div>'+
-    '<div style="text-align:center;min-width:60px">'+
-      '<div style="font-size:11px;color:rgba(255,255,255,0.45);font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">ADV</div>'+
-      '<div id="live-score-adv" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:52px;color:rgba(255,255,255,0.7);line-height:1">'+_LIVE.scoreADV+'</div>'+
+
+    // Controls
+    '<div id="live-ctrl-row" style="display:flex;gap:8px;justify-content:center;padding:14px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap"></div>'+
+
+    // Action buttons
+    '<div style="padding:14px 16px;border-bottom:1px solid var(--border)">'+
+      warnHtml+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+        '<button onclick="liveAction(\'but\')" class="live-act-btn" style="background:#1a5c30;color:#fff">⚽ But</button>'+
+        '<button onclick="liveAction(\'changement\')" class="live-act-btn" style="background:#1d4ed8;color:#fff">🔄 Changement</button>'+
+        '<button onclick="liveAction(\'jaune\')" class="live-act-btn" style="background:#856404;color:#fff">🟨 Carton Jaune</button>'+
+        '<button onclick="liveAction(\'dj\')" class="live-act-btn" style="background:#7c3a00;color:#fff">🟥 2ème Jaune = Rouge</button>'+
+        '<button onclick="liveAction(\'rouge\')" class="live-act-btn" style="background:var(--red);color:#fff;grid-column:1/-1">🟥 Rouge Direct</button>'+
+      '</div>'+
     '</div>'+
-    '<input id="live-score" type="hidden" value="'+(m.score||'')+'">'+
-  '</div>'+
-'</div>'+
 
-// Controls
-'<div id="live-ctrl-row" style="display:flex;gap:8px;justify-content:center;padding:14px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap"></div>'+
+    // Event log
+    '<div style="padding:14px 16px 6px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888">Actions du match</div>'+
+    '<div id="live-log" style="max-height:220px;overflow-y:auto;padding-bottom:8px"></div>'+
 
-// Action buttons
-'<div style="padding:14px 16px;border-bottom:1px solid var(--border)">'+
-  warnHtml+
-  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
-    '<button onclick="liveAction(\'but\')" class="live-act-btn" style="background:#1a5c30;color:#fff">⚽ But</button>'+
-    '<button onclick="liveAction(\'changement\')" class="live-act-btn" style="background:#1d4ed8;color:#fff">🔄 Changement</button>'+
-    '<button onclick="liveAction(\'jaune\')" class="live-act-btn" style="background:#856404;color:#fff">🟨 Carton Jaune</button>'+
-    '<button onclick="liveAction(\'dj\')" class="live-act-btn" style="background:#7c3a00;color:#fff">🟥 2ème Jaune = Rouge</button>'+
-    '<button onclick="liveAction(\'rouge\')" class="live-act-btn" style="background:var(--red);color:#fff;grid-column:1/-1">🟥 Rouge Direct</button>'+
-  '</div>'+
-'</div>'+
-
-// Event log
-'<div style="padding:14px 16px 6px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888">Actions du match</div>'+
-'<div id="live-log" style="max-height:220px;overflow-y:auto;padding-bottom:8px"></div>'+
-
-'</div>'+
-'<div class="mo-foot">'+
-  '<button class="btn-c" onclick="closeModal()">Fermer</button>'+
-  '<button class="btn-p" onclick="showEditMatchModal(\''+id+'\')">✏️ Modifier</button>'+
-'</div>'+
-
-// Player picker overlay
-'<div id="live-picker" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px">'+
-  '<div style="background:#fff;border-radius:12px;width:100%;max-width:500px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">'+
-    '<div style="background:var(--dark);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">'+
-      '<div id="live-picker-title" style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:1px"></div>'+
-      '<button onclick="liveClosePicker()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px">✕</button>'+
     '</div>'+
-    '<div id="live-picker-content" style="padding:16px;overflow-y:auto;flex:1"></div>'+
-    '<input type="hidden" id="live-picker-type">'+
-  '</div>'+
-'</div>'
-```
+    '<div class="mo-foot">'+
+      '<button class="btn-c" onclick="closeModal()">Fermer</button>'+
+      '<button class="btn-p" onclick="showEditMatchModal(\''+id+'\')">✏️ Modifier</button>'+
+    '</div>'+
 
-);
+    // Player picker overlay
+    '<div id="live-picker" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px">'+
+      '<div style="background:#fff;border-radius:12px;width:100%;max-width:500px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column">'+
+        '<div style="background:var(--dark);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">'+
+          '<div id="live-picker-title" style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:1px"></div>'+
+          '<button onclick="liveClosePicker()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px">✕</button>'+
+        '</div>'+
+        '<div id="live-picker-content" style="padding:16px;overflow-y:auto;flex:1"></div>'+
+        '<input type="hidden" id="live-picker-type">'+
+      '</div>'+
+    '</div>'
+  );
 
-liveRenderControls();
-liveRenderLog();
+  liveRenderControls();
+  liveRenderLog();
 }
 
 function liveShowIndicator() {
-var el = document.getElementById(‘live-indicator’);
-if (!el) {
-el = document.createElement(‘div’);
-el.id = ‘live-indicator’;
-el.style.cssText = ‘position:fixed;bottom:80px;right:16px;background:var(–red);color:#fff;’+
-‘border-radius:50px;padding:10px 18px;font-family:Barlow Condensed,sans-serif;font-weight:800;’+
-‘font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;z-index:8000;’+
-‘box-shadow:0 4px 16px rgba(200,32,16,.5);display:flex;align-items:center;gap:8px;’+
-‘animation:livePulse 1.5s infinite’;
-el.onclick = function() {
-var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
-if (m) showLiveModal(_LIVE.matchId, _LIVE.comp, true);
-};
-document.body.appendChild(el);
-}
-el.style.display = ‘flex’;
-liveUpdateIndicator();
+  var el = document.getElementById('live-indicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'live-indicator';
+    el.style.cssText = 'position:fixed;bottom:80px;right:16px;background:var(--red);color:#fff;'+
+      'border-radius:50px;padding:10px 18px;font-family:Barlow Condensed,sans-serif;font-weight:800;'+
+      'font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;z-index:8000;'+
+      'box-shadow:0 4px 16px rgba(200,32,16,.5);display:flex;align-items:center;gap:8px;'+
+      'animation:livePulse 1.5s infinite';
+    el.onclick = function() {
+      var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
+      if (m) showLiveModal(_LIVE.matchId, _LIVE.comp, true);
+    };
+    document.body.appendChild(el);
+  }
+  el.style.display = 'flex';
+  liveUpdateIndicator();
 }
 
 function liveUpdateIndicator() {
-var el = document.getElementById(‘live-indicator’);
-if (!el || el.style.display === ‘none’) return;
-var t = liveGetDisplay();
-el.innerHTML = ‘<span style="width:8px;height:8px;background:#fff;border-radius:50%;display:inline-block;animation:livePulse 1s infinite"></span>’ +
-’🔴 LIVE ’ + t.minLabel + ’  ’ + liveScoreDisplay();
+  var el = document.getElementById('live-indicator');
+  if (!el || el.style.display === 'none') return;
+  var t = liveGetDisplay();
+  el.innerHTML = '<span style="width:8px;height:8px;background:#fff;border-radius:50%;display:inline-block;animation:livePulse 1s infinite"></span>' +
+    '🔴 LIVE ' + t.minLabel + '  ' + liveScoreDisplay();
 }
 
 function liveHideIndicator() {
-var el = document.getElementById(‘live-indicator’);
-if (el) el.style.display = ‘none’;
+  var el = document.getElementById('live-indicator');
+  if (el) el.style.display = 'none';
 }
 
 function liveScoreDisplay() {
-var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
-var matchName = m ? m.name : ‘’;
-var isHome = matchName.toUpperCase().indexOf(‘SDR’) === 0;
-if (isHome) return _LIVE.scoreSDR + ‘-’ + _LIVE.scoreADV;
-return _LIVE.scoreADV + ‘-’ + _LIVE.scoreSDR;
+  var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
+  var matchName = m ? m.name : '';
+  var isHome = matchName.toUpperCase().indexOf('SDR') === 0;
+  if (isHome) return _LIVE.scoreSDR + '-' + _LIVE.scoreADV;
+  return _LIVE.scoreADV + '-' + _LIVE.scoreSDR;
 }
 
 function liveShowTeamPicker(min) {
-var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
-if (!m) return;
-var parts = m.name.split(’-’);
-var team1 = (parts[0]||‘Équipe 1’).trim();
-var team2 = (parts[1]||‘Équipe 2’).trim();
-var isSdrHome = team1.toUpperCase().indexOf(‘SDR’) >= 0 || team1.toUpperCase().indexOf(‘REIMS’) >= 0;
-var sdrName = isSdrHome ? team1 : team2;
-var advName = isSdrHome ? team2 : team1;
+  var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
+  if (!m) return;
+  var parts = m.name.split('-');
+  var team1 = (parts[0]||'Équipe 1').trim();
+  var team2 = (parts[1]||'Équipe 2').trim();
+  var isSdrHome = team1.toUpperCase().indexOf('SDR') >= 0 || team1.toUpperCase().indexOf('REIMS') >= 0;
+  var sdrName = isSdrHome ? team1 : team2;
+  var advName = isSdrHome ? team2 : team1;
 
-document.getElementById(‘live-picker-title’).textContent = ‘⚽ But — Quelle équipe ?’;
-document.getElementById(‘live-picker-content’).innerHTML =
-‘<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px;background:#f5f3ef;border-radius:8px">’ +
-‘<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>’ +
-‘<input id=“live-pick-min” type=“number” value=”’+min+’” min=“0” max=“120” ’ +
-‘style=“width:64px;border:2px solid var(–red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(–red)”>’ +
-‘</div>’ +
-‘<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">’ +
-‘<button onclick="liveButSDR()" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:20px 10px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">⚽<br>’+sdrName+’<br><span style="font-size:12px;opacity:.8">(notre but)</span></button>’ +
-‘<button onclick="liveButADV(\''+advName+'\')" style="background:#444;color:#fff;border:none;border-radius:8px;padding:20px 10px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">⚽<br>’+advName+’<br><span style="font-size:12px;opacity:.8">(but adverse)</span></button>’ +
-‘</div>’;
-document.getElementById(‘live-picker-type’).value = ‘but’;
-document.getElementById(‘live-picker’).style.display = ‘flex’;
+  document.getElementById('live-picker-title').textContent = '⚽ But — Quelle équipe ?';
+  document.getElementById('live-picker-content').innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px;background:#f5f3ef;border-radius:8px">' +
+    '<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>' +
+    '<input id="live-pick-min" type="number" value="'+min+'" min="0" max="120" ' +
+    'style="width:64px;border:2px solid var(--red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(--red)">' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+      '<button onclick="liveButSDR()" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:20px 10px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">⚽<br>'+sdrName+'<br><span style=\"font-size:12px;opacity:.8\">(notre but)</span></button>' +
+      '<button onclick="liveButADV(\''+advName+'\')" style="background:#444;color:#fff;border:none;border-radius:8px;padding:20px 10px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">⚽<br>'+advName+'<br><span style=\"font-size:12px;opacity:.8\">(but adverse)</span></button>' +
+    '</div>';
+  document.getElementById('live-picker-type').value = 'but';
+  document.getElementById('live-picker').style.display = 'flex';
 }
 
 function liveButSDR() {
-var min = +(document.getElementById(‘live-pick-min’)||{value:liveGetMin()}).value;
-// Show player picker for who scored
-var players = APP.players.filter(function(p) {
-var d = APP.pmd[p.id+’_’+_LIVE.matchId]||{};
-return d.statut===‘T’||d.statut===‘R’;
-});
-var chips = players.map(function(p) {
-return ‘<div onclick=“livePick('but','’+p.id+’',this)” ’ +
-‘style=“padding:10px 14px;border:2px solid var(–border);border-radius:6px;cursor:pointer;’+
-‘font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px” ‘+
-‘onmouseover=“this.style.borderColor='var(–red)';this.style.background='#fff8f8'” ‘+
-‘onmouseout=“this.style.borderColor='var(–border)';this.style.background=''”>’ +
-‘<div style="background:var(--red);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">’+p.num+’</div>’+
-‘<span>’+p.name+’</span>’ +
-‘</div>’;
-}).join(’’);
-document.getElementById(‘live-picker-title’).textContent = ‘⚽ Buteur SDR’;
-document.getElementById(‘live-picker-content’).innerHTML =
-‘<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px;background:#f5f3ef;border-radius:8px">’ +
-‘<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>’ +
-‘<input id=“live-pick-min” type=“number” value=”’+min+’” min=“0” max=“120” ’ +
-‘style=“width:64px;border:2px solid var(–red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(–red)”>’ +
-‘</div>’ +
-‘<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:280px;overflow-y:auto">’ + chips + ‘</div>’;
+  var min = +(document.getElementById('live-pick-min')||{value:liveGetMin()}).value;
+  // Show player picker for who scored
+  var players = APP.players.filter(function(p) {
+    var d = APP.pmd[p.id+'_'+_LIVE.matchId]||{};
+    return d.statut==='T'||d.statut==='R';
+  });
+  var chips = players.map(function(p) {
+    return '<div onclick="livePick(\'but\',\''+p.id+'\',this)" ' +
+      'style="padding:10px 14px;border:2px solid var(--border);border-radius:6px;cursor:pointer;'+
+      'font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px" '+
+      'onmouseover="this.style.borderColor=\'var(--red)\';this.style.background=\'#fff8f8\'" '+
+      'onmouseout="this.style.borderColor=\'var(--border)\';this.style.background=\'\'">' +
+      '<div style="background:var(--red);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">'+p.num+'</div>'+
+      '<span>'+p.name+'</span>' +
+    '</div>';
+  }).join('');
+  document.getElementById('live-picker-title').textContent = '⚽ Buteur SDR';
+  document.getElementById('live-picker-content').innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px;background:#f5f3ef;border-radius:8px">' +
+    '<span style="font-size:13px;font-weight:600;color:#555">Minute :</span>' +
+    '<input id="live-pick-min" type="number" value="'+min+'" min="0" max="120" ' +
+    'style="width:64px;border:2px solid var(--red);border-radius:5px;padding:5px 8px;font-size:16px;font-weight:700;text-align:center;font-family:Barlow Condensed,sans-serif;color:var(--red)">' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:280px;overflow-y:auto">' + chips + '</div>';
 }
 
 function liveButADV(teamName) {
-var min = +(document.getElementById(‘live-pick-min’)||{value:liveGetMin()}).value;
-// Goal for opponent — no player selection needed
-_LIVE.scoreADV++;
-liveUpdateScore();
-var ev = { min: min, type: ‘but_adv’, label: ‘⚽ ’ + teamName + ’ (but adverse)’ };
-_LIVE.events.push(ev);
-document.getElementById(‘live-picker’).style.display = ‘none’;
-liveRenderLog();
-liveGoalAnimation(false);
-// Update match score in APP
-liveAutoUpdateScore();
+  var min = +(document.getElementById('live-pick-min')||{value:liveGetMin()}).value;
+  // Goal for opponent — no player selection needed
+  _LIVE.scoreADV++;
+  liveUpdateScore();
+  var ev = { min: min, type: 'but_adv', label: '⚽ ' + teamName + ' (but adverse)' };
+  _LIVE.events.push(ev);
+  document.getElementById('live-picker').style.display = 'none';
+  liveRenderLog();
+  liveGoalAnimation(false);
+  // Update match score in APP
+  liveAutoUpdateScore();
 }
 
 function liveUpdateScore() {
-// Update score display in the live modal
-var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
-if (!m) return;
-// Update visual score boxes
-var sdrEl = document.getElementById(‘live-score-sdr’);
-var advEl = document.getElementById(‘live-score-adv’);
-if (sdrEl) { sdrEl.textContent = _LIVE.scoreSDR; sdrEl.style.animation=‘none’; void sdrEl.offsetWidth; sdrEl.style.animation=‘goalBounce .4s ease-out’; }
-if (advEl) { advEl.textContent = _LIVE.scoreADV; }
-// Update hidden input for save
-var isHome = m.name.toUpperCase().indexOf(‘SDR’) === 0;
-var score = isHome ? _LIVE.scoreSDR+’-’+_LIVE.scoreADV : _LIVE.scoreADV+’-’+_LIVE.scoreSDR;
-var el = document.getElementById(‘live-score’);
-if (el) el.value = score;
-liveAutoUpdateScore();
+  // Update score display in the live modal
+  var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
+  if (!m) return;
+  // Update visual score boxes
+  var sdrEl = document.getElementById('live-score-sdr');
+  var advEl = document.getElementById('live-score-adv');
+  if (sdrEl) { sdrEl.textContent = _LIVE.scoreSDR; sdrEl.style.animation='none'; void sdrEl.offsetWidth; sdrEl.style.animation='goalBounce .4s ease-out'; }
+  if (advEl) { advEl.textContent = _LIVE.scoreADV; }
+  // Update hidden input for save
+  var isHome = m.name.toUpperCase().indexOf('SDR') === 0;
+  var score = isHome ? _LIVE.scoreSDR+'-'+_LIVE.scoreADV : _LIVE.scoreADV+'-'+_LIVE.scoreSDR;
+  var el = document.getElementById('live-score');
+  if (el) el.value = score;
+  liveAutoUpdateScore();
 }
 
 function liveAutoUpdateScore() {
-// Save score to match data in real time
-var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
-if (!m) return;
-var isHome = m.name.toUpperCase().indexOf(‘SDR’) === 0;
-m.score = isHome
-? _LIVE.scoreSDR + ‘-’ + _LIVE.scoreADV
-: _LIVE.scoreADV + ‘-’ + _LIVE.scoreSDR;
-m.res = getRes(m.score, m.name);
-renderCompStats();
-renderMatchList();
-try { renderRecap(); } catch(e) {}
+  // Save score to match data in real time
+  var m = APP.matches[_LIVE.comp].find(function(x){return x.id===_LIVE.matchId;});
+  if (!m) return;
+  var isHome = m.name.toUpperCase().indexOf('SDR') === 0;
+  m.score = isHome
+    ? _LIVE.scoreSDR + '-' + _LIVE.scoreADV
+    : _LIVE.scoreADV + '-' + _LIVE.scoreSDR;
+  m.res = getRes(m.score, m.name);
+  renderCompStats();
+  renderMatchList();
+  try { renderRecap(); } catch(e) {}
 }
 
 function liveGoalAnimation(isSDR) {
-var overlay = document.createElement(‘div’);
-overlay.style.cssText = ‘position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:99999;pointer-events:none;’;
-overlay.innerHTML = ‘<div style="font-size:120px;animation:goalBounce .6s ease-out;text-align:center;">’ +
-(isSDR ? ‘⚽<br><span style="font-size:32px;font-family:Barlow Condensed,sans-serif;font-weight:900;color:var(--red);text-shadow:2px 2px 8px rgba(0,0,0,.3)">BUT !</span>’ : ‘⚽’) +
-‘</div>’;
-document.body.appendChild(overlay);
-setTimeout(function() { document.body.removeChild(overlay); }, 1500);
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:99999;pointer-events:none;';
+  overlay.innerHTML = '<div style="font-size:120px;animation:goalBounce .6s ease-out;text-align:center;">' +
+    (isSDR ? '⚽<br><span style="font-size:32px;font-family:Barlow Condensed,sans-serif;font-weight:900;color:var(--red);text-shadow:2px 2px 8px rgba(0,0,0,.3)">BUT !</span>' : '⚽') +
+    '</div>';
+  document.body.appendChild(overlay);
+  setTimeout(function() { document.body.removeChild(overlay); }, 1500);
 }
+
+
+
 
 // ── Sanction dropdown (shared for staff table + cartons table) ────
 function showSanctionMenu(e, key, refreshFn) {
-e.stopPropagation();
-var ex = document.getElementById(‘sanction-dropdown’);
-if (ex) ex.parentNode.removeChild(ex);
-if (!APP.pmd[key]) APP.pmd[key] = {};
-var d = APP.pmd[key];
+  e.stopPropagation();
+  var ex = document.getElementById('sanction-dropdown');
+  if (ex) ex.parentNode.removeChild(ex);
+  if (!APP.pmd[key]) APP.pmd[key] = {};
+  var d = APP.pmd[key];
 
-var menu = document.createElement(‘div’);
-menu.id = ‘sanction-dropdown’;
-menu.style.cssText = ‘position:fixed;z-index:99999;background:#fff;border-radius:10px;’+
-‘box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:200px;overflow:hidden;’+
-‘border:1.5px solid #e2ddd8;animation:fadeInDown .12s ease-out’;
-var rect = e.target.getBoundingClientRect();
-menu.style.top  = Math.min(rect.bottom + 4, window.innerHeight - 300) + ‘px’;
-menu.style.left = Math.min(rect.left, window.innerWidth - 220) + ‘px’;
+  var menu = document.createElement('div');
+  menu.id = 'sanction-dropdown';
+  menu.style.cssText = 'position:fixed;z-index:99999;background:#fff;border-radius:10px;'+
+    'box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:200px;overflow:hidden;'+
+    'border:1.5px solid #e2ddd8;animation:fadeInDown .12s ease-out';
+  var rect = e.target.getBoundingClientRect();
+  menu.style.top  = Math.min(rect.bottom + 4, window.innerHeight - 300) + 'px';
+  menu.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
 
-function doRefresh() {
-try { window[refreshFn](); } catch(x) {}
-try { renderCartons(); } catch(x) {}
-try { renderStaffCartons(); } catch(x) {}
-try { renderRecap(); } catch(x) {}
+  function doRefresh() {
+    try { window[refreshFn](); } catch(x) {}
+    try { renderCartons(); } catch(x) {}
+    try { renderStaffCartons(); } catch(x) {}
+    try { renderRecap(); } catch(x) {}
+  }
+  function closeMenu() { if (menu.parentNode) menu.parentNode.removeChild(menu); }
+
+  // ── Option rows ──────────────────────────────────────────────
+  var options = [
+    { label:'🟨 Jaune',  value:'jaune', active: d.carton==='jaune' },
+    { label:'🟥 2J = Rouge', value:'dj', active: d.carton==='dj' },
+    { label:'🟥 Rouge direct', value:'rouge', active: d.carton==='rouge' },
+    { label:'<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#111;border-radius:3px;color:#fff;font-weight:900;font-size:12px;vertical-align:middle">S</span> <span style="color:#c084fc;font-weight:800">Suspension</span>', value:'susp', active: !!d.suspension, purple: true },
+    { label:'✕ Effacer', value:'clear', active: false, muted: true }
+  ];
+
+  options.forEach(function(opt) {
+    var row = document.createElement('div');
+    row.style.cssText = 'padding:11px 16px;cursor:pointer;font-family:Barlow Condensed,sans-serif;'+
+      'font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;'+
+      'border-bottom:1px solid #f0ede8;background:'+(opt.active?'#fff8f8':'#fff')+';'+
+      'color:'+(opt.muted?'#aaa':opt.purple?'#c084fc':'#222');
+    row.innerHTML = '<span style="min-width:20px">'+(opt.active?'✅':'')+'</span>'+opt.label;
+    row.onmouseover = function(){this.style.background='#f5f3ef';};
+    row.onmouseout  = function(){this.style.background=opt.active?'#fff8f8':'#fff';};
+    row.onclick = function(ev) {
+      ev.stopPropagation();
+      if (!APP.pmd[key]) APP.pmd[key]={};
+      var d2 = APP.pmd[key];
+      if (opt.value==='clear') {
+        d2.carton=''; d2.suspension=false; d2.c_j=false; d2.c_j2=false; d2.c_r=false; d2.carton_num=1;
+      } else if (opt.value==='susp') {
+        d2.suspension = !d2.suspension;
+      } else {
+        d2.carton = (d2.carton===opt.value) ? '' : opt.value;
+        d2.c_j  = d2.carton==='jaune';
+        d2.c_j2 = d2.carton==='dj';
+        d2.c_r  = d2.carton==='rouge';
+        if (!d2.carton_num) d2.carton_num = 1;
+      }
+      closeMenu();
+      doRefresh();
+    };
+    menu.appendChild(row);
+  });
+
+  // ── Number picker (1–5) ──────────────────────────────────────
+  var numRow = document.createElement('div');
+  numRow.style.cssText = 'padding:8px 14px;display:flex;align-items:center;gap:6px;border-top:2px solid #f0ede8;background:#fafafa';
+  var lbl = document.createElement('span');
+  lbl.style.cssText = 'font-size:12px;color:#777;font-weight:700;font-family:Barlow Condensed,sans-serif;margin-right:2px';
+  lbl.textContent = 'N° carton :';
+  numRow.appendChild(lbl);
+
+  [1,2,3,4,5].forEach(function(n) {
+    var btn = document.createElement('button');
+    btn.textContent = n;
+    var active = (d.carton_num||1) === n;
+    btn.style.cssText = 'width:26px;height:26px;border-radius:50%;cursor:pointer;'+
+      'font-weight:800;font-size:12px;font-family:Barlow Condensed,sans-serif;'+
+      'border:2px solid '+(active?'var(--red)':'#ddd')+';'+
+      'background:'+(active?'var(--red)':'#fff')+';'+
+      'color:'+(active?'#fff':'#555');
+    btn.onclick = function(ev) {
+      ev.stopPropagation();
+      if (!APP.pmd[key]) APP.pmd[key] = {};
+      APP.pmd[key].carton_num = n;
+      closeMenu();
+      doRefresh();
+    };
+    numRow.appendChild(btn);
+  });
+  menu.appendChild(numRow);
+
+  document.body.appendChild(menu);
+  setTimeout(function() {
+    document.addEventListener('click', function _c(ev) {
+      if (!menu.contains(ev.target)) { closeMenu(); document.removeEventListener('click', _c); }
+    });
+  }, 10);
 }
-function closeMenu() { if (menu.parentNode) menu.parentNode.removeChild(menu); }
 
-// ── Option rows ──────────────────────────────────────────────
-var options = [
-{ label:‘🟨 Jaune’,  value:‘jaune’, active: d.carton===‘jaune’ },
-{ label:‘🟥 2J = Rouge’, value:‘dj’, active: d.carton===‘dj’ },
-{ label:‘🟥 Rouge direct’, value:‘rouge’, active: d.carton===‘rouge’ },
-{ label:’<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#111;border-radius:3px;color:#fff;font-weight:900;font-size:12px;vertical-align:middle">S</span> <span style="color:#c084fc;font-weight:800">Suspension</span>’, value:‘susp’, active: !!d.suspension, purple: true },
-{ label:‘✕ Effacer’, value:‘clear’, active: false, muted: true }
-];
-
-options.forEach(function(opt) {
-var row = document.createElement(‘div’);
-row.style.cssText = ‘padding:11px 16px;cursor:pointer;font-family:Barlow Condensed,sans-serif;’+
-‘font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;’+
-‘border-bottom:1px solid #f0ede8;background:’+(opt.active?’#fff8f8’:’#fff’)+’;’+
-‘color:’+(opt.muted?’#aaa’:opt.purple?’#c084fc’:’#222’);
-row.innerHTML = ‘<span style="min-width:20px">’+(opt.active?‘✅’:’’)+’</span>’+opt.label;
-row.onmouseover = function(){this.style.background=’#f5f3ef’;};
-row.onmouseout  = function(){this.style.background=opt.active?’#fff8f8’:’#fff’;};
-row.onclick = function(ev) {
-ev.stopPropagation();
-if (!APP.pmd[key]) APP.pmd[key]={};
-var d2 = APP.pmd[key];
-if (opt.value===‘clear’) {
-d2.carton=’’; d2.suspension=false; d2.c_j=false; d2.c_j2=false; d2.c_r=false; d2.carton_num=1;
-} else if (opt.value===‘susp’) {
-d2.suspension = !d2.suspension;
-} else {
-d2.carton = (d2.carton===opt.value) ? ‘’ : opt.value;
-d2.c_j  = d2.carton===‘jaune’;
-d2.c_j2 = d2.carton===‘dj’;
-d2.c_r  = d2.carton===‘rouge’;
-if (!d2.carton_num) d2.carton_num = 1;
-}
-closeMenu();
-doRefresh();
-};
-menu.appendChild(row);
-});
-
-// ── Number picker (1–5) ──────────────────────────────────────
-var numRow = document.createElement(‘div’);
-numRow.style.cssText = ‘padding:8px 14px;display:flex;align-items:center;gap:6px;border-top:2px solid #f0ede8;background:#fafafa’;
-var lbl = document.createElement(‘span’);
-lbl.style.cssText = ‘font-size:12px;color:#777;font-weight:700;font-family:Barlow Condensed,sans-serif;margin-right:2px’;
-lbl.textContent = ‘N° carton :’;
-numRow.appendChild(lbl);
-
-[1,2,3,4,5].forEach(function(n) {
-var btn = document.createElement(‘button’);
-btn.textContent = n;
-var active = (d.carton_num||1) === n;
-btn.style.cssText = ‘width:26px;height:26px;border-radius:50%;cursor:pointer;’+
-‘font-weight:800;font-size:12px;font-family:Barlow Condensed,sans-serif;’+
-‘border:2px solid ‘+(active?‘var(–red)’:’#ddd’)+’;’+
-‘background:’+(active?‘var(–red)’:’#fff’)+’;’+
-‘color:’+(active?’#fff’:’#555’);
-btn.onclick = function(ev) {
-ev.stopPropagation();
-if (!APP.pmd[key]) APP.pmd[key] = {};
-APP.pmd[key].carton_num = n;
-closeMenu();
-doRefresh();
-};
-numRow.appendChild(btn);
-});
-menu.appendChild(numRow);
-
-document.body.appendChild(menu);
-setTimeout(function() {
-document.addEventListener(‘click’, function _c(ev) {
-if (!menu.contains(ev.target)) { closeMenu(); document.removeEventListener(‘click’, _c); }
-});
-}, 10);
-}
 
 function renderStaffPassportAlerts() {
-var container = document.getElementById(‘staff-passport-alerts’);
-if (!container) return;
+  var container = document.getElementById('staff-passport-alerts');
+  if (!container) return;
 
-var today = new Date();
-var sixMonths = new Date(today); sixMonths.setMonth(sixMonths.getMonth()+6);
-var threeMonths = new Date(today); threeMonths.setMonth(threeMonths.getMonth()+3);
+  var today = new Date();
+  var sixMonths = new Date(today); sixMonths.setMonth(sixMonths.getMonth()+6);
+  var threeMonths = new Date(today); threeMonths.setMonth(threeMonths.getMonth()+3);
 
-var alerts = [];
-APP.staff.forEach(function(s) {
-if (!s.passport) return;
-var exp = new Date(s.passport);
-if (isNaN(exp.getTime())) return;
-var diffDays = Math.floor((exp - today) / (1000*60*60*24));
-if (exp <= sixMonths) alerts.push({s:s, exp:exp, diff:diffDays});
-});
-alerts.sort(function(a,b){return a.diff-b.diff;});
+  var alerts = [];
+  APP.staff.forEach(function(s) {
+    if (!s.passport) return;
+    var exp = new Date(s.passport);
+    if (isNaN(exp.getTime())) return;
+    var diffDays = Math.floor((exp - today) / (1000*60*60*24));
+    if (exp <= sixMonths) alerts.push({s:s, exp:exp, diff:diffDays});
+  });
+  alerts.sort(function(a,b){return a.diff-b.diff;});
 
-// Update badge
-var badge = document.getElementById(‘staff-passport-badge’);
-if (badge) badge.textContent = alerts.length > 0 ? alerts.length : ‘’;
+  // Update badge
+  var badge = document.getElementById('staff-passport-badge');
+  if (badge) badge.textContent = alerts.length > 0 ? alerts.length : '';
 
-if (alerts.length === 0) {
-container.innerHTML =
-‘<div style="text-align:center;padding:60px 20px;color:var(--muted)">’+
-‘<div style="font-size:56px;margin-bottom:16px">✅</div>’+
-‘<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:24px;color:#333;text-transform:uppercase;letter-spacing:1px">Aucune alerte document staff</div>’+
-‘<div style="font-size:15px;margin-top:8px;color:#888">Tous les documents sont valides plus de 6 mois.</div>’+
-‘</div>’;
-return;
-}
+  if (alerts.length === 0) {
+    container.innerHTML =
+      '<div style="text-align:center;padding:60px 20px;color:var(--muted)">'+
+        '<div style="font-size:56px;margin-bottom:16px">✅</div>'+
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:24px;color:#333;text-transform:uppercase;letter-spacing:1px">Aucune alerte document staff</div>'+
+        '<div style="font-size:15px;margin-top:8px;color:#888">Tous les documents sont valides plus de 6 mois.</div>'+
+      '</div>';
+    return;
+  }
 
-container.innerHTML = alerts.map(function(item) {
-var s = item.s;
-var diff = item.diff;
-var isCrit = item.exp <= threeMonths;
-var isExpired = diff < 0;
-var expStr = item.exp.toLocaleDateString(‘fr-FR’);
-var diffStr = isExpired
-? ‘EXPIRÉ depuis ’ + Math.abs(diff) + ’ j’
-: diff + ’ jour’ + (diff>1?‘s’:’’) + ’ restant’ + (diff>1?‘s’:’’);
+  container.innerHTML = alerts.map(function(item) {
+    var s = item.s;
+    var diff = item.diff;
+    var isCrit = item.exp <= threeMonths;
+    var isExpired = diff < 0;
+    var expStr = item.exp.toLocaleDateString('fr-FR');
+    var diffStr = isExpired
+      ? 'EXPIRÉ depuis ' + Math.abs(diff) + ' j'
+      : diff + ' jour' + (diff>1?'s':'') + ' restant' + (diff>1?'s':'');
 
-```
-return '<div style="background:#fff;border-left:5px solid '+(isCrit?'var(--red)':'var(--gold)')+';border-radius:8px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">'+
-  (s.passportPhoto?'<img src="'+s.passportPhoto+'" style="width:36px;height:48px;object-fit:cover;border-radius:4px;border:1.5px solid #e2ddd8;flex-shrink:0">':'<div style="font-size:28px;flex-shrink:0">'+(isExpired?'🚫':isCrit?'🚨':'⚠️')+'</div>')+
-  '<div style="flex:1">'+
-    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;color:#111">'+s.name+'</div>'+
-    '<div style="font-size:13px;color:#888;margin-top:3px">'+s.role+' · Expiration: '+expStr+'</div>'+
-  '</div>'+
-  '<div style="text-align:right;flex-shrink:0">'+
-    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;color:'+(isCrit?'var(--red)':'var(--gold)')+'">'+diffStr+'</div>'+
-    '<button onclick="showAddStaffModal(\''+s.id+'\')" style="margin-top:6px;background:var(--red);color:#fff;border:none;border-radius:4px;padding:5px 12px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">Modifier</button>'+
-  '</div>'+
-'</div>';
-```
-
-}).join(’’);
+    return '<div style="background:#fff;border-left:5px solid '+(isCrit?'var(--red)':'var(--gold)')+';border-radius:8px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">'+
+      (s.passportPhoto?'<img src="'+s.passportPhoto+'" style="width:36px;height:48px;object-fit:cover;border-radius:4px;border:1.5px solid #e2ddd8;flex-shrink:0">':'<div style="font-size:28px;flex-shrink:0">'+(isExpired?'🚫':isCrit?'🚨':'⚠️')+'</div>')+
+      '<div style="flex:1">'+
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;color:#111">'+s.name+'</div>'+
+        '<div style="font-size:13px;color:#888;margin-top:3px">'+s.role+' · Expiration: '+expStr+'</div>'+
+      '</div>'+
+      '<div style="text-align:right;flex-shrink:0">'+
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;color:'+(isCrit?'var(--red)':'var(--gold)')+'">'+diffStr+'</div>'+
+        '<button onclick="showAddStaffModal(\''+s.id+'\')" style="margin-top:6px;background:var(--red);color:#fff;border:none;border-radius:4px;padding:5px 12px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">Modifier</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
 }
 
 function liveSaveAndShow(comp, mid, finalMin) {
-var m = APP.matches[comp].find(function(x){return x.id===mid;});
-if (!m) { closeModal(); return; }
+  var m = APP.matches[comp].find(function(x){return x.id===mid;});
+  if (!m) { closeModal(); return; }
 
-// Build summary
-var scorers = APP.players.filter(function(p){
-return (APP.pmd[p.id+’*’+mid]||{}).buts > 0;
-});
-var scorersHtml = scorers.length
-? scorers.map(function(p){
-var d = APP.pmd[p.id+’*’+mid]||{};
-return ‘<div style="display:flex;align-items:center;gap:8px;padding:5px 0">’ +
-‘<span>⚽</span>’ +
-‘<span style="font-weight:700">’+p.name+’</span>’ +
-(d.buts>1?’<span style="color:#888;font-size:12px">×’+d.buts+’</span>’:’’) +
-(d.but_min?’<span style="color:#888;font-size:12px">’+d.but_min+’'</span>’:’’) +
-‘</div>’;
-}).join(’’)
-: ‘<div style="color:#aaa;font-size:13px">Aucun buteur SDR</div>’;
+  // Build summary
+  var scorers = APP.players.filter(function(p){
+    return (APP.pmd[p.id+'_'+mid]||{}).buts > 0;
+  });
+  var scorersHtml = scorers.length
+    ? scorers.map(function(p){
+        var d = APP.pmd[p.id+'_'+mid]||{};
+        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0">' +
+          '<span>⚽</span>' +
+          '<span style="font-weight:700">'+p.name+'</span>' +
+          (d.buts>1?'<span style="color:#888;font-size:12px">×'+d.buts+'</span>':'') +
+          (d.but_min?'<span style="color:#888;font-size:12px">'+d.but_min+'\'</span>':'') +
+        '</div>';
+      }).join('')
+    : '<div style="color:#aaa;font-size:13px">Aucun buteur SDR</div>';
 
-var playersHtml = APP.players
-.filter(function(p){ var d=APP.pmd[p.id+’*’+mid]||{}; return d.statut===‘T’||d.statut===‘R’; })
-.sort(function(a,b){
-var da=APP.pmd[a.id+’*’+mid]||{}, db=APP.pmd[b.id+’*’+mid]||{};
-if(da.statut===db.statut) return parseInt(a.num||99)-parseInt(b.num||99);
-return da.statut===‘T’?-1:1;
-})
-.map(function(p){
-var d = APP.pmd[p.id+’*’+mid]||{};
-var cartons=’’;
-if(d.c_j||d.carton===‘jaune’) cartons+=‘🟨’;
-if(d.c_j2||d.carton===‘dj’) cartons+=‘🟥2J’;
-if(d.c_r||d.carton===‘rouge’) cartons+=‘🟥’;
-return ‘<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #f5f3ef">’ +
-‘<div style="background:var(--red);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">’+p.num+’</div>’ +
-‘<span style="flex:1;font-weight:700;font-size:13px">’+p.name+’</span>’ +
-‘<span style="font-size:11px;color:#888">’+d.statut+’</span>’ +
-‘<span style="font-size:12px;color:#555;min-width:30px;text-align:right">’+(d.min||0)+’'</span>’ +
-(d.buts?’<span style="font-size:12px">⚽’+d.buts+’</span>’:’’) +
-(cartons?’<span style="font-size:11px">’+cartons+’</span>’:’’) +
-‘</div>’;
-}).join(’’);
+  var playersHtml = APP.players
+    .filter(function(p){ var d=APP.pmd[p.id+'_'+mid]||{}; return d.statut==='T'||d.statut==='R'; })
+    .sort(function(a,b){
+      var da=APP.pmd[a.id+'_'+mid]||{}, db=APP.pmd[b.id+'_'+mid]||{};
+      if(da.statut===db.statut) return parseInt(a.num||99)-parseInt(b.num||99);
+      return da.statut==='T'?-1:1;
+    })
+    .map(function(p){
+      var d = APP.pmd[p.id+'_'+mid]||{};
+      var cartons='';
+      if(d.c_j||d.carton==='jaune') cartons+='🟨';
+      if(d.c_j2||d.carton==='dj') cartons+='🟥2J';
+      if(d.c_r||d.carton==='rouge') cartons+='🟥';
+      return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #f5f3ef">' +
+        '<div style="background:var(--red);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">'+p.num+'</div>' +
+        '<span style="flex:1;font-weight:700;font-size:13px">'+p.name+'</span>' +
+        '<span style="font-size:11px;color:#888">'+d.statut+'</span>' +
+        '<span style="font-size:12px;color:#555;min-width:30px;text-align:right">'+(d.min||0)+'\'</span>' +
+        (d.buts?'<span style="font-size:12px">⚽'+d.buts+'</span>':'') +
+        (cartons?'<span style="font-size:11px">'+cartons+'</span>':'') +
+      '</div>';
+    }).join('');
 
-openModal(
-‘<div class="mo-hdr" style="background:#1a5c30">’ +
-’<div class="mo-title">🏁 ’ + m.name + ’ — ’ + finalMin + ‘'</div>’ +
-‘<button class="mo-x" onclick="closeModal()" style="background:rgba(255,255,255,0.2)">✕</button>’ +
-‘</div>’ +
-‘<div class="mo-body">’ +
+  openModal(
+    '<div class="mo-hdr" style="background:#1a5c30">' +
+      '<div class="mo-title">🏁 ' + m.name + ' — ' + finalMin + '\'</div>' +
+      '<button class="mo-x" onclick="closeModal()" style="background:rgba(255,255,255,0.2)">✕</button>' +
+    '</div>' +
+    '<div class="mo-body">' +
 
-```
-// Score
-'<div style="display:flex;align-items:center;justify-content:center;gap:20px;padding:16px;background:#f0fdf4;border-radius:8px;margin-bottom:14px">' +
-  '<div style="text-align:center">' +
-    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:11px;color:#888;text-transform:uppercase">SDR</div>' +
-    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:56px;color:var(--red);line-height:1">'+_LIVE.scoreSDR+'</div>' +
-  '</div>' +
-  '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:32px;color:#ccc">—</div>' +
-  '<div style="text-align:center">' +
-    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:11px;color:#888;text-transform:uppercase">ADV</div>' +
-    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:56px;color:#555;line-height:1">'+_LIVE.scoreADV+'</div>' +
-  '</div>' +
-'</div>' +
+    // Score
+    '<div style="display:flex;align-items:center;justify-content:center;gap:20px;padding:16px;background:#f0fdf4;border-radius:8px;margin-bottom:14px">' +
+      '<div style="text-align:center">' +
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:11px;color:#888;text-transform:uppercase">SDR</div>' +
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:56px;color:var(--red);line-height:1">'+_LIVE.scoreSDR+'</div>' +
+      '</div>' +
+      '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:32px;color:#ccc">—</div>' +
+      '<div style="text-align:center">' +
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:11px;color:#888;text-transform:uppercase">ADV</div>' +
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:56px;color:#555;line-height:1">'+_LIVE.scoreADV+'</div>' +
+      '</div>' +
+    '</div>' +
 
-// Scorers
-'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px">⚽ Buteurs</div>' +
-'<div style="margin-bottom:14px">'+scorersHtml+'</div>' +
+    // Scorers
+    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px">⚽ Buteurs</div>' +
+    '<div style="margin-bottom:14px">'+scorersHtml+'</div>' +
 
-// Players
-'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px">👥 Joueurs</div>' +
-'<div style="max-height:220px;overflow-y:auto;margin-bottom:4px">'+playersHtml+'</div>' +
+    // Players
+    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px">👥 Joueurs</div>' +
+    '<div style="max-height:220px;overflow-y:auto;margin-bottom:4px">'+playersHtml+'</div>' +
 
-'</div>' +
-'<div class="mo-foot">' +
-  '<button class="btn-c" onclick="closeModal()">Fermer sans sauver</button>' +
-  '<button onclick="liveSaveData(\''+comp+'\',\''+mid+'\')" style="background:#1a5c30;color:#fff;border:none;border-radius:6px;padding:11px 22px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">✅ Enregistrer</button>' +
-'</div>'
-```
-
-);
+    '</div>' +
+    '<div class="mo-foot">' +
+      '<button class="btn-c" onclick="closeModal()">Fermer sans sauver</button>' +
+      '<button onclick="liveSaveData(\''+comp+'\',\''+mid+'\')" style="background:#1a5c30;color:#fff;border:none;border-radius:6px;padding:11px 22px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">✅ Enregistrer</button>' +
+    '</div>'
+  );
 }
 
 function liveSaveData(comp, mid) {
-// Refresh all tabs
-try{renderCompStats();}catch(e){}
-try{renderMatchList();}catch(e){}
-try{renderRecap();}catch(e){}
-try{renderCartons();}catch(e){}
-try{renderPlayers();}catch(e){}
-try{renderPassportAlerts();}catch(e){}
+  // Refresh all tabs
+  try{renderCompStats();}catch(e){}
+  try{renderMatchList();}catch(e){}
+  try{renderRecap();}catch(e){}
+  try{renderCartons();}catch(e){}
+  try{renderPlayers();}catch(e){}
+  try{renderPassportAlerts();}catch(e){}
 
-// Reset live state
-_LIVE.active = false;
-_LIVE.matchId = null;
-liveHideIndicator();
-closeModal();
+  // Reset live state
+  _LIVE.active = false;
+  _LIVE.matchId = null;
+  liveHideIndicator();
+  closeModal();
 
-// Show quick toast
-var toast = document.createElement(‘div’);
-toast.style.cssText = ‘position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a5c30;color:#fff;’+
-‘border-radius:30px;padding:12px 24px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;’+
-‘letter-spacing:1px;text-transform:uppercase;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.2);’+
-‘white-space:nowrap’;
-toast.textContent = ‘✅ Match enregistré !’;
-document.body.appendChild(toast);
-setTimeout(function(){ document.body.removeChild(toast); }, 2500);
+  // Show quick toast
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a5c30;color:#fff;'+
+    'border-radius:30px;padding:12px 24px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;'+
+    'letter-spacing:1px;text-transform:uppercase;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.2);'+
+    'white-space:nowrap';
+  toast.textContent = '✅ Match enregistré !';
+  document.body.appendChild(toast);
+  setTimeout(function(){ document.body.removeChild(toast); }, 2500);
 }
 
 function sfPreviewProfilePhoto(input) {
-if (!input.files || !input.files[0]) return;
-var reader = new FileReader();
-reader.onload = function(e) {
-document.getElementById(‘sf-photo-data’).value = e.target.result;
-var prev = document.getElementById(‘sf-photo-preview’);
-if (prev) prev.innerHTML = ‘<img src="'+e.target.result+'" style="width:56px;height:56px;object-fit:cover;border-radius:50%;border:3px solid var(--red)">’;
-};
-reader.readAsDataURL(input.files[0]);
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('sf-photo-data').value = e.target.result;
+    var prev = document.getElementById('sf-photo-preview');
+    if (prev) prev.innerHTML = '<img src="'+e.target.result+'" style="width:56px;height:56px;object-fit:cover;border-radius:50%;border:3px solid var(--red)">';
+  };
+  reader.readAsDataURL(input.files[0]);
 }
 
+
 function showNavEditor() {
-var nav = document.getElementById(‘main-nav’);
-var btns = Array.from(nav.querySelectorAll(’[data-page]’));
-window._navItems = btns.map(function(b) {
-return { page: b.getAttribute(‘data-page’), label: b.textContent.trim() };
-});
-navRenderEditor();
+  var nav = document.getElementById('main-nav');
+  var btns = Array.from(nav.querySelectorAll('[data-page]'));
+  window._navItems = btns.map(function(b) {
+    return { page: b.getAttribute('data-page'), label: b.textContent.trim() };
+  });
+  navRenderEditor();
 }
 
 function navRenderEditor() {
-var items = window._navItems;
+  var items = window._navItems;
 
-function buildRows() {
-return items.map(function(item, idx) {
-return ‘<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;' +
-'background:#fff;border:1.5px solid #e2ddd8;border-radius:8px;margin-bottom:8px">’ +
-‘<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;flex:1">’ +
-item.label +
-‘</span>’ +
-‘<div style="display:flex;flex-direction:column;gap:3px">’ +
-‘<button onclick=“navMove(’+idx+’,-1)” ’ +
-‘style=“background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;’ +
-‘font-size:14px;cursor:pointer;line-height:1;’+(idx===0?‘opacity:.3;cursor:default’:’’)+’”>↑</button>’ +
-‘<button onclick=“navMove(’+idx+’,1)” ’ +
-‘style=“background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;’ +
-‘font-size:14px;cursor:pointer;line-height:1;’+(idx===items.length-1?‘opacity:.3;cursor:default’:’’)+’”>↓</button>’ +
-‘</div>’ +
-‘</div>’;
-}).join(’’);
-}
+  function buildRows() {
+    return items.map(function(item, idx) {
+      return '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;' +
+        'background:#fff;border:1.5px solid #e2ddd8;border-radius:8px;margin-bottom:8px">' +
+        '<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;flex:1">' +
+          item.label +
+        '</span>' +
+        '<div style="display:flex;flex-direction:column;gap:3px">' +
+          '<button onclick="navMove('+idx+',-1)" ' +
+            'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
+            'font-size:14px;cursor:pointer;line-height:1;'+(idx===0?'opacity:.3;cursor:default':'')+'">↑</button>' +
+          '<button onclick="navMove('+idx+',1)" ' +
+            'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
+            'font-size:14px;cursor:pointer;line-height:1;'+(idx===items.length-1?'opacity:.3;cursor:default':'')+'">↓</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
 
-var content =
-‘<div class="mo-hdr"><div class="mo-title">⚙️ Ordre des onglets</div>’ +
-‘<button class="mo-x" onclick="closeModal()">✕</button></div>’ +
-‘<div class="mo-body">’ +
-‘<p style="font-size:13px;color:#888;margin-bottom:14px">Utilise ↑ ↓ pour changer l'ordre des onglets.</p>’ +
-‘<div id="nav-sort-list">’ + buildRows() + ‘</div>’ +
-‘</div>’ +
-‘<div class="mo-foot">’ +
-‘<button class="btn-c" onclick="closeModal()">Annuler</button>’ +
-‘<button class="btn-p" onclick="navApplyOrder()">✅ Appliquer</button>’ +
-‘</div>’;
+  var content =
+    '<div class="mo-hdr"><div class="mo-title">⚙️ Ordre des onglets</div>' +
+    '<button class="mo-x" onclick="closeModal()">✕</button></div>' +
+    '<div class="mo-body">' +
+      '<p style="font-size:13px;color:#888;margin-bottom:14px">Utilise ↑ ↓ pour changer l\'ordre des onglets.</p>' +
+      '<div id="nav-sort-list">' + buildRows() + '</div>' +
+    '</div>' +
+    '<div class="mo-foot">' +
+      '<button class="btn-c" onclick="closeModal()">Annuler</button>' +
+      '<button class="btn-p" onclick="navApplyOrder()">✅ Appliquer</button>' +
+    '</div>';
 
-openModal(content);
+  openModal(content);
 }
 
 function navMove(idx, dir) {
-var items = window._navItems;
-var newIdx = idx + dir;
-if (newIdx < 0 || newIdx >= items.length) return;
-var tmp = items[idx];
-items[idx] = items[newIdx];
-items[newIdx] = tmp;
-window._navItems = items;
-// Re-render the list inside the modal
-var list = document.getElementById(‘nav-sort-list’);
-if (!list) return;
-list.innerHTML = items.map(function(item, i) {
-return ‘<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;' +
-'background:#fff;border:1.5px solid #e2ddd8;border-radius:8px;margin-bottom:8px">’ +
-‘<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;flex:1">’ +
-item.label +
-‘</span>’ +
-‘<div style="display:flex;flex-direction:column;gap:3px">’ +
-‘<button onclick=“navMove(’+i+’,-1)” ’ +
-‘style=“background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;’ +
-‘font-size:14px;cursor:pointer;line-height:1;’+(i===0?‘opacity:.3’:’’)+’”>↑</button>’ +
-‘<button onclick=“navMove(’+i+’,1)” ’ +
-‘style=“background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;’ +
-‘font-size:14px;cursor:pointer;line-height:1;’+(i===items.length-1?‘opacity:.3’:’’)+’”>↓</button>’ +
-‘</div>’ +
-‘</div>’;
-}).join(’’);
+  var items = window._navItems;
+  var newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= items.length) return;
+  var tmp = items[idx];
+  items[idx] = items[newIdx];
+  items[newIdx] = tmp;
+  window._navItems = items;
+  // Re-render the list inside the modal
+  var list = document.getElementById('nav-sort-list');
+  if (!list) return;
+  list.innerHTML = items.map(function(item, i) {
+    return '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;' +
+      'background:#fff;border:1.5px solid #e2ddd8;border-radius:8px;margin-bottom:8px">' +
+      '<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;flex:1">' +
+        item.label +
+      '</span>' +
+      '<div style="display:flex;flex-direction:column;gap:3px">' +
+        '<button onclick="navMove('+i+',-1)" ' +
+          'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
+          'font-size:14px;cursor:pointer;line-height:1;'+(i===0?'opacity:.3':'')+'">↑</button>' +
+        '<button onclick="navMove('+i+',1)" ' +
+          'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
+          'font-size:14px;cursor:pointer;line-height:1;'+(i===items.length-1?'opacity:.3':'')+'">↓</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 
 function navApplyOrder() {
-var items = window._navItems;
-if (!items) return;
-var nav = document.getElementById(‘main-nav’);
-var configBtn = nav.querySelector(’[title=“Réorganiser les onglets”]’);
-// Remove all data-page buttons
-Array.from(nav.querySelectorAll(’[data-page]’)).forEach(function(b) { nav.removeChild(b); });
-// Re-insert in new order before config button
-items.forEach(function(item) {
-var btn = document.createElement(‘button’);
-btn.className = ‘nb’ + (item.page === ‘passeport’ ? ’ gold-tab’ : ‘’);
-btn.setAttribute(‘data-page’, item.page);
-btn.innerHTML = item.label;
-btn.addEventListener(‘click’, function() { showPage(item.page, btn); });
-nav.insertBefore(btn, configBtn);
-});
-// Save order
-try { localStorage.setItem(‘nav_order’, JSON.stringify(items.map(function(i) { return i.page; }))); } catch(e) {}
-closeModal();
+  var items = window._navItems;
+  if (!items) return;
+  var nav = document.getElementById('main-nav');
+  var configBtn = nav.querySelector('[title="Réorganiser les onglets"]');
+  // Remove all data-page buttons
+  Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b) { nav.removeChild(b); });
+  // Re-insert in new order before config button
+  items.forEach(function(item) {
+    var btn = document.createElement('button');
+    btn.className = 'nb' + (item.page === 'passeport' ? ' gold-tab' : '');
+    btn.setAttribute('data-page', item.page);
+    btn.innerHTML = item.label;
+    btn.addEventListener('click', function() { showPage(item.page, btn); });
+    nav.insertBefore(btn, configBtn);
+  });
+  // Save order
+  try { localStorage.setItem('nav_order', JSON.stringify(items.map(function(i) { return i.page; }))); } catch(e) {}
+  closeModal();
 }
 
 function restoreNavOrder() {
-try {
-var saved = localStorage.getItem(‘nav_order’);
-if (!saved) return;
-var order = JSON.parse(saved);
-var nav = document.getElementById(‘main-nav’);
-var configBtn = nav.querySelector(’[title=“Réorganiser les onglets”]’);
-var btns = {};
-Array.from(nav.querySelectorAll(’[data-page]’)).forEach(function(b) {
-btns[b.getAttribute(‘data-page’)] = b;
-nav.removeChild(b);
-});
-order.forEach(function(page) {
-if (btns[page]) nav.insertBefore(btns[page], configBtn);
-});
-Object.keys(btns).forEach(function(page) {
-if (order.indexOf(page) < 0 && btns[page]) nav.insertBefore(btns[page], configBtn);
-});
-} catch(e) {}
+  try {
+    var saved = localStorage.getItem('nav_order');
+    if (!saved) return;
+    var order = JSON.parse(saved);
+    var nav = document.getElementById('main-nav');
+    var configBtn = nav.querySelector('[title="Réorganiser les onglets"]');
+    var btns = {};
+    Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b) {
+      btns[b.getAttribute('data-page')] = b;
+      nav.removeChild(b);
+    });
+    order.forEach(function(page) {
+      if (btns[page]) nav.insertBefore(btns[page], configBtn);
+    });
+    Object.keys(btns).forEach(function(page) {
+      if (order.indexOf(page) < 0 && btns[page]) nav.insertBefore(btns[page], configBtn);
+    });
+  } catch(e) {}
 }
 
+
 function confirmResetMatch(id, comp) {
-// Custom confirm modal — avoids iOS confirm() issues
-var m = APP.matches[comp].find(function(x){return x.id===id;});
-if (!m) return;
+  // Custom confirm modal — avoids iOS confirm() issues
+  var m = APP.matches[comp].find(function(x){return x.id===id;});
+  if (!m) return;
 
-var overlay = document.createElement(‘div’);
-overlay.style.cssText = ‘position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px’;
-overlay.innerHTML =
-‘<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;width:100%;text-align:center">’ +
-‘<div style="font-size:40px;margin-bottom:12px">🗑</div>’ +
-‘<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:20px;text-transform:uppercase;margin-bottom:8px">Effacer ce match ?</div>’ +
-‘<div style="font-size:14px;color:#666;margin-bottom:6px;font-weight:600">’ + m.j + ’ — ’ + m.name + ‘</div>’ +
-‘<div style="font-size:13px;color:#999;margin-bottom:20px;line-height:1.5">Score, statistiques, cartons et minutes jouées seront supprimés pour ce match.</div>’ +
-‘<div style="display:flex;gap:10px;justify-content:center">’ +
-‘<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;cursor:pointer;background:#fff">Annuler</button>’ +
-‘<button id="reset-match-confirm" style="flex:1;padding:12px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">🗑 Effacer</button>’ +
-‘</div></div>’;
-document.body.appendChild(overlay);
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML =
+    '<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;width:100%;text-align:center">' +
+    '<div style="font-size:40px;margin-bottom:12px">🗑</div>' +
+    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:20px;text-transform:uppercase;margin-bottom:8px">Effacer ce match ?</div>' +
+    '<div style="font-size:14px;color:#666;margin-bottom:6px;font-weight:600">' + m.j + ' — ' + m.name + '</div>' +
+    '<div style="font-size:13px;color:#999;margin-bottom:20px;line-height:1.5">Score, statistiques, cartons et minutes jouées seront supprimés pour ce match.</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center">' +
+    '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;cursor:pointer;background:#fff">Annuler</button>' +
+    '<button id="reset-match-confirm" style="flex:1;padding:12px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">🗑 Effacer</button>' +
+    '</div></div>';
+  document.body.appendChild(overlay);
 
-document.getElementById(‘reset-match-confirm’).onclick = function() {
-overlay.remove();
-resetMatchData(id, comp);
-};
+  document.getElementById('reset-match-confirm').onclick = function() {
+    overlay.remove();
+    resetMatchData(id, comp);
+  };
 }
 
 function resetMatchData(id, comp) {
-// Reset match score and result — keep date, journée, nom, adversaire
-var m = APP.matches[comp].find(function(x){return x.id===id;});
-if (m) { m.score = ‘’; m.res = ‘’; }
-// Note: m.date, m.j, m.name, m.adv are preserved
+  // Reset match score and result — keep date, journée, nom, adversaire
+  var m = APP.matches[comp].find(function(x){return x.id===id;});
+  if (m) { m.score = ''; m.res = ''; }
+  // Note: m.date, m.j, m.name, m.adv are preserved
 
-// Remove all pmd data for this match
-APP.players.forEach(function(p) {
-var key = p.id + ‘*’ + id;
-if (APP.pmd[key]) {
-APP.pmd[key] = {};
-}
-});
-APP.staff.forEach(function(s) {
-var key = s.id + ’*’ + id;
-if (APP.pmd[key]) {
-APP.pmd[key] = {};
-}
-});
+  // Remove all pmd data for this match
+  APP.players.forEach(function(p) {
+    var key = p.id + '_' + id;
+    if (APP.pmd[key]) {
+      APP.pmd[key] = {};
+    }
+  });
+  APP.staff.forEach(function(s) {
+    var key = s.id + '_' + id;
+    if (APP.pmd[key]) {
+      APP.pmd[key] = {};
+    }
+  });
 
-// Refresh all tabs
-try { renderCompStats(); } catch(e) {}
-try { renderMatchList(); } catch(e) {}
-try { renderRecap(); } catch(e) {}
-try { renderCartons(); } catch(e) {}
-try { renderStaff(); } catch(e) {}
+  // Refresh all tabs
+  try { renderCompStats(); } catch(e) {}
+  try { renderMatchList(); } catch(e) {}
+  try { renderRecap(); } catch(e) {}
+  try { renderCartons(); } catch(e) {}
+  try { renderStaff(); } catch(e) {}
 
-closeModal();
+  closeModal();
 
-// Toast confirmation
-var toast = document.createElement(‘div’);
-toast.style.cssText = ‘position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;’+
-‘border-radius:30px;padding:12px 24px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;’+
-‘letter-spacing:1px;text-transform:uppercase;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.2);white-space:nowrap’;
-toast.textContent = ‘✅ Match effacé’;
-document.body.appendChild(toast);
-setTimeout(function(){ if(toast.parentNode) toast.parentNode.removeChild(toast); }, 2000);
+  // Toast confirmation
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#333;color:#fff;'+
+    'border-radius:30px;padding:12px 24px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;'+
+    'letter-spacing:1px;text-transform:uppercase;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.2);white-space:nowrap';
+  toast.textContent = '✅ Match effacé';
+  document.body.appendChild(toast);
+  setTimeout(function(){ if(toast.parentNode) toast.parentNode.removeChild(toast); }, 2000);
 }
 
 // Event delegation for match reset button
-document.addEventListener(‘click’, function(e) {
-var btn = e.target.closest ? e.target.closest(’#match-reset-btn’) : null;
-if (!btn) btn = (e.target.id === ‘match-reset-btn’) ? e.target : null;
-if (btn) {
-var id = btn.getAttribute(‘data-reset-id’);
-var comp = btn.getAttribute(‘data-reset-comp’);
-if (id && comp) confirmResetMatch(id, comp);
-}
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest ? e.target.closest('#match-reset-btn') : null;
+  if (!btn) btn = (e.target.id === 'match-reset-btn') ? e.target : null;
+  if (btn) {
+    var id = btn.getAttribute('data-reset-id');
+    var comp = btn.getAttribute('data-reset-comp');
+    if (id && comp) confirmResetMatch(id, comp);
+  }
 });
 
 function renderRecapThead() {
-var champ = APP.champName || ‘Champ’;
-var TH = ‘background:var(–dark);color:rgba(255,255,255,0.8);font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:10px 6px;border-bottom:2px solid rgba(255,255,255,0.1);white-space:nowrap;text-align:center;’;
-var el = document.getElementById(‘recap-thead’);
-if (!el) return;
-el.innerHTML = ‘<tr>’ +
-‘<th style="'+TH+'position:sticky;z-index:4;left:0;min-width:38px;width:38px">#</th>’ +
-‘<th style="'+TH+'position:sticky;z-index:4;left:38px;min-width:130px;text-align:left;border-right:2px solid rgba(255,255,255,0.15)">Joueur</th>’ +
-‘<th style="'+TH+'min-width:60px">Groupe</th>’ +
-‘<th style="'+TH+'min-width:50px">Matchs</th>’ +
-‘<th style="'+TH+'min-width:50px;color:#93c5fd">’+champ+’ Tit.</th>’ +
-‘<th style="'+TH+'min-width:50px;color:#c4b5fd">’+champ+’ Rem.</th>’ +
-‘<th style="'+TH+'min-width:60px">Min ‘+champ+’</th>’ +
-‘<th style="'+TH+'min-width:50px;color:#86efac">CDF Tit.</th>’ +
-‘<th style="'+TH+'min-width:50px;color:#d8b4fe">CDF Rem.</th>’ +
-‘<th style="'+TH+'min-width:60px">Min CDF</th>’ +
-‘<th style="'+TH+'min-width:65px;color:#aaa;text-align:center">Min Total</th>’ +
-‘<th style="'+TH+'min-width:55px;color:#f87171">Buts ‘+champ+’</th>’ +
-‘<th style="'+TH+'min-width:55px;color:#f87171">Buts CDF</th>’ +
-‘<th style="'+TH+'min-width:55px;color:#f87171">Buts Tot.</th>’ +
-‘<th style="'+TH+'min-width:40px;color:var(--gold)">J</th>’ +
-‘<th style="'+TH+'min-width:40px;color:#f87171">R</th>’ +
-‘<th style="'+TH+'min-width:45px;color:#c084fc">Susp.</th>’ +
-‘</tr>’;
+  var champ = APP.champName || 'Champ';
+  var TH = 'background:var(--dark);color:rgba(255,255,255,0.8);font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:10px 6px;border-bottom:2px solid rgba(255,255,255,0.1);white-space:nowrap;text-align:center;';
+  var el = document.getElementById('recap-thead');
+  if (!el) return;
+  el.innerHTML = '<tr>' +
+    '<th style="'+TH+'position:sticky;z-index:4;left:0;min-width:38px;width:38px">#</th>' +
+    '<th style="'+TH+'position:sticky;z-index:4;left:38px;min-width:130px;text-align:left;border-right:2px solid rgba(255,255,255,0.15)">Joueur</th>' +
+    '<th style="'+TH+'min-width:60px">Groupe</th>' +
+    '<th style="'+TH+'min-width:50px">Matchs</th>' +
+    '<th style="'+TH+'min-width:50px;color:#93c5fd">'+champ+' Tit.</th>' +
+    '<th style="'+TH+'min-width:50px;color:#c4b5fd">'+champ+' Rem.</th>' +
+    '<th style="'+TH+'min-width:60px">Min '+champ+'</th>' +
+    '<th style="'+TH+'min-width:50px;color:#86efac">CDF Tit.</th>' +
+    '<th style="'+TH+'min-width:50px;color:#d8b4fe">CDF Rem.</th>' +
+    '<th style="'+TH+'min-width:60px">Min CDF</th>' +
+    '<th style="'+TH+'min-width:65px;color:#aaa;text-align:center">Min Total</th>' +
+    '<th style="'+TH+'min-width:55px;color:#f87171">Buts '+champ+'</th>' +
+    '<th style="'+TH+'min-width:55px;color:#f87171">Buts CDF</th>' +
+    '<th style="'+TH+'min-width:55px;color:#f87171">Buts Tot.</th>' +
+    '<th style="'+TH+'min-width:40px;color:var(--gold)">J</th>' +
+    '<th style="'+TH+'min-width:40px;color:#f87171">R</th>' +
+    '<th style="'+TH+'min-width:45px;color:#c084fc">Susp.</th>' +
+  '</tr>';
 }
 
-document.addEventListener(‘click’,function(e){var ep=e.target&&e.target.getAttribute?e.target.getAttribute(‘data-edit-pid’):null;if(ep){e.stopPropagation();showEditPlayerModal(ep);}});
+
+document.addEventListener('click',function(e){var ep=e.target&&e.target.getAttribute?e.target.getAttribute('data-edit-pid'):null;if(ep){e.stopPropagation();showEditPlayerModal(ep);}});
 
 function showRecapDetail(pid, field) {
-var p = APP.players.find(function(x){return x.id===pid;});
-if (!p) return;
-var rows = ‘’;
-var total = 0;
-var allMatches = APP.matches.L2.map(function(m){return{m:m,comp:‘L2’};})
-.concat(APP.matches.CDF.map(function(m){return{m:m,comp:‘CDF’};}));
-allMatches.forEach(function(mc) {
-var m = mc.m, comp = mc.comp;
-var d = (APP.pmd||{})[pid+’_’+m.id]||{};
-if (!d.statut) return;
-var val = 0;
-if (field===‘buts’) val = d.buts||0;
-else if (field===‘min’) val = d.min||0;
-else if (field===‘matchs’) val = (d.statut===‘T’||d.statut===‘R’)?1:0;
-else if (field===‘l2b’) { if(comp===‘L2’) val=d.buts||0; else return; }
-else if (field===‘cdfb’) { if(comp===‘CDF’) val=d.buts||0; else return; }
-if (field===‘matchs’||val>0||field===‘min’) {
-var compBadge = ‘<span style="font-size:10px;background:'+(comp==='CDF'?'#f59e0b':'#3b82f6')+';color:#fff;border-radius:3px;padding:1px 4px;font-weight:700">’+comp+’</span>’;
-rows += ‘<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0ede8">’
-+’<div style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;min-width:30px">’+m.j+’</div>’
-+compBadge
-+’<div style="flex:1;font-size:13px;color:#555">’+m.name+’</div>’
-+(m.date?’<div style="font-size:11px;color:#aaa">’+m.date+’</div>’:’’)
-+’<div style="font-weight:800;font-size:15px;color:var(--red);min-width:30px;text-align:right">’+(field===‘matchs’?d.statut:val+(field.indexOf(‘b’)>=0?’ ⚽’:’' ‘))+’</div>’
-+’</div>’;
-total += val;
-}
-});
-var fieldLabel = {buts:‘Buts totaux’,min:‘Minutes jouées’,matchs:‘Matchs joués’,l2b:‘Buts ‘+APP.champName,cdfb:‘Buts CDF’}[field]||field;
-openModal(
-‘<div class="mo-hdr"><div class="mo-title">’+(p.nomMaillot||p.name)+’</div>’
-+’<button class="mo-x" onclick="closeModal()">✕</button></div>’
-+’<div class="mo-body">’
-+’<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">’+fieldLabel+(field!==‘matchs’?’ · Total : ‘+total:’’)+’</div>’
-+(rows||’<div style="color:#aaa;padding:20px;text-align:center">Aucune donnée</div>’)
-+’</div>’
-+’<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>’
-);
+  var p = APP.players.find(function(x){return x.id===pid;});
+  if (!p) return;
+  var rows = '';
+  var total = 0;
+  var allMatches = APP.matches.L2.map(function(m){return{m:m,comp:'L2'};})
+    .concat(APP.matches.CDF.map(function(m){return{m:m,comp:'CDF'};}));
+  allMatches.forEach(function(mc) {
+    var m = mc.m, comp = mc.comp;
+    var d = (APP.pmd||{})[pid+'_'+m.id]||{};
+    if (!d.statut) return;
+    var val = 0;
+    if (field==='buts') val = d.buts||0;
+    else if (field==='min') val = d.min||0;
+    else if (field==='matchs') val = (d.statut==='T'||d.statut==='R')?1:0;
+    else if (field==='l2b') { if(comp==='L2') val=d.buts||0; else return; }
+    else if (field==='cdfb') { if(comp==='CDF') val=d.buts||0; else return; }
+    if (field==='matchs'||val>0||field==='min') {
+      var compBadge = '<span style="font-size:10px;background:'+(comp==='CDF'?'#f59e0b':'#3b82f6')+';color:#fff;border-radius:3px;padding:1px 4px;font-weight:700">'+comp+'</span>';
+      rows += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0ede8">'
+        +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;min-width:30px">'+m.j+'</div>'
+        +compBadge
+        +'<div style="flex:1;font-size:13px;color:#555">'+m.name+'</div>'
+        +(m.date?'<div style="font-size:11px;color:#aaa">'+m.date+'</div>':'')
+        +'<div style="font-weight:800;font-size:15px;color:var(--red);min-width:30px;text-align:right">'+(field==='matchs'?d.statut:val+(field.indexOf('b')>=0?' ⚽':'\' '))+'</div>'
+        +'</div>';
+      total += val;
+    }
+  });
+  var fieldLabel = {buts:'Buts totaux',min:'Minutes jouées',matchs:'Matchs joués',l2b:'Buts '+APP.champName,cdfb:'Buts CDF'}[field]||field;
+  openModal(
+    '<div class="mo-hdr"><div class="mo-title">'+(p.nomMaillot||p.name)+'</div>'
+    +'<button class="mo-x" onclick="closeModal()">✕</button></div>'
+    +'<div class="mo-body">'
+    +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">'+fieldLabel+(field!=='matchs'?' · Total : '+total:'')+'</div>'
+    +(rows||'<div style="color:#aaa;padding:20px;text-align:center">Aucune donnée</div>')
+    +'</div>'
+    +'<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>'
+  );
 }
 
 function setStaffMatchCarton(sid,type,mid){
-var key=sid+’*’+mid;if(!APP.pmd[key])APP.pmd[key]={};var d=APP.pmd[key];
-if(type===‘jaune’){d.c_j=!d.c_j;if(d.c_j)d.c_j2=false;}
-else if(type===‘dj’){d.c_j2=!d.c_j2;if(d.c_j2)d.c_j=false;}
-else if(type===‘rouge’){d.c_r=!d.c_r;}
-var s=APP.staff.find(function(x){return x.id===sid;});
-if(s){s.jaunes=0;s.rouges=0;
-APP.matches.L2.concat(APP.matches.CDF||[]).forEach(function(m){
-var md=APP.pmd[sid+’*’+m.id]||{};
-if(md.c_j)s.jaunes++;if(md.c_j2){s.jaunes+=2;s.rouges++;}if(md.c_r)s.rouges++;
-});}
-renderMPD(mid);try{renderStaffCartons();}catch(e){}
+  var key=sid+'_'+mid;if(!APP.pmd[key])APP.pmd[key]={};var d=APP.pmd[key];
+  if(type==='jaune'){d.c_j=!d.c_j;if(d.c_j)d.c_j2=false;}
+  else if(type==='dj'){d.c_j2=!d.c_j2;if(d.c_j2)d.c_j=false;}
+  else if(type==='rouge'){d.c_r=!d.c_r;}
+  var s=APP.staff.find(function(x){return x.id===sid;});
+  if(s){s.jaunes=0;s.rouges=0;
+    APP.matches.L2.concat(APP.matches.CDF||[]).forEach(function(m){
+      var md=APP.pmd[sid+'_'+m.id]||{};
+      if(md.c_j)s.jaunes++;if(md.c_j2){s.jaunes+=2;s.rouges++;}if(md.c_r)s.rouges++;
+    });}
+  renderMPD(mid);try{renderStaffCartons();}catch(e){}
 }
 function updStaffMatchPMD(sid,mid,field,val){
-var key=sid+’_’+mid;if(!APP.pmd[key])APP.pmd[key]={};APP.pmd[key][field]=val;
+  var key=sid+'_'+mid;if(!APP.pmd[key])APP.pmd[key]={};APP.pmd[key][field]=val;
 }
 
 </script>
