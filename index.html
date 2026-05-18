@@ -93,10 +93,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 .box{background:#fff;border-radius:7px;overflow:hidden;border:1.5px solid var(--border)}
 .box-hdr{background:var(--dark);padding:11px 14px;display:flex;justify-content:space-between;align-items:center}
 .box-hdr-t{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1.5px;color:#fff}
-.scroll-x{display:block;width:100%;overflow-x:scroll;-webkit-overflow-scrolling:touch}
+.scroll-x{display:block;width:100%;overflow-x:scroll;overflow-y:auto;max-height:calc(100vh - 280px);-webkit-overflow-scrolling:touch}
 .dtbl{border-collapse:separate;border-spacing:0;font-size:13px;width:auto;min-width:100%}
-.dtbl th{background:var(--dark);color:rgba(255,255,255,.7);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:10px 7px;text-align:center;white-space:nowrap;border-bottom:2px solid rgba(255,255,255,.1)}
-.dtbl th.stk{position:sticky;z-index:4;background:var(--dark)}
+.dtbl th{background:var(--dark);color:rgba(255,255,255,.7);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:10px 7px;text-align:center;white-space:nowrap;border-bottom:2px solid rgba(255,255,255,.1);position:sticky;top:0;z-index:3}
+.dtbl th.stk{position:sticky;z-index:6;background:var(--dark)}
 .dtbl th.sk0{left:0;min-width:38px;text-align:center}
 .dtbl th.sk1{left:38px;min-width:145px;text-align:left;border-right:2px solid rgba(255,255,255,.15)}
 .dtbl td{padding:9px 7px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;background:#fff;color:#222;min-width:44px}
@@ -1808,6 +1808,7 @@ function setStatut(key, val, mid) {
 }
 function renderMPD(mid){
   var sel=APP.players.filter(function(p){var d=APP.pmd[p.id+'_'+mid];return d&&(d.statut==='T'||d.statut==='R');});
+  sel.sort(function(a,b){return (parseInt(a.num)||999)-(parseInt(b.num)||999);});
   var c=document.getElementById('mpd');if(!c)return;
   if(!sel.length){c.innerHTML='<p style="color:#888;font-size:14px;padding:10px 0">Sélectionnez des joueurs ci-dessus</p>';return;}
   var rows='';
