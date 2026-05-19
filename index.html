@@ -1750,21 +1750,36 @@ function showMatchModal(id) {
 
     function buildPlayerRow(p) {
       var d = APP.pmd[p.id+'_'+id] || {};
-      var mins = d.min !== undefined && d.min !== '' ? d.min + '\'' : '';
-      var buts = d.buts ? '⚽'.repeat(Math.min(d.buts, 4)) + (d.buts > 4 ? d.buts : '') : '';
-      var cartons = '';
-      var capBadge = d.captain ? '<span style="background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;margin-left:4px;vertical-align:middle">C</span>' : '';
-      if (d.c_j || d.carton==='jaune') cartons += '<span style="display:inline-block;width:10px;height:13px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-left:3px"></span>';
-      if (d.c_j2 || d.carton==='dj') cartons += '<span style="display:inline-block;width:10px;height:13px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-left:2px"></span><span style="display:inline-block;width:10px;height:13px;background:var(--red);border-radius:1px;vertical-align:middle;margin-left:1px"></span>';
-      if (d.c_r || d.carton==='rouge') cartons += '<span style="display:inline-block;width:10px;height:13px;background:var(--red);border-radius:1px;vertical-align:middle;margin-left:3px"></span>';
-      if (d.suspension) cartons += '<span style="background:var(--red);color:#fff;font-size:9px;font-weight:800;border-radius:2px;padding:1px 3px;margin-left:3px">S</span>';
+      var minVal = (d.min !== undefined && d.min !== '' && d.min !== null) ? parseInt(d.min) : null;
+      var hasTime = minVal !== null && minVal > 0;
+      var timeIcon = hasTime
+        ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;color:#444;font-weight:700;white-space:nowrap">⏱ '+minVal+'\'</span>'
+        : '<svg width="28" height="20" viewBox="0 0 56 40" xmlns="http://www.w3.org/2000/svg" title="Banc"><rect x="2" y="16" width="52" height="5" rx="2.5" fill="#6b7280"/><rect x="6" y="21" width="5" height="14" rx="2" fill="#6b7280"/><rect x="45" y="21" width="5" height="14" rx="2" fill="#6b7280"/><rect x="6" y="28" width="44" height="3" rx="1.5" fill="#9ca3af"/><rect x="0" y="8" width="56" height="4" rx="2" fill="#374151"/><path d="M4 8 Q4 0 12 0 L44 0 Q52 0 52 8" stroke="#374151" stroke-width="3" fill="none"/><rect x="10" y="21" width="8" height="10" rx="2" fill="#93c5fd"/><rect x="24" y="21" width="8" height="10" rx="2" fill="#93c5fd"/><rect x="38" y="21" width="8" height="10" rx="2" fill="#93c5fd"/></svg>';
 
-      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f5f3ef">' +
+      // Events: caps, goals with minute, cards — all inline next to name
+      var events = '';
+      var capBadge = d.captain ? '<span style="background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;margin-left:5px;vertical-align:middle;flex-shrink:0">C</span>' : '';
+
+      // Goals with minute
+      if (d.buts > 0) {
+        var butMin = d.but_min ? ' <span style="font-size:10px;color:#166534">'+d.but_min+'\'</span>' : '';
+        for (var i=0; i<Math.min(d.buts,4); i++) events += '<span style="margin-left:4px;font-size:13px">⚽</span>';
+        if (d.buts > 4) events += '<span style="font-size:11px;font-weight:700;color:#166534;margin-left:2px">×'+d.buts+'</span>';
+        if (d.but_min) events += '<span style="font-size:10px;color:#166534;margin-left:2px">'+d.but_min+'\'</span>';
+      }
+      // Cards
+      if (d.c_j || d.carton==='jaune') events += '<span style="display:inline-block;width:9px;height:12px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-left:4px"></span>'+(d.c_j_min?'<span style="font-size:10px;color:#92400e;margin-left:1px">'+d.c_j_min+'\'</span>':'');
+      if (d.c_j2 || d.carton==='dj') events += '<span style="display:inline-block;width:9px;height:12px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-left:4px"></span><span style="display:inline-block;width:9px;height:12px;background:var(--red);border-radius:1px;vertical-align:middle;margin-left:1px"></span>';
+      if (d.c_r || d.carton==='rouge') events += '<span style="display:inline-block;width:9px;height:12px;background:var(--red);border-radius:1px;vertical-align:middle;margin-left:4px"></span>'+(d.c_r_min?'<span style="font-size:10px;color:var(--red);margin-left:1px">'+d.c_r_min+'\'</span>':'');
+      if (d.suspension) events += '<span style="background:var(--red);color:#fff;font-size:9px;font-weight:800;border-radius:2px;padding:1px 3px;margin-left:4px">S</span>';
+
+      return '<div style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid #f5f3ef">' +
         '<div style="background:var(--red);color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">' + p.num + '</div>' +
-        '<span style="font-weight:700;font-size:13px;flex:1">' + p.name + capBadge + '</span>' +
-        '<span style="font-size:12px;color:#888;min-width:28px;text-align:right">' + mins + '</span>' +
-        '<span style="font-size:13px">' + buts + '</span>' +
-        cartons +
+        '<span style="font-weight:700;font-size:13px;white-space:nowrap">' + p.name + '</span>' +
+        capBadge +
+        '<span style="display:inline-flex;align-items:center;flex-wrap:nowrap">' + events + '</span>' +
+        '<span style="flex:1"></span>' +
+        timeIcon +
       '</div>';
     }
 
@@ -1785,11 +1800,21 @@ function showMatchModal(id) {
   var scorersHtml = '';
   var scorers = selected.filter(function(p){ return (APP.pmd[p.id+'_'+id]||{}).buts > 0; });
   if (scorers.length) {
-    scorersHtml = '<div style="background:#f0fdf4;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:13px">' +
+    scorersHtml = '<div style="background:#f0fdf4;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:13px;display:flex;flex-wrap:wrap;gap:6px 14px">' +
       scorers.map(function(p){
         var d = APP.pmd[p.id+'_'+id]||{};
-        return '⚽ ' + p.name + (d.buts>1?' (×'+d.buts+')':'') + (d.but_min?' '+d.but_min+'\'' :'');
-      }).join(' · ') +
+        var butStr = '<span style="font-weight:700;color:#166534">'+p.name+'</span>';
+        // Show each goal with minute if available
+        if (d.buts === 1) {
+          butStr += ' <span style="color:#166534">⚽</span>' + (d.but_min ? '<span style="font-size:11px;color:#15803d;font-weight:700"> '+d.but_min+'\'</span>' : '');
+        } else if (d.buts > 1) {
+          // Multiple goals — show x times with minute if available
+          for (var i=0; i<Math.min(d.buts,4); i++) butStr += ' <span style="color:#166534">⚽</span>';
+          if (d.buts > 4) butStr += '<span style="font-size:11px;font-weight:700;color:#166534">×'+d.buts+'</span>';
+          if (d.but_min) butStr += '<span style="font-size:11px;color:#15803d;font-weight:700"> '+d.but_min+'\'</span>';
+        }
+        return '<span>'+butStr+'</span>';
+      }).join('') +
     '</div>';
   }
 
