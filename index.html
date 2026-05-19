@@ -73,6 +73,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 .s-pret{background:rgba(230,168,23,.12);color:#9a7010;border:1px solid rgba(230,168,23,.35)}
 .s-vendu{background:rgba(232,48,26,.1);color:var(--red);border:1px solid rgba(232,48,26,.25)}
 .s-blesse{background:rgba(100,100,100,.1);color:#666;border:1px solid rgba(100,100,100,.25)}
+.s-pretActifJaune{background:rgba(255,200,0,.18);color:#7a5c00;border:1px solid rgba(255,200,0,.5)}
 .sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:11px;margin-bottom:20px}
 .scard{background:var(--dark);border-radius:7px;overflow:hidden;cursor:pointer;transition:transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .scard:hover{transform:translateY(-2px)}
@@ -366,6 +367,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 <!-- PASSEPORT -->
 <div id="page-passeport" class="hidden">
   <div class="page-title" style="border-left-color:var(--gold)">⚠️ Alertes Passeport</div>
+  <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#92400e;display:flex;align-items:center;gap:10px">
+    <span style="font-size:20px">📋</span>
+    <span><strong>Données PAX MANIFEST</strong> importées automatiquement — alertes déclenchées à <strong>6 mois</strong> avant expiration.</span>
+  </div>
   <div id="passport-alerts"></div>
 
   <div style="margin-top:28px;padding-top:20px;border-top:2px solid var(--border)">
@@ -891,6 +896,45 @@ initData();(function(){
   var x=APP.players.find(function(q){return q.name==="FINN BENOA";}); if(x){x.firstName="John Joe Patrick";x.dob="2003-09-24";x.natText="Espagne";x.nat="🇪🇸";x.licence="215557920251";x.qualifDate="2025-07-01";} 
 })();
 
+// ── PAX MANIFEST — Données passeport (source: PAX_MANIFEST_SDR_I_FULL.xlsx) ──
+(function(){
+  var PP = {
+    'OKUMU':'2029-11-20','SEKINE':'2027-01-26','BUSI':'2027-08-12','PALLOIS':'2029-11-25',
+    'LEONI':'2033-03-13','FOFANA':'2030-10-01','DARAMY':'2030-01-16','SALAMA':'2030-07-08',
+    'NAKAMURA':'2031-02-22','AKIEME':'2029-06-19','OLLIERO':'2032-02-09','KOTTO':'2026-11-02',
+    'DEMONCY':'2032-11-08','GBANE':'2027-06-13','BOJANG':'2029-03-15',
+    'AHOUONON':'2029-06-03','JAOUEN':'2028-04-25','FINN BENOA':'2028-10-05',
+    'DIARRA':'2026-03-30','ORAZI':'2029-02-10','IBRAHIM':'2027-07-28',
+    'GUEU':'2028-02-23','TIA':'2027-09-20','BENHATTAB':'2029-07-02',
+    'KONE':'2034-03-03','SYLLA':'2032-04-24',
+    'T.DIARRA':'2026-03-30','TIA MARTIAL':'2027-09-20','ABDOUL KONE':'2034-03-03',
+    'A.BOJANG':'2029-03-15','J.PATRICK':'2028-10-05'
+  };
+  APP.players.forEach(function(p){
+    var n=(p.name||'').toUpperCase().trim();
+    var exp=PP[n];
+    if(exp && (!p.passport || exp > p.passport)) p.passport=exp;
+  });
+  var PS = {
+    'GERAERTS':'2031-10-08','SMOLDERS':'2032-06-12','DIAWARA':'2034-09-03',
+    'RIPERT':'2029-06-18','TROCHUT':'2033-09-14','MOLTON':'2026-09-18',
+    'HAMID':'2029-02-14','LEBRUN':'2031-06-03','MAHY':'2034-03-27',
+    'REBOUL':'2034-04-22','PAILLER':'2034-04-10','LAPASSERIE':'2028-09-05',
+    'MARTEAU':'2034-01-22','DUFRESNE':'2034-06-16','JARRIGE':'2032-03-21',
+    'COMMINGES':'2032-12-26','DEUDON':'2028-04-22','BAGLIN':'2034-11-21',
+    'CHAPELLE':'2034-10-10','LACOUR':'2026-04-13','LUCE':'2031-06-20',
+    'HARVEY':'2025-04-06','KOMBOUARE':'2026-11-16','LE COULS':'2029-08-19',
+    'MALLEJAC':'2030-01-07','RAMON':'2027-12-10','LEYTON':'2028-03-18',
+    'AUDRIT':'2033-03-08','BARNAVE':'2033-08-09','UHA':'2033-01-12'
+  };
+  var CAILLOT_INIT = {'JPC':'2034-04-24','CC':'2034-06-16','PEC':'2033-04-05'};
+  APP.staff.forEach(function(s){
+    var n=(s.name||'').toUpperCase().trim();
+    var exp = (n==='CAILLOT' && CAILLOT_INIT[s.init]) ? CAILLOT_INIT[s.init] : PS[n];
+    if(exp && (!s.passport || exp > s.passport)) s.passport=exp;
+  });
+})();
+
 
 // Clear all match data on load (keep match structure)
 clearAllMatchData();
@@ -1074,17 +1118,20 @@ function renderPlayers() {
         cardStyle = '';
       }
       // Build card based on status
-      var avBg = st==='pret' ? '#1d4ed8' : st==='vendu' ? '#6b7280' : st==='blesse' ? '#991b1b' : 'var(--red)';
+      var avBg = st==='pret' ? '#1d4ed8' : st==='vendu' ? '#6b7280' : st==='blesse' ? '#991b1b' : st==='pretActifJaune' ? '#b45309' : 'var(--red)';
       var hdBg = st==='pret' ? 'background:linear-gradient(135deg,#1e3a8a,#2563eb)' :
                  st==='vendu' ? 'background:linear-gradient(135deg,#1f2937,#4b5563)' :
-                 st==='blesse' ? 'background:linear-gradient(135deg,#7f1d1d,#dc2626)' : '';
+                 st==='blesse' ? 'background:linear-gradient(135deg,#7f1d1d,#dc2626)' :
+                 st==='pretActifJaune' ? 'background:linear-gradient(135deg,#78350f,#d97706)' : '';
       var bodyBg = '';
-      var cardOp = st==='pret' ? 'background:#bfdbfe' : st==='vendu' ? 'background:#d1d5db;opacity:0.65;filter:grayscale(0.4)' : 'background:#fff';
+      var cardOp = st==='pret' ? 'background:#bfdbfe' : st==='vendu' ? 'background:#d1d5db;opacity:0.65;filter:grayscale(0.4)' : st==='pretActifJaune' ? 'background:#fef9c3;border:3px solid #eab308;border-radius:10px;overflow:hidden' : 'background:#fff';
       var badge = st==='pret' ? '<div style="background:#1d4ed8;color:#fff;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px">📤 PRÊT</div>'
                 : st==='vendu' ? '<div style="background:#4b5563;color:#fff;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px">💼 VENDU</div>'
-                : st==='blesse' ? '<div style="background:#dc2626;color:#fff;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px">🏥 BLESSÉ</div>' : '';
+                : st==='blesse' ? '<div style="background:#dc2626;color:#fff;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px">🏥 BLESSÉ</div>'
+                : st==='pretActifJaune' ? '<div style="background:#eab308;color:#000;text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:2px;padding:4px">🟡 PRÊTÉ AU CLUB'+(p.club?' · '+p.club.toUpperCase():'')+'</div>'
+                : '';
       var avEl = '<div class="pc-av" style="background:'+avBg+'">'+ph+'</div>';
-      html += '<div class="pc" data-pid="'+p.id+'" onclick="if(!event.target.closest(\'[data-edit-btn]\'))showPlayerModal(\''+p.id+'\')" style="'+cardOp+'">'+badge+'<div class="pc-head" style="'+hdBg+'">'+avEl+'<div class="pc-txt"><div class="pc-name">'+p.name+'</div><div class="pc-pos">'+p.pos+'</div></div>'+'<div class="pc-num">'+p.num+'</div></div>'+'<div class="pc-body" style="'+bodyBg+'">'+'<div class="pc-stats">'+'<div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div>'+'<div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div>'+'<div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div>'+'</div><div class="pc-foot">'+'<span>'+(p.nat||'')+' <span style="font-size:10px;color:#888">'+(p.natText||'')+'</span></span>'+'<span class="pc-badge">'+p.group+'</span>'+'<span class="pc-st s-'+st+'">'+st+'</span>'+'</div></div>'+'<button data-edit-pid="'+p.id+'" style="position:absolute;top:10px;right:52px;background:rgba(0,0,0,0.25);border:none;border-radius:20px;padding:3px 9px;color:#fff;font-size:12px;cursor:pointer">✏️</button>'+'</div>';
+      html += '<div class="pc" data-pid="'+p.id+'" onclick="showPlayerModal(\''+p.id+'\')" style="'+cardOp+'">'+badge+'<div class="pc-head" style="'+hdBg+'">'+avEl+'<div class="pc-txt"><div class="pc-name">'+p.name+'</div><div class="pc-pos">'+p.pos+'</div></div>'+'<div class="pc-num">'+p.num+'</div></div>'+'<div class="pc-body" style="'+bodyBg+'">'+'<div class="pc-stats">'+'<div class="pcs"><div class="pcs-val">'+tm+'</div><div class="pcs-lbl">Matchs</div></div>'+'<div class="pcs"><div class="pcs-val'+(tB>0?' r':'')+'">'+tB+'</div><div class="pcs-lbl">Buts</div></div>'+'<div class="pcs"><div class="pcs-val">'+tM+'</div><div class="pcs-lbl">Min</div></div>'+'</div><div class="pc-foot">'+'<span>'+(p.nat||'')+' <span style="font-size:10px;color:#888">'+(p.natText||'')+'</span></span>'+'<span class="pc-badge">'+p.group+'</span>'+'<span class="pc-st s-'+st+'">'+(st==='pretActifJaune'?'🟡 prêté au club':st)+'</span>'+'</div></div>'+'</div>';
     });
     html += '</div>';
   });
@@ -1471,17 +1518,89 @@ function renderPassportAlerts() {
   alerts.sort(function(a,b){return a.diff-b.diff;});
   var badge = document.getElementById('pbadge');
   if(badge) badge.textContent = alerts.length||'';
+
+  var alertsHtml = '';
   if(!alerts.length){
-    c.innerHTML='<div style="text-align:center;padding:50px 20px;color:#888"><div style="font-size:52px;margin-bottom:14px">✅</div><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:22px;color:#333;text-transform:uppercase">Aucune alerte passeport</div><div style="font-size:14px;margin-top:8px">Tous les passeports sont valides plus de 6 mois.</div></div>';
-    return;
+    alertsHtml='<div style="background:#f0fdf4;border-radius:8px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;border:1.5px solid #86efac">' +
+      '<div style="font-size:28px">✅</div>' +
+      '<div><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;color:#15803d;text-transform:uppercase">Aucune alerte joueur</div>' +
+      '<div style="font-size:13px;color:#166534;margin-top:2px">Tous les passeports sont valides plus de 6 mois.</div></div></div>';
+  } else {
+    alertsHtml = alerts.map(function(it){
+      var p=it.p,exp=it.exp,diff=it.diff;
+      var crit=exp<=threeM,expired=diff<0;
+      var color=crit?'var(--red)':'var(--gold)';
+      var diffStr=expired?'EXPIRÉ depuis '+Math.abs(diff)+' j':diff+' j restants';
+      return '<div style="background:#fff;border-left:5px solid '+color+';border-radius:7px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px rgba(0,0,0,.07)">' +
+        '<div style="font-size:26px">'+(expired?'🚫':crit?'🚨':'⚠️')+'</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase">'+p.num+' — '+p.name+'</div>' +
+          '<div style="font-size:13px;color:#888;margin-top:3px">'+p.pos+' · '+p.group+' · Exp: '+exp.toLocaleDateString('fr-FR')+'</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:17px;color:'+color+'">'+diffStr+'</div>' +
+          '<button onclick="showEditPlayerModal(\''+p.id+'\')" style="margin-top:5px;background:var(--red);color:#fff;border:none;border-radius:4px;padding:5px 11px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;cursor:pointer">Modifier</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
   }
-  c.innerHTML = alerts.map(function(it){
-    var p=it.p,exp=it.exp,diff=it.diff;
-    var crit=exp<=threeM,expired=diff<0;
-    var color=crit?'var(--red)':'var(--gold)';
-    var diffStr=expired?'EXPIRÉ depuis '+Math.abs(diff)+' j':diff+' j restants';
-    return '<div style="background:#fff;border-left:5px solid '+color+';border-radius:7px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px rgba(0,0,0,.07)"><div style="font-size:26px">'+(expired?'🚫':crit?'🚨':'⚠️')+'</div><div style="flex:1"><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase">'+p.num+' — '+p.name+'</div><div style="font-size:13px;color:#888;margin-top:3px">'+p.pos+' · '+p.group+' · Exp: '+exp.toLocaleDateString('fr-FR')+'</div></div><div style="text-align:right"><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:17px;color:'+color+'">'+diffStr+'</div><button onclick="showEditPlayerModal(\''+p.id+'\')" style="margin-top:5px;background:var(--red);color:#fff;border:none;border-radius:4px;padding:5px 11px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;cursor:pointer">Modifier</button></div></div>';
+
+  // Full list table of ALL players with passport info
+  var allWithPassport = APP.players.filter(function(p){return !!p.passport;});
+  allWithPassport.sort(function(a,b){return new Date(a.passport)-new Date(b.passport);});
+  var withoutPassport = APP.players.filter(function(p){return !p.passport;});
+
+  var tableRows = allWithPassport.map(function(p){
+    var exp = new Date(p.passport);
+    var diff = Math.floor((exp-today)/86400000);
+    var expired = diff<0;
+    var critical = diff>=0 && exp<=threeM;
+    var warn = diff>=0 && exp<=sixM && !critical;
+    var ok = diff>=0 && exp>sixM;
+    var rowBg = expired ? 'background:#fff1f2' : critical ? 'background:#fff8f8' : warn ? 'background:#fffbeb' : 'background:#fff';
+    var badge2 = expired
+      ? '<span style="background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:3px;padding:2px 6px">EXPIRÉ</span>'
+      : critical
+      ? '<span style="background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:3px;padding:2px 6px">'+diff+' j</span>'
+      : warn
+      ? '<span style="background:var(--gold);color:#000;font-size:10px;font-weight:800;border-radius:3px;padding:2px 6px">'+diff+' j</span>'
+      : '<span style="background:#dcfce7;color:#166534;font-size:10px;font-weight:700;border-radius:3px;padding:2px 6px">✓ OK</span>';
+    return '<tr style="'+rowBg+'">' +
+      '<td style="padding:9px 10px;border-bottom:1px solid #f0ede8;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-align:center">' +
+        '<div style="width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">'+p.num+'</div>' +
+      '</td>' +
+      '<td style="padding:9px 10px;border-bottom:1px solid #f0ede8;font-weight:700;font-size:13px">'+p.name+'</td>' +
+      '<td style="padding:9px 10px;border-bottom:1px solid #f0ede8;font-size:12px;color:#666">'+p.pos+'</td>' +
+      '<td style="padding:9px 10px;border-bottom:1px solid #f0ede8;font-size:12px">'+exp.toLocaleDateString('fr-FR')+'</td>' +
+      '<td style="padding:9px 10px;border-bottom:1px solid #f0ede8;text-align:center">'+badge2+'</td>' +
+    '</tr>';
   }).join('');
+
+  var noPassportHtml = withoutPassport.length
+    ? '<div style="margin-top:12px;padding:10px 14px;background:#f5f3ef;border-radius:6px;font-size:12px;color:#888">' +
+        '⚠️ <strong>'+withoutPassport.length+' joueur(s) sans date de passeport :</strong> ' +
+        withoutPassport.map(function(p){return p.num+' '+p.name;}).join(', ') +
+      '</div>'
+    : '';
+
+  var tableHtml = '<div style="margin-top:20px">' +
+    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px">' +
+      '📋 Tableau complet — '+allWithPassport.length+' joueurs' +
+    '</div>' +
+    '<div style="overflow-x:auto;border-radius:7px;border:1.5px solid var(--border)">' +
+    '<table style="width:100%;border-collapse:collapse">' +
+    '<thead><tr style="background:var(--dark)">' +
+      '<th style="padding:9px 10px;color:rgba(255,255,255,.7);font-family:Barlow Condensed,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;text-align:center">#</th>' +
+      '<th style="padding:9px 10px;color:rgba(255,255,255,.7);font-family:Barlow Condensed,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;text-align:left">Joueur</th>' +
+      '<th style="padding:9px 10px;color:rgba(255,255,255,.7);font-family:Barlow Condensed,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700">Poste</th>' +
+      '<th style="padding:9px 10px;color:rgba(255,255,255,.7);font-family:Barlow Condensed,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700">Expiration</th>' +
+      '<th style="padding:9px 10px;color:rgba(255,255,255,.7);font-family:Barlow Condensed,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;text-align:center">Statut</th>' +
+    '</tr></thead>' +
+    '<tbody>'+tableRows+'</tbody></table></div>' +
+    noPassportHtml +
+  '</div>';
+
+  c.innerHTML = alertsHtml + tableHtml;
 }
 setTimeout(function(){
   var t=new Date(),s=new Date(t);s.setMonth(s.getMonth()+6);
@@ -1507,7 +1626,8 @@ function showPlayerModal(id) {
   APP.matches.CDF.forEach(function(m){var d=(APP.pmd||{})[p.id+'_'+m.id]||{};if(d.statut==='T'||d.statut==='R'){cdfm++;cdfmin+=(d.min||0);cdfb+=(d.buts||0);}});
   tm=l2m+cdfm;tM=l2min+cdfmin;tB=l2b+cdfb;
   var st=p.status||'actif';
-  var dep=(st==='pret'||st==='vendu')&&p.departDate?'<div style="font-size:13px;color:#888;margin-top:4px">📤 '+p.departDate+(p.club?' → '+p.club:'')+'</div>':'';
+  var dep=(st==='pret'||st==='vendu')&&p.departDate?'<div style="font-size:13px;color:#888;margin-top:4px">📤 '+p.departDate+(p.club?' → '+p.club:'')+'</div>'
+        : st==='pretActifJaune'&&p.club?'<div style="font-size:13px;color:#7a5c00;margin-top:4px;font-weight:700">🟡 Prêté par : '+p.club+'</div>':'';
   var passIcon='';
   var passImg=passIcon;
   var hdr = '<div class="mo-hdr" style="display:flex;align-items:center;gap:10px">';
@@ -1521,9 +1641,19 @@ function showPlayerModal(id) {
   var body = '<div class="mo-body">';
   body += '<div style="display:flex;gap:14px;margin-bottom:16px;align-items:flex-start">'+passImg+'<div>';
   body += '<div style="font-size:15px"><strong>'+p.pos+'</strong> · '+p.group+' · '+(p.nat||'')+' '+(p.natText||'')+'</div>';
-  body += '<div style="margin-top:5px"><span class="pc-st s-'+st+'">'+st+'</span></div>';
+  body += '<div style="margin-top:5px"><span class="pc-st s-'+st+'">'+(st==='pretActifJaune'?'🟡 Prêté au club':st)+'</span></div>';
   body += dep;
-  if (p.passport) body += '<div style="font-size:12px;color:#888;margin-top:4px;display:flex;align-items:center;gap:5px"><svg width="13" height="17" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#888" stroke-width="5" fill="none"/><circle cx="30" cy="32" r="14" stroke="#888" stroke-width="4" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#888" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#888" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#888" stroke-width="2.5"/><line x1="16" y1="40" x2="44" y2="40" stroke="#888" stroke-width="2.5"/><rect x="10" y="60" width="40" height="5" rx="2" fill="#888"/><rect x="10" y="68" width="28" height="5" rx="2" fill="#888"/></svg> Exp: '+new Date(p.passport).toLocaleDateString('fr-FR')+'</div>';
+  if (p.passport) {
+    var pExp = new Date(p.passport);
+    var pToday = new Date();
+    var pDiff = Math.floor((pExp - pToday) / (1000*60*60*24));
+    var pBadge = '';
+    if (pDiff < 0)    pBadge = '<span style="background:var(--red);color:#fff;font-size:11px;font-weight:800;border-radius:4px;padding:3px 8px;margin-left:8px">EXPIRÉ</span>';
+    else if (pDiff < 90)  pBadge = '<span style="background:var(--red);color:#fff;font-size:11px;font-weight:800;border-radius:4px;padding:3px 8px;margin-left:8px">'+pDiff+' j restants</span>';
+    else if (pDiff < 180) pBadge = '<span style="background:var(--gold);color:#000;font-size:11px;font-weight:800;border-radius:4px;padding:3px 8px;margin-left:8px">'+pDiff+' j restants</span>';
+    else pBadge = '<span style="background:#16a34a;color:#fff;font-size:11px;font-weight:800;border-radius:4px;padding:3px 8px;margin-left:8px">✓ Valide</span>';
+    body += '<div style="font-size:12px;color:#555;margin-top:4px;display:flex;align-items:center;gap:5px"><svg width="13" height="17" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#888" stroke-width="5" fill="none"/><circle cx="30" cy="32" r="14" stroke="#888" stroke-width="4" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#888" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#888" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#888" stroke-width="2.5"/><line x1="16" y1="40" x2="44" y2="40" stroke="#888" stroke-width="2.5"/><rect x="10" y="60" width="40" height="5" rx="2" fill="#888"/><rect x="10" y="68" width="28" height="5" rx="2" fill="#888"/></svg> Doc. exp : '+pExp.toLocaleDateString('fr-FR')+pBadge+'</div>';
+  }
   body += '</div></div>';
   body += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">';
   body += '<div class="sm"><div class="sm-val">'+tm+'</div><div class="sm-lbl">Matchs</div></div>';
@@ -1550,12 +1680,20 @@ function showEditPlayerModal(id) {
   var nats=['France','Allemagne','Angleterre','Belgique','Brésil','Cameroun',"Côte d'Ivoire",'El Salvador','Espagne','Gambie','Guinée','Italie','Japon','Mali','Maroc','Portugal','Sénégal','Suisse','Ouganda','Autre...'];
   var natSel=nats.map(function(n){return '<option'+(((p.natText||'France')===n)?' selected':'')+'>'+n+'</option>';}).join('');
   var posSel=['Gardien','Defenseur','Milieu','Attaquant'].map(function(x){return '<option'+(p.pos===x?' selected':'')+'>'+x+'</option>';}).join('');
-  var statSel=['actif','pret','vendu','blesse'].map(function(x){return '<option'+(st===x?' selected':'')+'>'+x+'</option>';}).join('');
-  var depStyle=(st==='pret'||st==='vendu')?'':'display:none';
-  openModal('<div class="mo-hdr"><div class="mo-title">'+(isE?'Modifier Joueur':'Nouveau Joueur')+'</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div style="text-align:center;margin-bottom:14px"><div id="pp" style="width:62px;height:62px;border-radius:50%;background:#f5f3ef;border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;overflow:hidden" onclick="document.getElementById(\'pi\').click()">'+(p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover">':'📷')+'</div><input type="file" id="pi" accept="image/*" style="display:none" onchange="prevPhoto(this,\'pp\',\'pd\')"><input type="hidden" id="pd" value="'+(p.photo||'')+'"></div><div class="frow"><div class="fg"><label class="fl">Nom *</label><input class="fi" id="p-name" value="'+(p.name||'')+'"></div><div class="fg"><label class="fl">Prénom</label><input class="fi" id="p-prenom" value="'+(p.firstName||p.prenom||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Numéro</label><input class="fi" id="p-num" value="'+(p.num||'')+'"></div><div class="fg"><label class="fl">Nom Maillot</label><input class="fi" id="p-maillot" placeholder="Ex: OKUMU" value="'+(p.nomMaillot||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Groupe</label><select class="fsel" id="p-grp"><option'+(p.group==='Pro1'?' selected':'')+'>Pro1</option><option'+(p.group==='Pro2'?' selected':'')+'>Pro2</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Poste</label><select class="fsel" id="p-pos">'+posSel+'</select></div><div class="fg"><label class="fl">Statut</label><select class="fsel" id="p-stat" onchange="toggleDep(this.value)">'+statSel+'</select></div></div><div id="dep-fields" style="'+depStyle+'"><div class="frow"><div class="fg"><label class="fl">Date de départ</label><input class="fi" type="date" id="p-dep" value="'+(p.departDate||'')+'"></div><div class="fg"><label class="fl">Club destination</label><input class="fi" id="p-club" value="'+(p.club||'')+'"></div></div></div><div class="frow"><div class="fg"><label class="fl">Nationalité</label><select class="fsel" id="p-nat" onchange="toggleCustomNat(this.value)">'+natSel+'</select></div><div class="fg"><label class="fl">Si non listée</label><input class="fi" id="p-nat-c" placeholder="Ex: Mauritanie" value="'+(nats.indexOf(p.natText||'France')<0?(p.natText||''):'')+'"></div></div><div class="sec-hdr" style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#555" stroke-width="4" fill="none"/><circle cx="30" cy="32" r="14" stroke="#555" stroke-width="3.5" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#555" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#555" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#555" stroke-width="2"/><line x1="16" y1="40" x2="44" y2="40" stroke="#555" stroke-width="2"/><rect x="10" y="60" width="40" height="4" rx="2" fill="#555"/><rect x="10" y="68" width="28" height="4" rx="2" fill="#555"/></svg> Passeport</div><div class="frow"><div class="fg full"><label class="fl" style="display:flex;align-items:center;gap:6px"><svg width="16" height="21" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#888" stroke-width="5" fill="none"/><circle cx="30" cy="32" r="14" stroke="#888" stroke-width="4" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#888" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#888" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#888" stroke-width="2.5"/><line x1="16" y1="40" x2="44" y2="40" stroke="#888" stroke-width="2.5"/><rect x="10" y="60" width="40" height="5" rx="2" fill="#888"/><rect x="10" y="68" width="28" height="5" rx="2" fill="#888"/></svg> Date d\'expiration</label><input class="fi" type="date" id="p-pass" value="'+(p.passport||'')+'"></div></div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button>'+(isE?'<button class="btn-d" onclick="delPlayer(\''+p.id+'\')">Supprimer</button>':'')+'<button class="btn-p" onclick="savePlayer(\''+(id||'')+'\')">Enregistrer</button></div>');
+  var statSel=['actif','pret','vendu','blesse','pretActifJaune'].map(function(x){
+    var labels={'actif':'Actif','pret':'Prêté (parti)','vendu':'Vendu','blesse':'Blessé','pretActifJaune':'🟡 Prêté au club'};
+    return '<option value="'+x+'"'+(st===x?' selected':'')+'>'+labels[x]+'</option>';
+  }).join('');
+  var depStyle=(st==='pret'||st==='vendu'||st==='pretActifJaune')?'':'display:none';
+  openModal('<div class="mo-hdr"><div class="mo-title">'+(isE?'Modifier Joueur':'Nouveau Joueur')+'</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div style="text-align:center;margin-bottom:14px"><div id="pp" style="width:62px;height:62px;border-radius:50%;background:#f5f3ef;border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;overflow:hidden" onclick="document.getElementById(\'pi\').click()">'+(p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover">':'📷')+'</div><input type="file" id="pi" accept="image/*" style="display:none" onchange="prevPhoto(this,\'pp\',\'pd\')"><input type="hidden" id="pd" value="'+(p.photo||'')+'"></div><div class="frow"><div class="fg"><label class="fl">Nom *</label><input class="fi" id="p-name" value="'+(p.name||'')+'"></div><div class="fg"><label class="fl">Prénom</label><input class="fi" id="p-prenom" value="'+(p.firstName||p.prenom||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Numéro</label><input class="fi" id="p-num" value="'+(p.num||'')+'"></div><div class="fg"><label class="fl">Nom Maillot</label><input class="fi" id="p-maillot" placeholder="Ex: OKUMU" value="'+(p.nomMaillot||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Groupe</label><select class="fsel" id="p-grp"><option'+(p.group==='Pro1'?' selected':'')+'>Pro1</option><option'+(p.group==='Pro2'?' selected':'')+'>Pro2</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Poste</label><select class="fsel" id="p-pos">'+posSel+'</select></div><div class="fg"><label class="fl">Statut</label><select class="fsel" id="p-stat" onchange="toggleDep(this.value)">'+statSel+'</select></div></div><div id="dep-fields" style="'+depStyle+'"><div class="frow"><div class="fg"><label class="fl">Date de départ</label><input class="fi" type="date" id="p-dep" value="'+(p.departDate||'')+'"></div><div class="fg"><label class="fl" id="p-club-lbl">'+(st==='pretActifJaune'?'Club prêteur':'Club destination')+'</label><input class="fi" id="p-club" placeholder="Ex: Paris FC" value="'+(p.club||'')+'"></div></div></div><div class="frow"><div class="fg"><label class="fl">Nationalité</label><select class="fsel" id="p-nat" onchange="toggleCustomNat(this.value)">'+natSel+'</select></div><div class="fg"><label class="fl">Si non listée</label><input class="fi" id="p-nat-c" placeholder="Ex: Mauritanie" value="'+(nats.indexOf(p.natText||'France')<0?(p.natText||''):'')+'"></div></div><div class="sec-hdr" style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#555" stroke-width="4" fill="none"/><circle cx="30" cy="32" r="14" stroke="#555" stroke-width="3.5" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#555" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#555" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#555" stroke-width="2"/><line x1="16" y1="40" x2="44" y2="40" stroke="#555" stroke-width="2"/><rect x="10" y="60" width="40" height="4" rx="2" fill="#555"/><rect x="10" y="68" width="28" height="4" rx="2" fill="#555"/></svg> Passeport</div><div class="frow"><div class="fg full"><label class="fl" style="display:flex;align-items:center;gap:6px"><svg width="16" height="21" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#888" stroke-width="5" fill="none"/><circle cx="30" cy="32" r="14" stroke="#888" stroke-width="4" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#888" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#888" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#888" stroke-width="2.5"/><line x1="16" y1="40" x2="44" y2="40" stroke="#888" stroke-width="2.5"/><rect x="10" y="60" width="40" height="5" rx="2" fill="#888"/><rect x="10" y="68" width="28" height="5" rx="2" fill="#888"/></svg> Date d\'expiration</label><input class="fi" type="date" id="p-pass" value="'+(p.passport||'')+'"></div></div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button>'+(isE?'<button class="btn-d" onclick="delPlayer(\''+p.id+'\')">Supprimer</button>':'')+'<button class="btn-p" onclick="savePlayer(\''+(id||'')+'\')">Enregistrer</button></div>');
 }
 
-function toggleDep(v){ var el=document.getElementById('dep-fields');if(el)el.style.display=(v==='pret'||v==='vendu')?'':'none'; }
+function toggleDep(v){
+  var el=document.getElementById('dep-fields');
+  if(el) el.style.display=(v==='pret'||v==='vendu'||v==='pretActifJaune')?'':'none';
+  var lbl=document.getElementById('p-club-lbl');
+  if(lbl) lbl.textContent=(v==='pretActifJaune')?'Club prêteur':'Club destination';
+}
 function toggleCustomNat(v){ var i=document.getElementById('p-nat-c');if(i){i.style.opacity=v==='Autre...'?'1':'.4';if(v!=='Autre...')i.value='';} }
 function prevPhoto(input,pid,did){
   var f=input.files[0];if(!f)return;
@@ -1690,7 +1828,8 @@ function showMatchModal(id) {
     '<div class="mo-foot">' +
       '<button class="btn-c" onclick="closeModal()">Fermer</button>' +
       '<button data-reset-id="'+id+'" data-reset-comp="'+curComp+'" id="match-reset-btn" style="background:#fff;color:var(--red);border:2px solid var(--red);border-radius:6px;padding:9px 14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">🗑 Effacer</button>' +
-      '<button onclick="closeModal();showLiveModal(\''+id+'\',\''+curComp+'\')" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:9px 18px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">🔴 Live</button>' +
+      '<button data-delete-id="'+id+'" data-delete-comp="'+curComp+'" id="match-delete-btn" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:9px 14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">🗑 Supprimer</button>' +
+      '<button onclick="closeModal();showLiveModal(\''+id+'\',\''+curComp+'\')" style="background:#1a5c30;color:#fff;border:none;border-radius:6px;padding:9px 18px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">🔴 Live</button>' +
       '<button class="btn-p" onclick="showEditMatchModal(\''+id+'\')">Modifier</button>' +
     '</div>'
   );
@@ -3590,6 +3729,66 @@ document.addEventListener('click', function(e) {
     if (id && comp) confirmResetMatch(id, comp);
   }
 });
+
+// Event delegation for match DELETE button (suppression totale)
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest ? e.target.closest('#match-delete-btn') : null;
+  if (!btn) btn = (e.target.id === 'match-delete-btn') ? e.target : null;
+  if (btn) {
+    var id = btn.getAttribute('data-delete-id');
+    var comp = btn.getAttribute('data-delete-comp');
+    if (id && comp) confirmDeleteMatch(id, comp);
+  }
+});
+
+function confirmDeleteMatch(id, comp) {
+  var m = APP.matches[comp].find(function(x){return x.id===id;});
+  if (!m) return;
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML =
+    '<div style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:100%;text-align:center">' +
+    '<div style="font-size:40px;margin-bottom:12px">🗑️</div>' +
+    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:20px;text-transform:uppercase;margin-bottom:8px;color:var(--red)">Supprimer ce match ?</div>' +
+    '<div style="font-size:14px;color:#444;margin-bottom:6px;font-weight:700">' + m.j + ' — ' + m.name + '</div>' +
+    '<div style="font-size:13px;color:#999;margin-bottom:6px;line-height:1.5">Le match sera <strong style="color:var(--red)">définitivement supprimé</strong> de la liste.<br>Score, statistiques et données associées seront perdus.</div>' +
+    '<div style="font-size:12px;background:#fff3cd;border-radius:6px;padding:8px 12px;margin-bottom:18px;color:#856404;font-weight:600">⚠️ Cette action est irréversible</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center">' +
+    '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;cursor:pointer;background:#fff">Annuler</button>' +
+    '<button id="delete-match-confirm" style="flex:1;padding:12px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">🗑 Supprimer</button>' +
+    '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('delete-match-confirm').onclick = function() {
+    overlay.remove();
+    deleteMatch(id, comp);
+  };
+}
+
+function deleteMatch(id, comp) {
+  // Remove all pmd data for this match
+  APP.players.forEach(function(p) { delete APP.pmd[p.id+'_'+id]; });
+  APP.staff.forEach(function(s) {
+    delete APP.pmd[s.id+'_'+id];
+    delete APP.pmd['STAFF_'+s.id+'_'+id];
+    delete APP.pmd['STAFFBA_'+s.id+'_'+id];
+  });
+  // Remove match from list
+  APP.matches[comp] = APP.matches[comp].filter(function(m){ return m.id !== id; });
+  // Refresh
+  try { renderCompStats(); } catch(e) {}
+  try { renderMatchList(); } catch(e) {}
+  try { renderRecap(); } catch(e) {}
+  try { renderCartons(); } catch(e) {}
+  try { renderStaff(); } catch(e) {}
+  closeModal();
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;'+
+    'border-radius:30px;padding:12px 24px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;'+
+    'letter-spacing:1px;text-transform:uppercase;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.2);white-space:nowrap';
+  toast.textContent = '🗑 Match supprimé';
+  document.body.appendChild(toast);
+  setTimeout(function(){ if(toast.parentNode) toast.parentNode.removeChild(toast); }, 2500);
+}
 
 function renderRecapThead() {
   var champ = APP.champName || 'Champ';
