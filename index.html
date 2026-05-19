@@ -1999,16 +1999,18 @@ function toggleChip(pid,mid){
 function setStatut(key, val, mid) {
   if (!APP.pmd[key]) APP.pmd[key] = {};
   APP.pmd[key].statut = val;
-  // When set as Remplaçant → reset minutes to 0 (will be updated when they enter)
   if (val === 'R') {
-    APP.pmd[key].min = 0;
-    APP.pmd[key]._benchStart = true; // flag: not yet entered
-  } else if (val === 'T') {
-    // Titulaire → default 90 min if not set
-    if (!APP.pmd[key].min || APP.pmd[key]._benchStart) {
-      APP.pmd[key].min = 90;
-      APP.pmd[key]._benchStart = false;
+    // Only reset to 0 if no minutes have been set yet
+    if (APP.pmd[key].min === undefined || APP.pmd[key].min === null || APP.pmd[key].min === '') {
+      APP.pmd[key].min = 0;
     }
+    APP.pmd[key]._benchStart = false;
+  } else if (val === 'T') {
+    // Titulaire → default 90 min if not set or was 0
+    if (!APP.pmd[key].min) {
+      APP.pmd[key].min = 90;
+    }
+    APP.pmd[key]._benchStart = false;
   }
   renderMPD(mid);
   try { renderRecap(); } catch(e) {}
@@ -2021,20 +2023,28 @@ function renderMPD(mid){
   var rows='';
   sel.forEach(function(p){
     var key=p.id+'_'+mid;var d=APP.pmd[key]||{};
-    var statSel='<select style="border:1.5px solid var(--border);border-radius:4px;padding:4px 8px;font-size:13px" onchange="setStatut(\''+key+'\',this.value,\''+mid+'\')" ><option'+(d.statut==='T'?' selected':'')+' value="T">Titulaire</option><option'+(d.statut==='R'?' selected':'')+' value="R">Remplaçant</option></select>';
+    var isR = d.statut==='R';
+    var statSel='<select style="border:1.5px solid var(--border);border-radius:4px;padding:4px 8px;font-size:13px" onchange="setStatut(\''+key+'\',this.value,\''+mid+'\')" ><option'+(d.statut==='T'?' selected':'')+' value="T">Titulaire</option><option'+(isR?' selected':'')+' value="R">Remplaçant</option></select>';
     var cartonBtns=
       '<div style="display:flex;gap:5px;align-items:center">'+
         '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;border:1.5px solid #ffd700;background:'+(d.c_j?'#FFD700':'#fffbeb')+';color:'+(d.c_j?'#000':'#856404')+'" onclick="setCarton(\''+key+'\',\'jaune\',\''+mid+'\')">🟨 J</button>'+
         '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700;border:1.5px solid #800000;background:'+(d.c_j2?'#800000':'#fff0f0')+';color:'+(d.c_j2?'#fff':'#800000')+'" onclick="setCarton(\''+key+'\',\'dj\',\''+mid+'\')">2J=🟥</button>'+
         '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;border:1.5px solid var(--red);background:'+(d.c_r?'var(--red)':'#fff0f0')+';color:'+(d.c_r?'#fff':'var(--red)')+'" onclick="setCarton(\''+key+'\',\'rouge\',\''+mid+'\')">🟥 R</button>'+
       '</div>';
+
+    var minCell = '';
+    if (isR) {
+      var playedVal = (d.min !== undefined && d.min !== null && d.min !== '') ? parseInt(d.min) : 0;
+      minCell = '<input type="number" class="det-in" value="'+playedVal+'" min="0" max="120" onchange="updPMD(\''+key+'\',\'min\',+this.value)">';
+    } else {
+      minCell = '<input type="number" class="det-in" value="'+(d.min||90)+'" min="0" max="120" onchange="updPMD(\''+key+'\',\'min\',+this.value)">';
+    }
+
     rows+=
       '<tr style="border-bottom:1px solid var(--border)">'+
         '<td style="padding:6px 8px;font-weight:700;white-space:nowrap;font-size:13px">'+p.num+' '+p.name+'</td>'+
         '<td style="padding:6px 8px">'+statSel+'</td>'+
-        '<td style="padding:6px 8px">'+
-          '<input type="number" class="det-in" value="'+(d.statut==='R'&&d._benchStart?0:(d.min||90))+'" min="0" max="120" onchange="updPMD(\''+key+'\',\'min\',+this.value)">'+
-        '</td>'+
+        '<td style="padding:6px 8px">'+minCell+'</td>'+
         '<td style="padding:6px 8px;white-space:nowrap">'+
           '<input type="number" class="det-in" style="width:40px" value="'+(d.buts||0)+'" min="0" onchange="updPMD(\''+key+'\',\'buts\',+this.value)">'+
         '</td>'+
@@ -2045,6 +2055,20 @@ function renderMPD(mid){
 }
 
 function updPMD(key,field,val){if(!APP.pmd[key])APP.pmd[key]={};APP.pmd[key][field]=val;clearTimeout(window._rpTimer);window._rpTimer=setTimeout(function(){try{renderRecap();}catch(e){}},300);}
+
+function setEntryMin(key, entryMin, mid) {
+  if (!APP.pmd[key]) APP.pmd[key] = {};
+  var d = APP.pmd[key];
+  d.entry_min = entryMin;
+  // Auto-calculate played minutes: 90 - entry minute
+  if (!isNaN(entryMin) && entryMin >= 0 && entryMin <= 90) {
+    d.min = 90 - entryMin;
+    d._benchStart = false;
+  }
+  renderMPD(mid);
+  clearTimeout(window._rpTimer);
+  window._rpTimer = setTimeout(function(){ try{renderRecap();}catch(e){} }, 300);
+}
 function setCarton(key,type,mid){
   if(!APP.pmd[key])APP.pmd[key]={};
   var d=APP.pmd[key];
