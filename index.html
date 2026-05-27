@@ -217,13 +217,13 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <nav class="nav" id="main-nav">
-  <button class="nb" data-page="competitions" onclick="showPage('competitions',this)">🏆 Compétitions</button>
+  <button class="nb active" data-page="competitions" onclick="showPage('competitions',this)">🏆 Compétitions</button>
+  <button class="nb" data-page="cartons" onclick="showPage('cartons',this)">🟨 Cartons</button>
+  <button class="nb" data-page="recap" onclick="showPage('recap',this)">📊 Récapitulatif</button>
   <button class="nb" data-page="joueurs" onclick="showPage('joueurs',this)">👥 Joueurs</button>
   <button class="nb" data-page="staff" onclick="showPage('staff',this)">👔 Staff</button>
-  <button class="nb" data-page="cartons" onclick="showPage('cartons',this)">🟨 Cartons</button>
-  <button class="nb active" data-page="recap" onclick="showPage('recap',this)">📊 Récapitulatif</button>
   <button class="nb gold-tab" data-page="passeport" onclick="showPage('passeport',this)">⚠️ Passeport <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span></button>
-  <button class="nb" onclick="showNavEditor()" style="background:rgba(0,0,0,0.05);color:#888;font-size:14px;padding:8px 10px;min-width:36px" title="Réorganiser les onglets">⚙️</button>
+  <button class="nb" data-page="reglages" onclick="showPage('reglages',this)">⚙️ Réglages</button>
 </nav>
 
 <div class="main">
@@ -379,6 +379,35 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
       <span id="staff-passport-badge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 9px;font-size:13px;font-weight:800"></span>
     </div>
     <div id="staff-passport-alerts"></div>
+  </div>
+</div>
+
+<!-- RÉGLAGES -->
+<div id="page-reglages" class="hidden">
+  <div class="page-title">⚙️ Réglages</div>
+
+  <!-- Ordre des onglets -->
+  <div style="background:#fff;border-radius:10px;border:1.5px solid var(--border);padding:20px;margin-bottom:18px">
+    <div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:8px">
+      📋 Ordre des onglets
+    </div>
+    <p style="font-size:13px;color:#888;margin-bottom:16px">Utilisez les flèches pour réordonner les onglets de navigation. La modification est enregistrée automatiquement.</p>
+    <div id="reglages-nav-list" style="max-width:420px"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button onclick="reglagesSaveOrder()" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:10px 22px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">✅ Enregistrer l'ordre</button>
+      <button onclick="reglagesResetOrder()" style="background:#fff;color:#888;border:1.5px solid var(--border);border-radius:6px;padding:10px 18px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer">↺ Ordre par défaut</button>
+    </div>
+    <div id="reglages-save-msg" style="display:none;margin-top:10px;font-size:13px;color:#16a34a;font-weight:700;font-family:Barlow Condensed,sans-serif">✅ Ordre enregistré avec succès !</div>
+  </div>
+
+  <!-- Infos application -->
+  <div style="background:#fff;border-radius:10px;border:1.5px solid var(--border);padding:20px;margin-bottom:18px">
+    <div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">ℹ️ Informations</div>
+    <div style="font-size:14px;color:#555;line-height:1.8">
+      <div><strong>Application :</strong> Team Manager — Stade de Reims</div>
+      <div><strong>Version :</strong> 7.4</div>
+      <div><strong>Stockage :</strong> Local (navigateur) + Supabase optionnel</div>
+    </div>
   </div>
 </div>
 
@@ -948,6 +977,19 @@ var fRSearch='', fRGrp='all', rSort='num';
 var curComp='L2';
 
 // ── NAV ─────────────────────────────────────────────────────────────────────
+
+// Default nav order
+var NAV_DEFAULT = [
+  {page:'competitions', label:'🏆 Compétitions'},
+  {page:'cartons',      label:'🟨 Cartons'},
+  {page:'recap',        label:'📊 Récapitulatif'},
+  {page:'joueurs',      label:'👥 Joueurs'},
+  {page:'staff',        label:'👔 Staff'},
+  {page:'passeport',    label:'⚠️ Passeport'},
+  {page:'reglages',     label:'⚙️ Réglages'}
+];
+var NAV_STORAGE_KEY = 'sdr_nav_order_v2';
+
 function showPage(page, btn) {
   document.querySelectorAll('[id^="page-"]').forEach(function(p){ p.classList.add('hidden'); });
   var pg = document.getElementById('page-'+page);
@@ -958,8 +1000,110 @@ function showPage(page, btn) {
   if (page==='staff') { renderStaff(); renderStaffCartons(); }
   if (page==='cartons') renderCartons();
   if (page==='recap') renderRecap();
-  if(page==='passeport'){renderPassportAlerts();try{renderStaffPassportAlerts();}catch(e){}}
+  if (page==='passeport'){renderPassportAlerts();try{renderStaffPassportAlerts();}catch(e){}}
+  if (page==='reglages') reglagesRender();
 }
+
+// ── NAV ORDER PERSISTENCE ────────────────────────────────────────────────────
+function navGetOrder() {
+  try {
+    var saved = localStorage.getItem(NAV_STORAGE_KEY);
+    if (saved) {
+      var pages = JSON.parse(saved);
+      return pages.map(function(pg) {
+        return NAV_DEFAULT.find(function(d){ return d.page===pg; });
+      }).filter(Boolean);
+    }
+  } catch(e) {}
+  return NAV_DEFAULT.slice();
+}
+
+function navApplyToDOM(items, save) {
+  var nav = document.getElementById('main-nav');
+  Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b){ nav.removeChild(b); });
+  items.forEach(function(item) {
+    var btn = document.createElement('button');
+    btn.className = 'nb' + (item.page==='passeport' ? ' gold-tab' : '');
+    btn.setAttribute('data-page', item.page);
+    var badgeHtml = item.page==='passeport' ? ' <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span>' : '';
+    btn.innerHTML = item.label + badgeHtml;
+    btn.addEventListener('click', (function(pg){ return function(){ showPage(pg, btn); }; })(item.page));
+    nav.appendChild(btn);
+  });
+  if (save) {
+    try { localStorage.setItem(NAV_STORAGE_KEY, JSON.stringify(items.map(function(i){ return i.page; }))); } catch(e) {}
+  }
+}
+
+function restoreNavOrder() {
+  var items = navGetOrder();
+  navApplyToDOM(items, false);
+  var first = document.querySelector('#main-nav [data-page="competitions"]');
+  if (first) first.classList.add('active');
+}
+
+// ── RÉGLAGES PAGE ─────────────────────────────────────────────────────────────
+var _reglagesItems = null;
+
+function reglagesRender() {
+  _reglagesItems = navGetOrder();
+  reglagesRenderList();
+}
+
+function reglagesRenderList() {
+  var container = document.getElementById('reglages-nav-list');
+  if (!container || !_reglagesItems) return;
+  container.innerHTML = _reglagesItems.map(function(item, i) {
+    var isFirst = i===0, isLast = i===_reglagesItems.length-1;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;'+
+      'background:#fff;border:1.5px solid var(--border);border-radius:8px;margin-bottom:6px">'+
+      '<span style="font-size:22px;min-width:28px;text-align:center">'+item.label.split(' ')[0]+'</span>'+
+      '<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;flex:1;text-transform:uppercase;letter-spacing:.5px">'+item.label.replace(/^\S+\s*/,'')+'</span>'+
+      '<div style="display:flex;flex-direction:column;gap:4px">'+
+        '<button onclick="reglagesMove('+i+',-1)" '+
+          'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 12px;font-size:14px;cursor:pointer;line-height:1;'+(isFirst?'opacity:.25;pointer-events:none':'')+'" '+(isFirst?'disabled':'')+'>↑</button>'+
+        '<button onclick="reglagesMove('+i+',1)" '+
+          'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 12px;font-size:14px;cursor:pointer;line-height:1;'+(isLast?'opacity:.25;pointer-events:none':'')+'" '+(isLast?'disabled':'')+'>↓</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('reglages-save-msg').style.display='none';
+}
+
+function reglagesMove(idx, dir) {
+  if (!_reglagesItems) return;
+  var newIdx = idx+dir;
+  if (newIdx<0||newIdx>=_reglagesItems.length) return;
+  var tmp = _reglagesItems[idx];
+  _reglagesItems[idx] = _reglagesItems[newIdx];
+  _reglagesItems[newIdx] = tmp;
+  reglagesRenderList();
+}
+
+function reglagesSaveOrder() {
+  if (!_reglagesItems) return;
+  navApplyToDOM(_reglagesItems, true);
+  // Re-activate Réglages tab
+  var btn = document.querySelector('#main-nav [data-page="reglages"]');
+  if (btn) { document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+  // Show success message
+  var msg = document.getElementById('reglages-save-msg');
+  if (msg) { msg.style.display='block'; setTimeout(function(){ msg.style.display='none'; },3000); }
+  // Refresh passport badge
+  try {
+    var t=new Date(),s=new Date(t); s.setMonth(s.getMonth()+6);
+    var b2=document.getElementById('pbadge');
+    if(b2) b2.textContent=APP.players.filter(function(p){return p.passport&&new Date(p.passport)<=s;}).length||'';
+  } catch(e) {}
+}
+
+function reglagesResetOrder() {
+  _reglagesItems = NAV_DEFAULT.slice();
+  reglagesRenderList();
+}
+
+// Keep old navApplyOrder for backward compat
+function navApplyOrder(items, save) { navApplyToDOM(items, save); }
 
 // ── COMPETITIONS ─────────────────────────────────────────────────────────────
 function switchComp(c, tab) {
@@ -1073,18 +1217,19 @@ function renderMatchList() {
       sc = '<span style="color:rgba(255,255,255,.3);font-size:13px;margin-right:10px">à venir</span>';
     }
     var log = (APP.logistics||{})[m.id]||{};
-    var logIcon = '';
-    if (log._enabled) {
-      var allOk = logIsFullyValidated(m.id);
-      var iconColor = allOk ? '#16a34a' : '#dc2626';
-      var typeIcon = log.type === 'dom' ? '🏠' : '🚌';
-      logIcon = '<span onclick="event.stopPropagation();var c=\''+curComp+'\';showLogisticsModal(\''+m.id+'\',c)" title="Logistique" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:20px;background:rgba(255,255,255,0.08);margin:0 auto">'+typeIcon+'<span style="width:8px;height:8px;border-radius:50%;background:'+iconColor+';display:inline-block"></span></span>';
-    }
-    return '<div class="mi" onclick="showMatchModal(\''+m.id+'\')"><div class="mi-j">'+m.j+'</div><div class="mi-info"><div class="mi-name">'+m.name+'</div><div class="mi-date">'+frDate(m.date, m.time)+'</div></div><div style="flex:1;display:flex;justify-content:center;align-items:center">'+logIcon+'</div>'+sc+'<span class="mi-arr">▼</span></div>';
+    var allOk = log._enabled && logIsFullyValidated(m.id);
+    var hasLog = log._enabled;
+    var borderCol = !hasLog ? 'rgba(255,255,255,0.15)' : allOk ? '#16a34a' : '#dc2626';
+    var bgCol = !hasLog ? 'rgba(255,255,255,0.04)' : allOk ? 'rgba(22,163,74,0.12)' : 'rgba(220,38,38,0.12)';
+    var typeIcon = log.type === 'ext' ? '🚌' : '🏠';
+    var logIcon = '<span onclick="event.stopPropagation();showLogisticsModal(\''+m.id+'\',\''+curComp+'\')" title="Logistique" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;border:2px solid '+borderCol+';background:'+bgCol+';flex-shrink:0;margin-left:8px;font-size:16px;line-height:1">'+typeIcon+'</span>';
+    return '<div class="mi" onclick="showMatchModal(\''+m.id+'\')"><div class="mi-j">'+m.j+'</div><div class="mi-info" style="display:flex;align-items:center;gap:0;flex:1;min-width:0"><div><div class="mi-name">'+m.name+'</div><div class="mi-date">'+frDate(m.date, m.time)+'</div></div>'+logIcon+'</div><div style="display:flex;align-items:center;flex-shrink:0">'+sc+'<span class="mi-arr">▼</span></div></div>';
   }).join('');
 }
 
 renderCompStats(); renderMatchList();
+// Restore saved nav order from localStorage (persists across sessions)
+restoreNavOrder();
 
 // ── PLAYERS ──────────────────────────────────────────────────────────────────
 function renderPlayers() {
@@ -1198,7 +1343,7 @@ function renderStaffCartons() {
       +'<div style="display:flex;align-items:center;justify-content:center;gap:2px">'+m.j+compBadge+'</div>'
       +'<div style="font-size:9px;opacity:.55;font-weight:400;max-width:50px;overflow:hidden;text-overflow:ellipsis">'+m.adv+'</div></th>';
   });
-  hdr += '<th style="color:var(--gold);min-width:46px">J</th><th style="color:var(--red);min-width:46px">R</th><th class="v-h" style="min-width:46px">S</th>';
+  hdr += '<th style="color:var(--gold);min-width:46px">J</th><th style="color:var(--red);min-width:46px">R</th><th style="color:#fff;min-width:46px">S</th>';
 
   var body = '';
   APP.staff.forEach(function(s) {
@@ -1222,7 +1367,7 @@ function renderStaffCartons() {
       +cells
       +'<td style="color:var(--gold);font-weight:700">'+(tJ||'–')+'</td>'
       +'<td style="color:var(--red);font-weight:700">'+(tR||'–')+'</td>'
-      +'<td style="color:#c084fc;font-weight:700">'+(tS||'–')+'</td>'
+      +'<td style="font-weight:700">'+(tS?'<span class="sc2" style="font-size:12px;padding:2px 7px">'+tS+'</span>':'–')+'</td>'
       +'</tr>';
   });
 
@@ -1302,7 +1447,7 @@ function renderCartons() {
       '</div>'+
       '<div style="font-size:9px;opacity:.55;font-weight:400;max-width:50px;overflow:hidden;text-overflow:ellipsis">'+r.adv+'</div></th>';
   });
-  hdr += '<th style="color:var(--gold);min-width:46px">Tot.J</th><th style="color:var(--red);min-width:46px">Tot.R</th><th class="v-h" style="min-width:46px">Tot.S</th>';
+  hdr += '<th style="color:var(--gold);min-width:46px">Tot.J</th><th style="color:var(--red);min-width:46px">Tot.R</th><th style="color:#fff;min-width:46px">Tot.S</th>';
 
   var body = '';
   players.forEach(function(p) {
@@ -1315,22 +1460,24 @@ function renderCartons() {
       if(d.suspension){cell='<span class="sc2">S</span>';tS++;}
       else{
         var parts2=[];
-        if(d.c_j){parts2.push('<span class="yc">'+(d.carton_num||'')+'</span>');tJ++;}
-        if(d.c_j2){parts2.push('<span class="yc">'+(d.carton_num||'')+'</span><span class="rc" style="margin-left:1px"></span>');tJ+=2;tR++;}
-        if(d.c_r){parts2.push('<span class="rc">'+(d.carton_num||'')+'</span>');tR++;}
+        // Support independent flags with per-card numbers
+        if(d.c_j){parts2.push('<span class="yc">'+(d.c_j_num||'')+'</span>');tJ++;}
+        if(d.c_j2){parts2.push('<span class="yc">'+(d.c_j2_num||'')+'</span>');tJ++;}
+        if(d.c_r){parts2.push('<span class="rc">'+(d.c_r_num||'')+'</span>');tR++;}
+        // fallback to legacy .carton field
         if(!parts2.length){
-          if(d.carton==='dj'){parts2.push('<span class="yc">'+(d.carton_num||'')+'</span><span class="rc" style="margin-left:1px"></span>');tJ+=2;tR++;}
+          if(d.carton==='dj'){parts2.push('<span class="yc">'+(d.carton_num||'')+'</span><span class="yc">'+(d.carton_num||'')+'</span><span class="rc" style="margin-left:1px"></span>');tJ+=2;tR++;}
           else if(d.carton==='rouge'){parts2.push('<span class="rc">'+(d.carton_num||'')+'</span>');tR++;}
           else if(d.carton==='jaune'){parts2.push('<span class="yc">'+(d.carton_num||'')+'</span>');tJ++;}
         }
-        if(parts2.length)cell=parts2.join('');
+        if(parts2.length)cell='<span style="display:inline-flex;gap:1px;align-items:center">'+parts2.join('')+'</span>';
       }
       var cKey = p.id+'_'+r.id;
       cells += '<td onclick="showSanctionMenu(event,\''+cKey+'\',\'renderCartons\')" '+
         'style="cursor:pointer;min-width:44px;text-align:center">' +
         (cell||'<span style="color:#ddd;font-size:14px">·</span>') + '</td>';
     });
-    body += '<tr><td class="stk sk0"><div class="nbadge">'+p.num+'</div></td><td class="stk sk1">'+p.name+'</td>'+cells+'<td style="color:var(--gold);font-weight:700">'+(tJ||'–')+'</td><td style="color:var(--red);font-weight:700">'+(tR||'–')+'</td><td style="color:#c084fc;font-weight:700">'+(tS||'–')+'</td></tr>';
+    body += '<tr><td class="stk sk0"><div class="nbadge">'+p.num+'</div></td><td class="stk sk1">'+p.name+'</td>'+cells+'<td style="color:var(--gold);font-weight:700">'+(tJ||'–')+'</td><td style="color:var(--red);font-weight:700">'+(tR||'–')+'</td><td style="font-weight:700">'+(tS?'<span class="sc2" style="font-size:12px;padding:2px 7px">'+tS+'</span>':'–')+'</td></tr>';
   });
 
   var th = document.getElementById('disc-hdr');
@@ -1382,9 +1529,9 @@ function renderRecap(){
           if(mc.comp==='L2'){l2m++;if(d.statut==='T')l2t++;else l2r++;l2min+=mins;l2b+=buts;}
           else{cdfm++;if(d.statut==='T')cdft++;else cdfr++;cdfmin+=mins;cdfb+=buts;}
         }
-        // Cartons
+        // Cartons — independent flags: c_j=1st yellow, c_j2=2nd yellow, c_r=red
         if(d.c_j){pJ++;}
-        if(d.c_j2){pJ+=2;pR++;}
+        if(d.c_j2){pJ++;}  // 2nd yellow counts as extra yellow
         if(d.c_r){pR++;}
         if(d.suspension){pS++;}
         // backward compat
@@ -1464,9 +1611,9 @@ function renderRecap(){
         '<td onclick="showRecapDetail(\''+p.id+'\',\'l2b\')" style="'+TDr+'cursor:pointer" title="Voir détail">'+s.l2b+'</td>'+
         '<td onclick="showRecapDetail(\''+p.id+'\',\'cdfb\')" style="'+TDr+'cursor:pointer" title="Voir détail">'+s.cdfb+'</td>'+
         '<td onclick="showRecapDetail(\''+p.id+'\',\'buts\')" style="'+TDr+'font-size:15px;cursor:pointer;font-weight:900" title="Voir détail">'+s.tb+'</td>'+
-        '<td style="'+TDg+'" onclick="showRecapDetail(\''+p.id+'\',\'cartons_j\')" title="Voir détail cartons" style="cursor:pointer">'+(s.pJ||'–')+'</td>'+
-        '<td style="'+TDr+'" onclick="showRecapDetail(\''+p.id+'\',\'cartons_r\')" title="Voir détail cartons" style="cursor:pointer">'+(s.pR||'–')+'</td>'+
-        '<td style="'+TDv+'" onclick="showRecapDetail(\''+p.id+'\',\'cartons_s\')" title="Voir détail cartons" style="cursor:pointer">'+(s.pS||'–')+'</td>'+
+        '<td style="'+TDg+'cursor:pointer" onclick="showRecapDetail(\''+p.id+'\',\'cartons_all\')" title="Voir tous les cartons">'+(s.pJ||'–')+'</td>'+
+        '<td style="'+TDr+'cursor:pointer" onclick="showRecapDetail(\''+p.id+'\',\'cartons_all\')" title="Voir tous les cartons">'+(s.pR||'–')+'</td>'+
+        '<td style="'+TD+'color:#111;font-weight:700;cursor:pointer" onclick="showRecapDetail(\''+p.id+'\',\'cartons_all\')" title="Voir toutes les suspensions">'+(s.pS?'<span class="sc2">'+s.pS+'</span>':'–')+'</td>'+
       '</tr>';
     });
   });
@@ -2050,7 +2197,6 @@ function renderMPD(mid){
     var cartonBtns=
       '<div style="display:flex;gap:5px;align-items:center">'+
         '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;border:1.5px solid #ffd700;background:'+(d.c_j?'#FFD700':'#fffbeb')+';color:'+(d.c_j?'#000':'#856404')+'" onclick="setCarton(\''+key+'\',\'jaune\',\''+mid+'\')">🟨 J</button>'+
-        '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700;border:1.5px solid #800000;background:'+(d.c_j2?'#800000':'#fff0f0')+';color:'+(d.c_j2?'#fff':'#800000')+'" onclick="setCarton(\''+key+'\',\'dj\',\''+mid+'\')">2J=🟥</button>'+
         '<button type="button" style="padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:700;border:1.5px solid var(--red);background:'+(d.c_r?'var(--red)':'#fff0f0')+';color:'+(d.c_r?'#fff':'var(--red)')+'" onclick="setCarton(\''+key+'\',\'rouge\',\''+mid+'\')">🟥 R</button>'+
       '</div>';
 
@@ -3418,72 +3564,111 @@ function showSanctionMenu(e, key, refreshFn) {
   }
   function closeMenu() { if (menu.parentNode) menu.parentNode.removeChild(menu); }
 
-  // ── Option rows ──────────────────────────────────────────────
-  var options = [
-    { label:'🟨 Jaune',  value:'jaune', active: d.carton==='jaune' },
-    { label:'🟥 2J = Rouge', value:'dj', active: d.carton==='dj' },
-    { label:'🟥 Rouge direct', value:'rouge', active: d.carton==='rouge' },
-    { label:'<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#111;border-radius:3px;color:#fff;font-weight:900;font-size:12px;vertical-align:middle">S</span> <span style="color:#c084fc;font-weight:800">Suspension</span>', value:'susp', active: !!d.suspension, purple: true },
-    { label:'✕ Effacer', value:'clear', active: false, muted: true }
+  // ── Option rows — multi-card support ───────────────────────────
+  // Each card type is independently togglable; J can coexist with R
+  var hasJ = !!d.c_j;
+  var hasJ2 = !!d.c_j2; // 2nd yellow
+  var hasR = !!d.c_r;
+  var hasS = !!d.suspension;
+
+  var cardOptions = [
+    { label:'🟨 Jaune',   key:'c_j',  active: hasJ },
+    { label:'🟨 2ème Jaune', key:'c_j2', active: hasJ2 },
+    { label:'🟥 Rouge',   key:'c_r',  active: hasR },
+    { label:'<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#111;border-radius:3px;color:#fff;font-weight:900;font-size:12px;vertical-align:middle">S</span> <span style="color:#111;font-weight:800">Suspension</span>', key:'suspension', active: hasS },
+    { label:'✕ Effacer tout', key:'clear', active: false, muted: true }
   ];
 
-  options.forEach(function(opt) {
+  cardOptions.forEach(function(opt) {
     var row = document.createElement('div');
     row.style.cssText = 'padding:11px 16px;cursor:pointer;font-family:Barlow Condensed,sans-serif;'+
       'font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;'+
-      'border-bottom:1px solid #f0ede8;background:'+(opt.active?'#fff8f8':'#fff')+';'+
-      'color:'+(opt.muted?'#aaa':opt.purple?'#c084fc':'#222');
-    row.innerHTML = '<span style="min-width:20px">'+(opt.active?'✅':'')+'</span>'+opt.label;
+      'border-bottom:1px solid #f0ede8;background:'+(opt.active?'#f0f9f0':'#fff')+';'+
+      'color:'+(opt.muted?'#aaa':'#222');
+    row.innerHTML = '<span style="min-width:20px;font-size:14px">'+(opt.active?'✅':'⬜')+'</span>'+opt.label;
     row.onmouseover = function(){this.style.background='#f5f3ef';};
-    row.onmouseout  = function(){this.style.background=opt.active?'#fff8f8':'#fff';};
+    row.onmouseout  = function(){this.style.background=opt.active?'#f0f9f0':'#fff';};
     row.onclick = function(ev) {
       ev.stopPropagation();
       if (!APP.pmd[key]) APP.pmd[key]={};
       var d2 = APP.pmd[key];
-      if (opt.value==='clear') {
+      if (opt.key==='clear') {
         d2.carton=''; d2.suspension=false; d2.c_j=false; d2.c_j2=false; d2.c_r=false; d2.carton_num=1;
-      } else if (opt.value==='susp') {
+      } else if (opt.key==='suspension') {
         d2.suspension = !d2.suspension;
       } else {
-        d2.carton = (d2.carton===opt.value) ? '' : opt.value;
-        d2.c_j  = d2.carton==='jaune';
-        d2.c_j2 = d2.carton==='dj';
-        d2.c_r  = d2.carton==='rouge';
-        if (!d2.carton_num) d2.carton_num = 1;
+        d2[opt.key] = !d2[opt.key];
       }
+      // Keep legacy .carton field in sync for backward compat
+      if(d2.c_j2 && d2.c_r){ d2.carton='dj'; }
+      else if(d2.c_r){ d2.carton='rouge'; }
+      else if(d2.c_j2){ d2.carton='dj'; }
+      else if(d2.c_j){ d2.carton='jaune'; }
+      else { d2.carton=''; }
       closeMenu();
       doRefresh();
     };
     menu.appendChild(row);
   });
 
-  // ── Number picker (1–5) ──────────────────────────────────────
-  var numRow = document.createElement('div');
-  numRow.style.cssText = 'padding:8px 14px;display:flex;align-items:center;gap:6px;border-top:2px solid #f0ede8;background:#fafafa';
-  var lbl = document.createElement('span');
-  lbl.style.cssText = 'font-size:12px;color:#777;font-weight:700;font-family:Barlow Condensed,sans-serif;margin-right:2px';
-  lbl.textContent = 'N° carton :';
-  numRow.appendChild(lbl);
+  // ── Per-card number pickers ──────────────────────────────────
+  function buildNumPicker(label, numKey) {
+    var curNum = d[numKey]||1;
+    var row = document.createElement('div');
+    row.style.cssText = 'padding:6px 14px;display:flex;align-items:center;gap:6px;border-top:1px solid #f0ede8;background:#fafafa';
+    var lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:11px;color:#777;font-weight:700;font-family:Barlow Condensed,sans-serif;min-width:80px';
+    lbl.textContent = label+' :';
+    row.appendChild(lbl);
+    [1,2,3,4,5].forEach(function(n) {
+      var btn = document.createElement('button');
+      btn.textContent = n;
+      var active = curNum === n;
+      btn.style.cssText = 'width:26px;height:26px;border-radius:50%;cursor:pointer;'+
+        'font-weight:800;font-size:12px;font-family:Barlow Condensed,sans-serif;'+
+        'border:2px solid '+(active?'var(--red)':'#ddd')+';'+
+        'background:'+(active?'var(--red)':'#fff')+';'+
+        'color:'+(active?'#fff':'#555');
+      btn.onclick = function(ev) {
+        ev.stopPropagation();
+        if (!APP.pmd[key]) APP.pmd[key] = {};
+        APP.pmd[key][numKey] = n;
+        closeMenu();
+        doRefresh();
+      };
+      row.appendChild(btn);
+    });
+    return row;
+  }
 
-  [1,2,3,4,5].forEach(function(n) {
-    var btn = document.createElement('button');
-    btn.textContent = n;
-    var active = (d.carton_num||1) === n;
-    btn.style.cssText = 'width:26px;height:26px;border-radius:50%;cursor:pointer;'+
-      'font-weight:800;font-size:12px;font-family:Barlow Condensed,sans-serif;'+
-      'border:2px solid '+(active?'var(--red)':'#ddd')+';'+
-      'background:'+(active?'var(--red)':'#fff')+';'+
-      'color:'+(active?'#fff':'#555');
-    btn.onclick = function(ev) {
-      ev.stopPropagation();
-      if (!APP.pmd[key]) APP.pmd[key] = {};
-      APP.pmd[key].carton_num = n;
-      closeMenu();
-      doRefresh();
-    };
-    numRow.appendChild(btn);
-  });
-  menu.appendChild(numRow);
+  // Show a number picker for each active card
+  if (d.c_j)  menu.appendChild(buildNumPicker('N° Jaune', 'c_j_num'));
+  if (d.c_j2) menu.appendChild(buildNumPicker('N° 2e Jaune', 'c_j2_num'));
+  if (d.c_r)  menu.appendChild(buildNumPicker('N° Rouge', 'c_r_num'));
+  // Legacy fallback
+  if (!d.c_j && !d.c_j2 && !d.c_r && d.carton && d.carton !== '') {
+    var legacyRow = document.createElement('div');
+    legacyRow.style.cssText = 'padding:6px 14px;display:flex;align-items:center;gap:6px;border-top:1px solid #f0ede8;background:#fafafa';
+    var legacyLbl = document.createElement('span');
+    legacyLbl.style.cssText = 'font-size:11px;color:#777;font-weight:700;font-family:Barlow Condensed,sans-serif;min-width:80px';
+    legacyLbl.textContent = 'N° carton :';
+    legacyRow.appendChild(legacyLbl);
+    [1,2,3,4,5].forEach(function(n) {
+      var btn = document.createElement('button');
+      btn.textContent = n;
+      var active = (d.carton_num||1) === n;
+      btn.style.cssText = 'width:26px;height:26px;border-radius:50%;cursor:pointer;font-weight:800;font-size:12px;font-family:Barlow Condensed,sans-serif;border:2px solid '+(active?'var(--red)':'#ddd')+';background:'+(active?'var(--red)':'#fff')+';color:'+(active?'#fff':'#555');
+      btn.onclick = function(ev) {
+        ev.stopPropagation();
+        if (!APP.pmd[key]) APP.pmd[key] = {};
+        APP.pmd[key].carton_num = n;
+        closeMenu();
+        doRefresh();
+      };
+      legacyRow.appendChild(btn);
+    });
+    menu.appendChild(legacyRow);
+  }
 
   document.body.appendChild(menu);
   setTimeout(function() {
@@ -3667,122 +3852,6 @@ function sfPreviewProfilePhoto(input) {
 }
 
 
-function showNavEditor() {
-  var nav = document.getElementById('main-nav');
-  var btns = Array.from(nav.querySelectorAll('[data-page]'));
-  window._navItems = btns.map(function(b) {
-    return { page: b.getAttribute('data-page'), label: b.textContent.trim() };
-  });
-  navRenderEditor();
-}
-
-function navRenderEditor() {
-  var items = window._navItems;
-
-  function buildRows() {
-    return items.map(function(item, idx) {
-      return '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;' +
-        'background:#fff;border:1.5px solid #e2ddd8;border-radius:8px;margin-bottom:8px">' +
-        '<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;flex:1">' +
-          item.label +
-        '</span>' +
-        '<div style="display:flex;flex-direction:column;gap:3px">' +
-          '<button onclick="navMove('+idx+',-1)" ' +
-            'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
-            'font-size:14px;cursor:pointer;line-height:1;'+(idx===0?'opacity:.3;cursor:default':'')+'">↑</button>' +
-          '<button onclick="navMove('+idx+',1)" ' +
-            'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
-            'font-size:14px;cursor:pointer;line-height:1;'+(idx===items.length-1?'opacity:.3;cursor:default':'')+'">↓</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-  }
-
-  var content =
-    '<div class="mo-hdr"><div class="mo-title">⚙️ Ordre des onglets</div>' +
-    '<button class="mo-x" onclick="closeModal()">✕</button></div>' +
-    '<div class="mo-body">' +
-      '<p style="font-size:13px;color:#888;margin-bottom:14px">Utilise ↑ ↓ pour changer l\'ordre des onglets.</p>' +
-      '<div id="nav-sort-list">' + buildRows() + '</div>' +
-    '</div>' +
-    '<div class="mo-foot">' +
-      '<button class="btn-c" onclick="closeModal()">Annuler</button>' +
-      '<button class="btn-p" onclick="navApplyOrder()">✅ Appliquer</button>' +
-    '</div>';
-
-  openModal(content);
-}
-
-function navMove(idx, dir) {
-  var items = window._navItems;
-  var newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= items.length) return;
-  var tmp = items[idx];
-  items[idx] = items[newIdx];
-  items[newIdx] = tmp;
-  window._navItems = items;
-  // Re-render the list inside the modal
-  var list = document.getElementById('nav-sort-list');
-  if (!list) return;
-  list.innerHTML = items.map(function(item, i) {
-    return '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;' +
-      'background:#fff;border:1.5px solid #e2ddd8;border-radius:8px;margin-bottom:8px">' +
-      '<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;flex:1">' +
-        item.label +
-      '</span>' +
-      '<div style="display:flex;flex-direction:column;gap:3px">' +
-        '<button onclick="navMove('+i+',-1)" ' +
-          'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
-          'font-size:14px;cursor:pointer;line-height:1;'+(i===0?'opacity:.3':'')+'">↑</button>' +
-        '<button onclick="navMove('+i+',1)" ' +
-          'style="background:#f5f3ef;border:1.5px solid #ddd;border-radius:5px;padding:4px 10px;' +
-          'font-size:14px;cursor:pointer;line-height:1;'+(i===items.length-1?'opacity:.3':'')+'">↓</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function navApplyOrder() {
-  var items = window._navItems;
-  if (!items) return;
-  var nav = document.getElementById('main-nav');
-  var configBtn = nav.querySelector('[title="Réorganiser les onglets"]');
-  // Remove all data-page buttons
-  Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b) { nav.removeChild(b); });
-  // Re-insert in new order before config button
-  items.forEach(function(item) {
-    var btn = document.createElement('button');
-    btn.className = 'nb' + (item.page === 'passeport' ? ' gold-tab' : '');
-    btn.setAttribute('data-page', item.page);
-    btn.innerHTML = item.label;
-    btn.addEventListener('click', function() { showPage(item.page, btn); });
-    nav.insertBefore(btn, configBtn);
-  });
-  // Save order
-  try { localStorage.setItem('nav_order', JSON.stringify(items.map(function(i) { return i.page; }))); } catch(e) {}
-  closeModal();
-}
-
-function restoreNavOrder() {
-  try {
-    var saved = localStorage.getItem('nav_order');
-    if (!saved) return;
-    var order = JSON.parse(saved);
-    var nav = document.getElementById('main-nav');
-    var configBtn = nav.querySelector('[title="Réorganiser les onglets"]');
-    var btns = {};
-    Array.from(nav.querySelectorAll('[data-page]')).forEach(function(b) {
-      btns[b.getAttribute('data-page')] = b;
-      nav.removeChild(b);
-    });
-    order.forEach(function(page) {
-      if (btns[page]) nav.insertBefore(btns[page], configBtn);
-    });
-    Object.keys(btns).forEach(function(page) {
-      if (order.indexOf(page) < 0 && btns[page]) nav.insertBefore(btns[page], configBtn);
-    });
-  } catch(e) {}
-}
 
 
 function confirmResetMatch(id, comp) {
@@ -3926,18 +3995,15 @@ function deleteMatch(id, comp) {
 // 📋 LOGISTIQUE MATCH
 // ═══════════════════════════════════════════════════
 
+// All categories tracked for progress (excluding programmation which is always shown)
 var LOG_CATEGORIES = [
-  { key:'transport',    label:'Mode de transport',  icon:'🚌', hasType:true,  typeOptions:['Bus','Avion','Train','Van','À définir'], hasPax:true,  hasResponsable:true },
-  { key:'hotel',        label:'Hôtel',              icon:'🏨', hasType:false, hasChambre:true, hasPax:false, hasResponsable:true },
-  { key:'bus_local',    label:'Bus local',          icon:'🚐', hasType:false, hasPax:true,  hasResponsable:true },
-  { key:'catering',     label:'Catering',           icon:'🍽', hasType:false, hasPax:false, hasDetail:true, hasResponsable:true },
-  { key:'jacqueson',    label:'Jacqueson',          icon:'🪪', hasType:false, hasPax:true,  hasResponsable:true }
+  'programmation','hotel','transport','jacqueson','bus_local','catering'
 ];
 
 var LOG_STATUTS = [
-  { val:'',           label:'Non démarré',  color:'#9ca3af', bg:'#f3f4f6' },
-  { val:'en_cours',   label:'En cours',     color:'#1d4ed8', bg:'#dbeafe' },
-  { val:'valide',     label:'Validé',       color:'#15803d', bg:'#dcfce7' }
+  { val:'',           label:'À planifier', color:'#dc2626', bg:'#fee2e2' },
+  { val:'en_cours',   label:'En cours',    color:'#1d4ed8', bg:'#dbeafe' },
+  { val:'valide',     label:'Validé',      color:'#15803d', bg:'#dcfce7' }
 ];
 
 function logGetStatut(mid, catKey) {
@@ -3947,12 +4013,12 @@ function logIsFullyValidated(mid) {
   var log = (APP.logistics||{})[mid]||{};
   if (!log._enabled) return false;
   return LOG_CATEGORIES.every(function(c){
-    return log[c.key+'_statut']==='valide';
+    return log[c+'_statut']==='valide';
   });
 }
 function logHasAnyData(mid) {
   var log = (APP.logistics||{})[mid]||{};
-  return LOG_CATEGORIES.some(function(c){ return !!log[c.key+'_statut']; });
+  return LOG_CATEGORIES.some(function(c){ return !!log[c+'_statut']; });
 }
 function logSave(mid, field, val) {
   if (!APP.logistics) APP.logistics = {};
@@ -3966,77 +4032,153 @@ function showLogisticsModal(mid, comp) {
   if (!APP.logistics) APP.logistics = {};
   if (!APP.logistics[mid]) APP.logistics[mid] = {};
   var log = APP.logistics[mid];
+  log._enabled = true;
   var m = (APP.matches[comp]||[]).find(function(x){return x.id===mid;}) || {};
+  var compLabel = comp==='L2'?(APP.champName||'Ligue 2'):comp==='CDF'?'Coupe de France':comp==='AMI'?'Amical':comp;
+  var isExt = log.type==='ext';
+  var isDom = log.type==='dom';
 
-  // Type: domicile or exterieur
-  var typeDOM = log.type==='dom';
-  var typeEXT = log.type==='ext' || !log.type;
+  function fi(label,_unused,key,placeholder,type){
+    type=type||'text';
+    var val = log[key]!==undefined ? log[key] : '';
+    return '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">'+label+'</label>'+
+      '<input type="'+type+'" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:13px;box-sizing:border-box;font-family:Barlow,sans-serif" value="'+val+'" placeholder="'+placeholder+'" onchange="logSave(\''+mid+'\',\''+key+'\',this.value)"></div>';
+  }
+  function ta(label,key,placeholder){
+    var val = log[key]!==undefined ? log[key] : '';
+    return '<div style="grid-column:1/-1"><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">'+label+'</label>'+
+      '<textarea style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:12px;resize:vertical;min-height:44px;box-sizing:border-box;font-family:Barlow,sans-serif" placeholder="'+placeholder+'" onchange="logSave(\''+mid+'\',\''+key+'\',this.value)">'+val+'</textarea></div>';
+  }
 
   function buildStatutBadge(catKey) {
     var sv = log[catKey+'_statut']||'';
     return LOG_STATUTS.map(function(s){
       var active = sv===s.val;
-      return '<button onclick="logSave(\''+mid+'\',\''+catKey+'_statut\',\''+s.val+'\');showLogisticsModal(\''+mid+'\',\''+comp+'\')" '+
+      return '<button onclick="logSave(\''+mid+'\',\''+catKey+'_statut\',\''+s.val+'\');logReRender(\''+mid+'\',\''+comp+'\')" '+
         'style="padding:4px 10px;border-radius:20px;border:'+(active?'2px solid '+s.color:'1px solid #ddd')+';'+
-        'background:'+(active?s.bg:'#fff')+';color:'+(active?s.color:'#aaa')+';font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">'+
-        (s.val==='en_cours'?'● ':s.val==='valide'?'✓ ':'')+s.label+'</button>';
+        'background:'+(active?s.bg:'#fff')+';color:'+(active?s.color:'#aaa')+';font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:Barlow Condensed,sans-serif">'+
+        (s.val==='en_cours'?'● ':s.val==='valide'?'✓ ':'⚑ ')+s.label+'</button>';
     }).join('');
   }
 
-  function buildCatRow(cat) {
-    var sv = log[cat.key+'_statut']||'';
-    var statColor = sv==='valide'?'#16a34a':sv==='en_cours'?'#1d4ed8':'#9ca3af';
-    var html = '<div style="border:1.5px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin-bottom:10px;background:#fff">';
-    // Header
-    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
-    html += '<div style="display:flex;align-items:center;gap:8px">';
-    html += '<span style="font-size:18px">'+cat.icon+'</span>';
-    html += '<span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.5px">'+cat.label+'</span>';
-    if(sv) html += '<span style="width:8px;height:8px;border-radius:50%;background:'+statColor+';display:inline-block;margin-left:4px"></span>';
-    html += '</div>';
-    html += '<div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">'+buildStatutBadge(cat.key)+'</div>';
-    html += '</div>';
-    // Fields
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
-    if(cat.hasType && cat.typeOptions) {
-      var tv = log[cat.key+'_type']||'';
-      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Type</label>'+
-        '<select style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px" onchange="logSave(\''+mid+'\',\''+cat.key+'_type\',this.value)">'+
-        '<option value="">— Choisir —</option>'+
-        cat.typeOptions.map(function(o){return '<option'+(tv===o?' selected':'')+'>'+o+'</option>';}).join('')+
-        '</select></div>';
-    }
-    if(cat.hasChambre) {
-      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Nb chambres</label>'+
-        '<input type="number" min="0" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_chambres']||'')+'" placeholder="Ex: 22" onchange="logSave(\''+mid+'\',\''+cat.key+'_chambres\',this.value)"></div>';
-      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Hôtel / Prestataire</label>'+
-        '<input type="text" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_nom']||'')+'" placeholder="Ex: Mercure Lyon" onchange="logSave(\''+mid+'\',\''+cat.key+'_nom\',this.value)"></div>';
-    }
-    if(cat.hasPax) {
-      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Nb passagers (PAX)</label>'+
-        '<input type="number" min="0" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_pax']||'')+'" placeholder="Ex: 37" onchange="logSave(\''+mid+'\',\''+cat.key+'_pax\',this.value)"></div>';
-    }
-    if(cat.hasDetail) {
-      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Prestataire / Détail</label>'+
-        '<input type="text" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_nom']||'')+'" placeholder="Ex: Traiteur Ange" onchange="logSave(\''+mid+'\',\''+cat.key+'_nom\',this.value)"></div>';
-    }
-    if(cat.hasResponsable) {
-      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Responsable</label>'+
-        '<input type="text" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_resp']||'')+'" placeholder="Ex: P. Dupont" onchange="logSave(\''+mid+'\',\''+cat.key+'_resp\',this.value)"></div>';
-    }
-    html += '</div>';
-    // Notes
-    html += '<div style="margin-top:8px"><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Notes</label>'+
-      '<textarea style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:12px;resize:vertical;min-height:40px;box-sizing:border-box" placeholder="Informations complémentaires..." onchange="logSave(\''+mid+'\',\''+cat.key+'_notes\',this.value)">'+(log[cat.key+'_notes']||'')+'</textarea></div>';
-    html += '</div>';
-    return html;
+  function buildSection(icon, label, catKey, fieldsHtml) {
+    var sv = log[catKey+'_statut']||'';
+    var statColor = sv==='valide'?'#16a34a':sv==='en_cours'?'#1d4ed8':sv?'#dc2626':'#9ca3af';
+    var borderColor = sv==='valide'?'#86efac':sv==='en_cours'?'#93c5fd':sv?'#fca5a5':'#e5e7eb';
+    return '<div style="border:2px solid '+borderColor+';border-radius:10px;padding:14px 16px;margin-bottom:10px;background:#fff">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<span style="font-size:18px">'+icon+'</span>'+
+          '<span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.5px">'+label+'</span>'+
+          (sv?'<span style="width:8px;height:8px;border-radius:50%;background:'+statColor+';display:inline-block"></span>':'')+'</div>'+
+        '<div style="display:flex;gap:4px;flex-wrap:wrap">'+buildStatutBadge(catKey)+'</div>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+fieldsHtml+'</div>'+
+    '</div>';
   }
 
+  // ── 1. PROGRAMMATION ────────────────────────────────
+  // Auto-sync date/heure from match if not manually overridden
+  var progDate = log.prog_date || m.date || '';
+  var progHeure = log.prog_heure || m.time || '';
+  // If match data changed, update logistics
+  if (m.date && !log.prog_date) { log.prog_date = m.date; logSave(mid,'prog_date',m.date); }
+  if (m.time && !log.prog_heure) { log.prog_heure = m.time; logSave(mid,'prog_heure',m.time); }
+
+  var progFields =
+    '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Date du match</label>'+
+      '<input type="date" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:13px;box-sizing:border-box;font-family:Barlow,sans-serif" value="'+progDate+'" onchange="logSave(\''+mid+'\',\'prog_date\',this.value)">'+
+      (m.date && progDate===m.date?'<div style="font-size:10px;color:#16a34a;margin-top:2px;font-weight:600">✓ Synchronisé avec le match</div>':'')+'</div>'+
+    '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Heure du match</label>'+
+      '<input type="time" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:13px;box-sizing:border-box;font-family:Barlow,sans-serif" value="'+progHeure+'" onchange="logSave(\''+mid+'\',\'prog_heure\',this.value)">'+
+      (m.time && progHeure===m.time?'<div style="font-size:10px;color:#16a34a;margin-top:2px;font-weight:600">✓ Synchronisé avec le match</div>':'')+'</div>'+
+    '<div style="grid-column:1/-1"><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:4px">Type de réception</label>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button onclick="logSave(\''+mid+'\',\'type\',\'dom\');logSave(\''+mid+'\',\'_enabled\',true);logReRender(\''+mid+'\',\''+comp+'\')" '+
+          'style="flex:1;padding:10px;border-radius:8px;border:2px solid '+(isDom?'var(--red)':'#e5e7eb')+';background:'+(isDom?'#fff1f2':'#f9fafb')+';cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase">'+
+          '🏠 Domicile</button>'+
+        '<button onclick="logSave(\''+mid+'\',\'type\',\'ext\');logSave(\''+mid+'\',\'_enabled\',true);logReRender(\''+mid+'\',\''+comp+'\')" '+
+          'style="flex:1;padding:10px;border-radius:8px;border:2px solid '+(isExt?'var(--red)':'#e5e7eb')+';background:'+(isExt?'#fff1f2':'#f9fafb')+';cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase">'+
+          '🚌 Extérieur</button>'+
+      '</div></div>'+
+    ta('Informations complémentaires','prog_notes','Lieu de rdv, horaires, remarques...');
+
+  // ── 2. HÔTEL ────────────────────────────────────────
+  var twinVal = log.hotel_twin||'';
+  var singleVal = log.hotel_single||'';
+  var singleDirVal = log.hotel_single_dir||'';
+  var totalTwin = parseInt(twinVal)||0;
+  var totalSingle = parseInt(singleVal)||0;
+  var totalSingleDir = parseInt(singleDirVal)||0;
+  var hotelFields =
+    fi("Nom de l'hôtel",'','hotel_nom','Ex: Mercure Lyon')+
+    fi('Coordonnées / Contact','','hotel_contact','Tel, email...')+
+    '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Chambres Twin</label>'+
+      '<input type="number" min="0" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:13px;box-sizing:border-box" value="'+twinVal+'" placeholder="Ex: 18" onchange="logSave(\''+mid+'\',\'hotel_twin\',this.value);logReRender(\''+mid+'\',\''+comp+'\')"></div>'+
+    '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Chambres Single</label>'+
+      '<input type="number" min="0" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:13px;box-sizing:border-box" value="'+singleVal+'" placeholder="Ex: 2" onchange="logSave(\''+mid+'\',\'hotel_single\',this.value);logReRender(\''+mid+'\',\''+comp+'\')"></div>'+
+    '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Chambres Single Direction</label>'+
+      '<input type="number" min="0" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:13px;box-sizing:border-box" value="'+singleDirVal+'" placeholder="Ex: 4" onchange="logSave(\''+mid+'\',\'hotel_single_dir\',this.value);logReRender(\''+mid+'\',\''+comp+'\')"></div>'+
+    '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
+      '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:6px;padding:8px 10px;text-align:center">'+
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:#15803d">'+totalTwin+'</div>'+
+        '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#16a34a;margin-top:2px">Total Twin</div></div>'+
+      '<div style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:6px;padding:8px 10px;text-align:center">'+
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:#1d4ed8">'+totalSingle+'</div>'+
+        '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#1d4ed8;margin-top:2px">Total Single</div></div>'+
+      '<div style="background:#faf5ff;border:1.5px solid #d8b4fe;border-radius:6px;padding:8px 10px;text-align:center">'+
+        '<div style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:#7c3aed">'+totalSingleDir+'</div>'+
+        '<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7c3aed;margin-top:2px">Single Direction</div></div>'+
+    '</div>'+
+    ta('Informations complémentaires','hotel_notes','Check-in, check-out, remarques...');
+
+  // ── 3. TRANSPORT PRINCIPAL ────────────────────────────
+  var transTypes = ['Avion','Bus','Train','Van','Autre'];
+  var selTrans = (log.transport_types||'').split(',').filter(Boolean);
+  var transCheckboxes = '<div style="grid-column:1/-1"><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:4px">Mode(s) de transport</label>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+    transTypes.map(function(t){
+      var icons={Avion:'✈️',Bus:'🚌',Train:'🚂',Van:'🚐',Autre:'🔧'};
+      var sel=selTrans.indexOf(t)>=0;
+      return '<button onclick="logToggleTrans(\''+mid+'\',\''+t+'\',\''+comp+'\')" style="padding:6px 12px;border-radius:20px;border:2px solid '+(sel?'var(--red)':'#e5e7eb')+';background:'+(sel?'#fff1f2':'#f9fafb')+';font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:13px;cursor:pointer">'+(icons[t]||'')+' '+t+'</button>';
+    }).join('')+
+    (selTrans.indexOf('Autre')>=0?'<input type="text" style="border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 9px;font-size:12px;flex:1;min-width:120px;box-sizing:border-box;font-family:Barlow,sans-serif" value="'+(log.transport_autre||'')+'" placeholder="Préciser..." onchange="logSave(\''+mid+'\',\'transport_autre\',this.value)">':'')+
+    '</div></div>';
+  var transFields = transCheckboxes+
+    fi('PAX Aller','','transport_pax_aller','Ex: 37','number')+
+    fi('PAX Retour','','transport_pax_retour','Ex: 37','number')+
+    fi('Compagnie / Prestataire','','transport_prestataire','Ex: Air France')+
+    fi('Référence / N° vol ou train','','transport_ref','Ex: AF1234')+
+    ta('Informations complémentaires','transport_notes','Horaires, aéroport, gare...');
+
+  // ── 4. JACQUESON ────────────────────────────────────
+  var jacqFields =
+    fi('Nom du chauffeur','','jacqueson_nom','Ex: Jean Dupont')+
+    fi('Téléphone','','jacqueson_tel','Ex: 06 12 34 56 78','tel')+
+    ta('Informations complémentaires','jacqueson_notes','Horaires, point de rdv...');
+
+  // ── 5. BUS LOCAL ────────────────────────────────────
+  var busFields =
+    fi("Entreprise",'','bus_local_nom','Ex: TransExpress')+
+    fi('Téléphone','','bus_local_tel','Ex: 03 26 12 34 56','tel')+
+    fi('Nom du chauffeur','','bus_local_chauffeur','Ex: Paul Martin')+
+    fi('Nb passagers','','bus_local_pax','Ex: 40','number')+
+    ta('Informations complémentaires','bus_local_notes','Itinéraire, horaires...');
+
+  // ── 6. CATERING ────────────────────────────────────
+  var catFields =
+    fi('Entreprise','','catering_nom','Ex: Traiteur Ange')+
+    fi('Contact / Téléphone','','catering_contact','Ex: 03 26 00 00 00','tel')+
+    fi('Nb repas','','catering_repas','Ex: 45','number')+
+    fi('Heure de livraison','','catering_heure','Ex: 17:30','time')+
+    ta('Informations complémentaires','catering_notes','Menu, allergies, remarques...');
+
   var allOk = logIsFullyValidated(mid);
-  var progressCount = LOG_CATEGORIES.filter(function(c){return log[c.key+'_statut']==='valide';}).length;
+  var progressCount = LOG_CATEGORIES.filter(function(c){return log[c+'_statut']==='valide';}).length;
   var progressPct = Math.round(progressCount/LOG_CATEGORIES.length*100);
+
   var statusBanner = allOk
-    ? '<div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px"><span style="font-size:24px">✅</span><span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;color:#15803d;text-transform:uppercase">Logistique complètement validée</span></div>'
+    ? '<div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px"><span style="font-size:24px">✅</span><span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;color:#15803d;text-transform:uppercase">Logistique 100% validée !</span></div>'
     : '<div style="background:#f0f4ff;border:1.5px solid #c7d2fe;border-radius:8px;padding:10px 16px;margin-bottom:14px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
       +'<span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;color:#3730a3">AVANCEMENT : '+progressCount+'/'+LOG_CATEGORIES.length+' validés</span>'
@@ -4044,31 +4186,55 @@ function showLogisticsModal(mid, comp) {
       +'<div style="background:#e0e7ff;border-radius:20px;height:8px;overflow:hidden"><div style="background:#4f46e5;height:8px;border-radius:20px;width:'+progressPct+'%;transition:width .3s"></div></div>'
       +'</div>';
 
-  var typeSelector = '<div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;padding:12px 16px;margin-bottom:14px">'
-    +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:8px">Type de déplacement</div>'
-    +'<div style="display:flex;gap:10px">'
-    +'<button onclick="logSave(\''+mid+'\',\'type\',\'dom\');logSave(\''+mid+'\',\'_enabled\',true);showLogisticsModal(\''+mid+'\',\''+comp+'\')" '
-    +'style="flex:1;padding:12px;border-radius:8px;border:2px solid '+(log.type==='dom'?'var(--red)':'#e5e7eb')+';background:'+(log.type==='dom'?'#fff1f2':'#fff')+';cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase">'
-    +'🏠 Domicile</button>'
-    +'<button onclick="logSave(\''+mid+'\',\'type\',\'ext\');logSave(\''+mid+'\',\'_enabled\',true);showLogisticsModal(\''+mid+'\',\''+comp+'\')" '
-    +'style="flex:1;padding:12px;border-radius:8px;border:2px solid '+(log.type==='ext'?'var(--red)':'#e5e7eb')+';background:'+(log.type==='ext'?'#fff1f2':'#fff')+';cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase">'
-    +'🚌 Extérieur</button>'
-    +'</div></div>';
-
-  var catsHtml = LOG_CATEGORIES.map(buildCatRow).join('');
+  var matchInfo = '<div style="background:#1c1c1c;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+    +'<span style="background:var(--red);color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;border-radius:4px;padding:3px 8px">'+m.j+'</span>'
+    +'<span style="color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;flex:1">'+m.name+'</span>'
+    +'<span style="background:rgba(255,255,255,0.12);color:#ddd;font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;font-family:Barlow Condensed,sans-serif">'+compLabel+'</span>'
+    +(m.date?'<span style="color:rgba(255,255,255,.5);font-size:11px">'+frDate(m.date,m.time||'')+'</span>':'')
+    +'</div>';
 
   openModal(
     '<div class="mo-hdr" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8)">'
-    +'<div class="mo-title">📋 '+m.name+' — Logistique</div>'
+    +'<div class="mo-title">📋 Logistique</div>'
     +'<button class="mo-x" onclick="closeModal()">×</button></div>'
-    +'<div class="mo-body" style="max-height:70vh;overflow-y:auto">'
+    +'<div class="mo-body" style="max-height:75vh;overflow-y:auto">'
+    + matchInfo
     + statusBanner
-    + typeSelector
-    + catsHtml
+    + buildSection('📅','Programmation','programmation',progFields)
+    + buildSection('🏨','Hôtel','hotel',hotelFields)
+    + buildSection('✈️','Transport principal','transport',transFields)
+    + buildSection('<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle"><rect x="1" y="4" width="22" height="13" rx="2.5" fill="#E8301A"/><rect x="3" y="6" width="18" height="7" rx="1" fill="#fff" opacity=".25"/><rect x="1" y="15" width="22" height="2" rx="1" fill="#b81e0a"/><circle cx="5.5" cy="18.5" r="2" fill="#1c1c1c" stroke="#555" stroke-width=".8"/><circle cx="18.5" cy="18.5" r="2" fill="#1c1c1c" stroke="#555" stroke-width=".8"/><rect x="10" y="6" width="1.5" height="7" rx=".5" fill="#fff" opacity=".4"/></svg>','Jacqueson','jacqueson',jacqFields)
+    + buildSection('🚐','Bus local','bus_local',busFields)
+    + buildSection('🍽','Catering','catering',catFields)
     +'</div>'
     +'<div class="mo-foot"><button class="btn-c" onclick="closeModal()">Fermer</button>'
     +'<button class="btn-p" onclick="closeModal();showMatchModal(\''+mid+'\')">← Retour au match</button></div>'
   );
+}
+
+function logToggleTrans(mid, type, comp) {
+  if (!APP.logistics) APP.logistics = {};
+  if (!APP.logistics[mid]) APP.logistics[mid] = {};
+  var cur = (APP.logistics[mid].transport_types||'').split(',').filter(Boolean);
+  var idx = cur.indexOf(type);
+  if (idx >= 0) cur.splice(idx,1); else cur.push(type);
+  APP.logistics[mid].transport_types = cur.join(',');
+  try { renderMatchList(); } catch(e) {}
+  try { sbSave(); } catch(e) {}
+  logReRender(mid, comp);
+}
+
+// Re-render logistics modal body in place without scroll reset
+function logReRender(mid, comp) {
+  // Save scroll position
+  var body = document.querySelector('.mo-body');
+  var scrollTop = body ? body.scrollTop : 0;
+  showLogisticsModal(mid, comp);
+  // Restore scroll position after re-render
+  setTimeout(function(){
+    var b = document.querySelector('.mo-body');
+    if (b) b.scrollTop = scrollTop;
+  }, 0);
 }
 
 function renderRecapThead() {
@@ -4096,7 +4262,7 @@ function renderRecapThead() {
     '<th style="'+TH+'min-width:55px;color:#f87171">Buts Tot.</th>' +
     '<th style="'+TH+'min-width:40px;color:var(--gold)">J</th>' +
     '<th style="'+TH+'min-width:40px;color:#f87171">R</th>' +
-    '<th style="'+TH+'min-width:45px;color:#c084fc">Susp.</th>' +
+    '<th style="'+TH+'min-width:45px;color:#fff">Susp.</th>' +
   '</tr>';
 }
 
@@ -4119,12 +4285,16 @@ function showRecapDetail(pid, field) {
   });
 
   // Carton detail fields
-  var isCarton = field==='cartons_j'||field==='cartons_r'||field==='cartons_s';
+  var isCarton = field==='cartons_j'||field==='cartons_r'||field==='cartons_s'||field==='cartons_all';
+  var totalJ=0, totalR=0, totalS=0;
 
   allMatches.forEach(function(mc) {
     var m = mc.m, comp = mc.comp;
     var d = (APP.pmd||{})[pid+'_'+m.id]||{};
-    if (!d.statut) return;
+    // For cartons_all: include matches where player has any sanction even without statut
+    var hasSanction = d.c_j||d.c_j2||d.c_r||d.carton==='jaune'||d.carton==='rouge'||d.carton==='dj'||d.suspension;
+    if (!d.statut && !hasSanction) return;
+    if (!d.statut && !isCarton) return;
 
     var compBadge = '<span style="font-size:10px;background:'+(comp==='CDF'?'#f59e0b':'#3b82f6')+';color:#fff;border-radius:3px;padding:1px 5px;font-weight:700">'+comp+'</span>';
     var dateFr = m.date ? frDate(m.date, m.time||'') : '';
@@ -4138,23 +4308,44 @@ function showRecapDetail(pid, field) {
                             : '<span style="font-size:11px;color:#aaa">🪑</span>';
 
     if (isCarton) {
-      // Show all matches where player had a card
-      var hasJ = d.c_j||d.carton==='jaune'||d.c_j2||d.carton==='dj';
-      var hasR = d.c_r||d.carton==='rouge'||d.c_j2||d.carton==='dj';
+      var hasJ = d.c_j||d.carton==='jaune';
+      var hasJ2 = d.c_j2;
+      var hasDJ = !d.c_j&&!d.c_j2&&d.carton==='dj';
+      var hasR = d.c_r||d.carton==='rouge';
       var hasS = d.suspension;
-      var show = (field==='cartons_j'&&hasJ)||(field==='cartons_r'&&hasR)||(field==='cartons_s'&&hasS);
+
+      // For cartons_all: show every match that has any sanction
+      // For specific: filter
+      var show = false;
+      if(field==='cartons_all') show = hasJ||hasJ2||hasDJ||hasR||hasS;
+      else if(field==='cartons_j') show = hasJ||hasJ2||hasDJ;
+      else if(field==='cartons_r') show = hasR||(hasJ2&&hasDJ);
+      else if(field==='cartons_s') show = hasS;
       if (!show) return;
-      var cartonIcons = '';
-      if(d.c_j||d.carton==='jaune') cartonIcons+='<span style="display:inline-block;width:10px;height:13px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-right:2px"></span>';
-      if(d.c_j2||d.carton==='dj') cartonIcons+='<span style="display:inline-block;width:10px;height:13px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-right:1px"></span><span style="display:inline-block;width:10px;height:13px;background:var(--red);border-radius:1px;vertical-align:middle;margin-right:2px"></span>';
-      if(d.c_r||d.carton==='rouge') cartonIcons+='<span style="display:inline-block;width:10px;height:13px;background:var(--red);border-radius:1px;vertical-align:middle;margin-right:2px"></span>';
-      if(d.suspension) cartonIcons+='<span style="background:var(--red);color:#fff;font-size:9px;font-weight:800;border-radius:2px;padding:1px 3px;vertical-align:middle">S</span>';
-      rows += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede8">'
-        +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;min-width:28px">'+m.j+'</div>'
+
+      // Count
+      if(hasJ) totalJ++;
+      if(hasJ2) totalJ++;
+      if(hasDJ) totalJ+=2;
+      if(hasR) totalR++;
+      if(hasS) totalS++;
+
+      // Build icons
+      var cartonIcons = '<span style="display:inline-flex;gap:3px;align-items:center">';
+      if(hasJ)  cartonIcons+='<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:18px;background:#FFD700;border-radius:2px;font-size:9px;font-weight:900;color:rgba(0,0,0,0.5);font-family:Barlow Condensed,sans-serif">'+(d.c_j_num||'')+'</span>';
+      if(hasJ2) cartonIcons+='<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:18px;background:#FFD700;border-radius:2px;font-size:9px;font-weight:900;color:rgba(0,0,0,0.5);font-family:Barlow Condensed,sans-serif">'+(d.c_j2_num||'')+'</span>';
+      if(hasDJ) cartonIcons+='<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:18px;background:#FFD700;border-radius:2px;font-size:9px;font-weight:900;color:rgba(0,0,0,0.5);font-family:Barlow Condensed,sans-serif"></span><span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:18px;background:#FFD700;border-radius:2px;font-size:9px;font-weight:900;color:rgba(0,0,0,0.5);font-family:Barlow Condensed,sans-serif">'+(d.carton_num||'')+'</span>';
+      if(hasR)  cartonIcons+='<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:18px;background:var(--red);border-radius:2px;font-size:9px;font-weight:900;color:rgba(255,255,255,0.9);font-family:Barlow Condensed,sans-serif">'+(d.c_r_num||d.carton_num||'')+'</span>';
+      if(hasS)  cartonIcons+='<span style="background:#111;color:#fff;font-size:9px;font-weight:800;border-radius:2px;padding:2px 5px;font-family:Barlow Condensed,sans-serif;letter-spacing:.5px">SUSP</span>';
+      cartonIcons += '</span>';
+
+      rows += '<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #f0ede8;border-radius:6px;margin-bottom:2px">'
+        +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;min-width:28px;color:#111">'+m.j+'</div>'
         +compBadge
-        +'<div style="flex:1;font-size:13px;font-weight:600">'+m.name+'</div>'
-        +(dateFr?'<div style="font-size:10px;color:#aaa;white-space:nowrap">'+dateFr+'</div>':'')
-        +'<div style="display:flex;align-items:center;gap:4px">'+cartonIcons+'</div>'
+        +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.name+'</div>'
+        +(dateFr?'<div style="font-size:10px;color:#aaa">'+dateFr+'</div>':'')+'</div>'
+        +(d.statut?'<div style="display:flex;align-items:center;gap:4px">'+statutLabel+timeLabel+'</div>':'')
+        +'<div style="display:flex;align-items:center;gap:3px;flex-shrink:0">'+cartonIcons+'</div>'
         +'</div>';
       total++;
     } else {
@@ -4189,15 +4380,28 @@ function showRecapDetail(pid, field) {
   var fieldLabel = {
     buts:'Buts totaux', min:'Minutes jouées', matchs:'Matchs joués',
     l2b:'Buts '+APP.champName, cdfb:'Buts Coupe de France',
-    cartons_j:'Cartons jaunes', cartons_r:'Cartons rouges', cartons_s:'Suspensions'
+    cartons_j:'Cartons jaunes', cartons_r:'Cartons rouges', cartons_s:'Suspensions',
+    cartons_all:'Sanctions — saison complète'
   }[field]||field;
+
+  // For cartons_all, build a summary badge line
+  var summaryHtml = '';
+  if (field==='cartons_all') {
+    summaryHtml = '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+    if(totalJ>0) summaryHtml+='<span style="display:inline-flex;align-items:center;gap:5px;background:#fffbeb;border:1.5px solid #ffd700;border-radius:20px;padding:4px 12px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px"><span style="display:inline-block;width:10px;height:13px;background:#FFD700;border-radius:1px"></span>'+totalJ+' Jaune'+(totalJ>1?'s':'')+'</span>';
+    if(totalR>0) summaryHtml+='<span style="display:inline-flex;align-items:center;gap:5px;background:#fff1f2;border:1.5px solid var(--red);border-radius:20px;padding:4px 12px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px"><span style="display:inline-block;width:10px;height:13px;background:var(--red);border-radius:1px"></span>'+totalR+' Rouge'+(totalR>1?'s':'')+'</span>';
+    if(totalS>0) summaryHtml+='<span style="display:inline-flex;align-items:center;gap:5px;background:#f5f5f5;border:1.5px solid #333;border-radius:20px;padding:4px 12px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px"><span style="background:#111;color:#fff;border-radius:2px;padding:1px 5px;font-size:10px">SUSP</span>'+totalS+' Suspension'+(totalS>1?'s':'')+'</span>';
+    if(!totalJ&&!totalR&&!totalS) summaryHtml+='<span style="color:#aaa;font-size:13px">Aucune sanction cette saison</span>';
+    summaryHtml += '</div>';
+  }
 
   openModal(
     '<div class="mo-hdr"><div class="mo-title">'+(p.nomMaillot||p.name)+'</div>'
     +'<button class="mo-x" onclick="closeModal()">✕</button></div>'
     +'<div class="mo-body">'
-    +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">'+fieldLabel+' · Total : '+total+'</div>'
-    +(rows||'<div style="color:#aaa;padding:20px;text-align:center">Aucune donnée</div>')
+    +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">'+fieldLabel+(field!=='cartons_all'?' · Total : '+total:'')+'</div>'
+    +summaryHtml
+    +(rows||'<div style="color:#aaa;padding:20px;text-align:center">Aucune sanction cette saison</div>')
     +'</div>'
     +'<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>'
   );
