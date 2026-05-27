@@ -217,11 +217,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <nav class="nav" id="main-nav">
-  <button class="nb active" data-page="competitions" onclick="showPage('competitions',this)">🏆 Compétitions</button>
+  <button class="nb" data-page="competitions" onclick="showPage('competitions',this)">🏆 Compétitions</button>
   <button class="nb" data-page="joueurs" onclick="showPage('joueurs',this)">👥 Joueurs</button>
   <button class="nb" data-page="staff" onclick="showPage('staff',this)">👔 Staff</button>
   <button class="nb" data-page="cartons" onclick="showPage('cartons',this)">🟨 Cartons</button>
-  <button class="nb" data-page="recap" onclick="showPage('recap',this)">📊 Récapitulatif</button>
+  <button class="nb active" data-page="recap" onclick="showPage('recap',this)">📊 Récapitulatif</button>
   <button class="nb gold-tab" data-page="passeport" onclick="showPage('passeport',this)">⚠️ Passeport <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span></button>
   <button class="nb" onclick="showNavEditor()" style="background:rgba(0,0,0,0.05);color:#888;font-size:14px;padding:8px 10px;min-width:36px" title="Réorganiser les onglets">⚙️</button>
 </nav>
@@ -229,7 +229,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 <div class="main">
 
 <!-- COMPETITIONS -->
-<div id="page-competitions">
+<div id="page-competitions" class="hidden">
   <div class="page-title">Compétitions</div>
   <div id="match-du-jour"></div>
   <div class="tab-row">
@@ -335,7 +335,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <!-- RECAP -->
-<div id="page-recap" class="hidden">
+<div id="page-recap">
   <div class="page-title">Récapitulatif <span style="font-size:16px;color:var(--muted);font-weight:400" id="recap-season-lbl"></span></div>
   <div id="recap-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:18px"></div>
   <div class="toolbar">
@@ -721,7 +721,8 @@ var APP = {
   players: [],
   staff: [],
   matches: { L2: [], CDF: [], AMI: [] },
-  pmd: {}
+  pmd: {},
+  logistics: {}
 };
 
 function initData() {
@@ -824,6 +825,7 @@ function initData() {
 
   APP.matches.AMI = [];
   APP.pmd = {};
+  if (!APP.logistics) APP.logistics = {};
 }
 
 function clearAllMatchData() {
@@ -1041,6 +1043,17 @@ function renderCompStats() {
 }
 
 
+function frDate(dateStr, timeStr) {
+  if (!dateStr) return '';
+  var d = new Date(dateStr + 'T12:00:00');
+  if (isNaN(d)) return dateStr;
+  var jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var mois = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  var str = jours[d.getDay()] + ' ' + d.getDate() + ' ' + mois[d.getMonth()];
+  if (timeStr) str += ' à ' + timeStr.replace(':','h');
+  return str;
+}
+
 function renderMatchList() {
   var ms = APP.matches[curComp];
   var isCDF = curComp==='CDF';
@@ -1059,7 +1072,15 @@ function renderMatchList() {
     } else {
       sc = '<span style="color:rgba(255,255,255,.3);font-size:13px;margin-right:10px">à venir</span>';
     }
-    return '<div class="mi" onclick="showMatchModal(\''+m.id+'\')">'+'<div class="mi-j">'+m.j+'</div>'+'<div class="mi-info"><div class="mi-name">'+m.name+'</div><div class="mi-date">'+(m.date||'')+'</div></div>'+sc+'<span class="mi-arr">▼</span></div>';
+    var log = (APP.logistics||{})[m.id]||{};
+    var logIcon = '';
+    if (log._enabled) {
+      var allOk = logIsFullyValidated(m.id);
+      var iconColor = allOk ? '#16a34a' : '#dc2626';
+      var typeIcon = log.type === 'dom' ? '🏠' : '🚌';
+      logIcon = '<span onclick="event.stopPropagation();var c=\''+curComp+'\';showLogisticsModal(\''+m.id+'\',c)" title="Logistique" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:20px;background:rgba(255,255,255,0.08);margin:0 auto">'+typeIcon+'<span style="width:8px;height:8px;border-radius:50%;background:'+iconColor+';display:inline-block"></span></span>';
+    }
+    return '<div class="mi" onclick="showMatchModal(\''+m.id+'\')"><div class="mi-j">'+m.j+'</div><div class="mi-info"><div class="mi-name">'+m.name+'</div><div class="mi-date">'+frDate(m.date, m.time)+'</div></div><div style="flex:1;display:flex;justify-content:center;align-items:center">'+logIcon+'</div>'+sc+'<span class="mi-arr">▼</span></div>';
   }).join('');
 }
 
@@ -1443,9 +1464,9 @@ function renderRecap(){
         '<td onclick="showRecapDetail(\''+p.id+'\',\'l2b\')" style="'+TDr+'cursor:pointer" title="Voir détail">'+s.l2b+'</td>'+
         '<td onclick="showRecapDetail(\''+p.id+'\',\'cdfb\')" style="'+TDr+'cursor:pointer" title="Voir détail">'+s.cdfb+'</td>'+
         '<td onclick="showRecapDetail(\''+p.id+'\',\'buts\')" style="'+TDr+'font-size:15px;cursor:pointer;font-weight:900" title="Voir détail">'+s.tb+'</td>'+
-        '<td style="'+TDg+'">'+(s.pJ||'–')+'</td>'+
-        '<td style="'+TDr+'">'+(s.pR||'–')+'</td>'+
-        '<td style="'+TDv+'">'+(s.pS||'–')+'</td>'+
+        '<td style="'+TDg+'" onclick="showRecapDetail(\''+p.id+'\',\'cartons_j\')" title="Voir détail cartons" style="cursor:pointer">'+(s.pJ||'–')+'</td>'+
+        '<td style="'+TDr+'" onclick="showRecapDetail(\''+p.id+'\',\'cartons_r\')" title="Voir détail cartons" style="cursor:pointer">'+(s.pR||'–')+'</td>'+
+        '<td style="'+TDv+'" onclick="showRecapDetail(\''+p.id+'\',\'cartons_s\')" title="Voir détail cartons" style="cursor:pointer">'+(s.pS||'–')+'</td>'+
       '</tr>';
     });
   });
@@ -1840,7 +1861,7 @@ function showMatchModal(id) {
       '<div class="sm"><div class="sm-val">'+m.j+'</div><div class="sm-lbl">Journée</div></div>' +
       '<div class="sm"><div class="sm-val" style="color:'+(SC[r]||'#888')+';font-size:20px">'+(m.score||'–')+'</div>' +
         '<div class="sm-lbl">'+(isCDF?(r==='win'?'✅ Qualifié':'❌ Éliminé'):'Résultat')+'</div></div>' +
-      '<div class="sm"><div class="sm-val" style="font-size:14px">'+(m.date||'–')+'</div><div class="sm-lbl">Date</div></div>' +
+      '<div class="sm"><div class="sm-val" style="font-size:'+(m.time?'12px':'14px')+'">'+(m.date?frDate(m.date,''):'–')+(m.time?'<div style="font-size:11px;color:#888;margin-top:2px">à '+m.time.replace(':','h')+'</div>':'')+'</div><div class="sm-lbl">Date</div></div>' +
     '</div>' +
 
     // Captain
@@ -1860,6 +1881,7 @@ function showMatchModal(id) {
         '<button data-delete-id="'+id+'" data-delete-comp="'+curComp+'" id="match-delete-btn" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:9px 14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">🗑 Supprimer</button>' +
         '<button data-reset-id="'+id+'" data-reset-comp="'+curComp+'" id="match-reset-btn" style="background:#fff;color:var(--red);border:2px solid var(--red);border-radius:6px;padding:9px 14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">🗑 Effacer</button>' +
       '</div>' +
+      '<button onclick="showLogisticsModal(\''+id+'\',\''+curComp+'\')" style="background:#1e3a8a;color:#fff;border:none;border-radius:6px;padding:9px 14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">📋 Logistique</button>' +
       '<button onclick="closeModal();showLiveModal(\''+id+'\',\''+curComp+'\')" style="background:#1a5c30;color:#fff;border:none;border-radius:6px;padding:9px 18px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer">🔴 Live</button>' +
       '<button class="btn-p" onclick="showEditMatchModal(\''+id+'\')">Modifier</button>' +
     '</div>'
@@ -1906,7 +1928,7 @@ function showEditMatchModal(id) {
     '<div class="mo-hdr"><div class="mo-title">Modifier &mdash; '+m.name+'</div><button class="mo-x" onclick="closeModal()">&times;</button></div>'+
     '<div class="mo-body">'+
     '<div style="font-size:12px;color:#888;background:#f5f3ef;border:1.5px solid var(--border);border-radius:5px;padding:8px 12px;margin-bottom:12px;font-weight:600">'+(comp==='L2'?APP.champName:comp==='CDF'?'Coupe de France':'Amical')+'</div>'+
-    '<div class="frow"><div class="fg"><label class="fl">Journ&eacute;e</label><input class="fi" id="em-j" value="'+m.j+'"></div><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="em-date" value="'+(m.date||'')+'"></div></div>'+
+    '<div class="frow"><div class="fg"><label class="fl">Journ&eacute;e</label><input class="fi" id="em-j" value="'+m.j+'"></div><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="em-date" value="'+(m.date||'')+'"></div><div class="fg" style="max-width:110px"><label class="fl">Heure</label><input class="fi" type="time" id="em-time" value="'+(m.time||'')+'"></div></div>'+
     '<div class="frow"><div class="fg"><label class="fl">Match</label><input class="fi" id="em-name" value="'+m.name+'"></div><div class="fg"><label class="fl">Score</label><input class="fi" id="em-score" value="'+(m.score||'')+'"></div></div>'+
     '<div class="sec-hdr" style="display:flex;justify-content:space-between;align-items:center"><span>Joueurs</span>'+
     '<span id="cnt" style="background:var(--red);color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;padding:3px 11px;border-radius:20px">'+selCnt+' s&eacute;lectionn&eacute;'+(selCnt>1?'s':'')+'</span></div>'+
@@ -2092,6 +2114,7 @@ function saveMatch(id,comp){
   var m=APP.matches[comp].find(function(x){return x.id===id;});if(!m)return;
   m.j=(document.getElementById('em-j')||{}).value||m.j;
   m.date=(document.getElementById('em-date')||{}).value||m.date;
+  m.time=(document.getElementById('em-time')||{}).value||'';
   m.name=(document.getElementById('em-name')||{}).value||m.name;
   m.score=(document.getElementById('em-score')||{}).value||'';
   m.res=getRes(m.score,m.name);
@@ -2099,13 +2122,13 @@ function saveMatch(id,comp){
 }
 
 function showAddMatchModal(){
-  openModal('<div class="mo-hdr"><div class="mo-title">Nouveau match</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div class="frow"><div class="fg"><label class="fl">Journée</label><input class="fi" id="am-j" placeholder="J15"></div><div class="fg"><label class="fl">Adversaire</label><input class="fi" id="am-adv" placeholder="MHSC"></div></div><div class="frow"><div class="fg"><label class="fl">Nom du match</label><input class="fi" id="am-name" placeholder="SDR - MONTPELLIER"></div><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="am-date"></div></div><div class="fg full" style="margin-bottom:12px"><label class="fl">Score (vide si à venir)</label><input class="fi" id="am-score" placeholder="2-1"></div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button><button class="btn-p" onclick="addMatch()">Enregistrer</button></div>');
+  openModal('<div class="mo-hdr"><div class="mo-title">Nouveau match</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div class="frow"><div class="fg"><label class="fl">Journée</label><input class="fi" id="am-j" placeholder="J15"></div><div class="fg"><label class="fl">Adversaire</label><input class="fi" id="am-adv" placeholder="MHSC"></div></div><div class="frow"><div class="fg"><label class="fl">Nom du match</label><input class="fi" id="am-name" placeholder="SDR - MONTPELLIER"></div><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="am-date"></div><div class="fg" style="max-width:110px"><label class="fl">Heure</label><input class="fi" type="time" id="am-time"></div></div><div class="fg full" style="margin-bottom:12px"><label class="fl">Score (vide si à venir)</label><input class="fi" id="am-score" placeholder="2-1"></div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button><button class="btn-p" onclick="addMatch()">Enregistrer</button></div>');
 }
 function addMatch(){
   var j=(document.getElementById('am-j')||{}).value,n=(document.getElementById('am-name')||{}).value;
   if(!j||!n){alert('Journée et nom requis');return;}
   var score=(document.getElementById('am-score')||{}).value||'';
-  APP.matches[curComp].push({id:'m'+Date.now(),j:j,adv:(document.getElementById('am-adv')||{}).value||'',name:n,date:(document.getElementById('am-date')||{}).value||'',score:score,res:score?getRes(score,n):''});
+  APP.matches[curComp].push({id:'m'+Date.now(),j:j,adv:(document.getElementById('am-adv')||{}).value||'',name:n,date:(document.getElementById('am-date')||{}).value||'',time:(document.getElementById('am-time')||{}).value||'',score:score,res:score?getRes(score,n):''});
   closeModal();renderCompStats();renderMatchList();
 }
 
@@ -2365,11 +2388,69 @@ function saveStaff(id){
 function showNewSeasonModal(){
   var champs=['Ligue 1','Ligue 2','Ligue 3','National','National 2'];
   var champSel=champs.map(function(c){return '<option'+(APP.champName===c?' selected':'')+'>'+c+'</option>';}).join('');
+
+  // Build 34 editable rows with delete button
   var rows34='';
-  for(var i=0;i<34;i++){rows34+='<div style="display:grid;grid-template-columns:70px 1fr 70px;gap:5px;margin-bottom:4px"><input class="fi" style="padding:6px 8px;font-size:13px;text-align:center" value="J'+(i+1)+'" id="ns-j'+i+'"><input class="fi" style="padding:6px 8px;font-size:13px" placeholder="SDR - ADVERSAIRE" id="ns-n'+i+'"><input class="fi" style="padding:6px 8px;font-size:13px;text-align:center" placeholder="ADV" id="ns-a'+i+'"></div>';}
+  for(var i=0;i<34;i++){
+    rows34+='<div style="display:grid;grid-template-columns:58px 1fr 58px 32px;gap:4px;margin-bottom:4px;align-items:center" id="ns-row'+i+'">' +
+      '<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" value="J'+(i+1)+'" id="ns-j'+i+'">' +
+      '<input class="fi" style="padding:5px 6px;font-size:12px" placeholder="SDR - ADVERSAIRE" id="ns-n'+i+'">' +
+      '<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" placeholder="ADV" id="ns-a'+i+'">' +
+      '<button type="button" onclick="nsDeleteRow('+i+')" style="background:#fff0f0;border:1px solid #fca5a5;border-radius:4px;color:var(--red);font-size:14px;cursor:pointer;padding:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>' +
+    '</div>';
+  }
+
+  // CDF rows with delete
   var cdfTours=['7T','8T','32F','16F','8F','QF','SF','F'],cdfRows='';
-  for(var ci=0;ci<cdfTours.length;ci++){cdfRows+='<div style="display:grid;grid-template-columns:70px 1fr 70px;gap:5px;margin-bottom:4px"><input class="fi" style="padding:6px 8px;font-size:13px;text-align:center" value="'+cdfTours[ci]+'" id="ns-cj'+ci+'"><input class="fi" style="padding:6px 8px;font-size:13px" placeholder="Match" id="ns-cn'+ci+'"><input class="fi" style="padding:6px 8px;font-size:13px;text-align:center" placeholder="ADV" id="ns-ca'+ci+'"></div>';}
-  openModal('<div class="mo-hdr"><div class="mo-title">Nouvelle Saison</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div class="frow"><div class="fg"><label class="fl">Nom de la saison</label><input class="fi" id="ns-name" placeholder="2026/2027"></div><div class="fg"><label class="fl">Compétition</label><select class="fsel" id="ns-champ">'+champSel+'</select></div></div><div class="sec-hdr">Journées championnat (34)</div><p style="font-size:12px;color:#888;margin-bottom:8px">Journée · Nom du match · Sigle ADV</p><div style="max-height:300px;overflow-y:auto;padding-right:4px">'+rows34+'</div><div class="sec-hdr" style="margin-top:14px">Coupe de France</div><div>'+cdfRows+'</div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button><button class="btn-p" onclick="createNewSeason()">Créer la saison</button></div>');
+  for(var ci=0;ci<cdfTours.length;ci++){
+    cdfRows+='<div style="display:grid;grid-template-columns:58px 1fr 58px 32px;gap:4px;margin-bottom:4px;align-items:center" id="ns-crow'+ci+'">' +
+      '<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" value="'+cdfTours[ci]+'" id="ns-cj'+ci+'">' +
+      '<input class="fi" style="padding:5px 6px;font-size:12px" placeholder="Match" id="ns-cn'+ci+'">' +
+      '<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" placeholder="ADV" id="ns-ca'+ci+'">' +
+      '<button type="button" onclick="nsCdfDeleteRow('+ci+')" style="background:#fff0f0;border:1px solid #fca5a5;border-radius:4px;color:var(--red);font-size:14px;cursor:pointer;padding:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>' +
+    '</div>';
+  }
+
+  openModal(
+    '<div class="mo-hdr"><div class="mo-title">Nouvelle Saison</div><button class="mo-x" onclick="closeModal()">✕</button></div>' +
+    '<div class="mo-body">' +
+    '<div class="frow"><div class="fg"><label class="fl">Nom de la saison</label><input class="fi" id="ns-name" placeholder="2026/2027"></div><div class="fg"><label class="fl">Compétition</label><select class="fsel" id="ns-champ">'+champSel+'</select></div></div>' +
+    '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;font-size:12px;color:#92400e;margin-bottom:10px">💡 <strong>✕</strong> pour supprimer un match · Modifiez directement les noms d\'adversaires</div>' +
+    '<div class="sec-hdr">Journées championnat (34) <button type="button" onclick="nsAddRow()" style="float:right;background:var(--red);color:#fff;border:none;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:700;cursor:pointer">+ Ajouter</button></div>' +
+    '<p style="font-size:11px;color:#888;margin-bottom:6px">Journée · Nom du match · Sigle ADV · Supprimer</p>' +
+    '<div style="max-height:280px;overflow-y:auto;padding-right:4px" id="ns-rows34">'+rows34+'</div>' +
+    '<div class="sec-hdr" style="margin-top:14px">Coupe de France <button type="button" onclick="nsAddCdfRow()" style="float:right;background:#f59e0b;color:#000;border:none;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:700;cursor:pointer">+ Ajouter</button></div>' +
+    '<div id="ns-crows">'+cdfRows+'</div>' +
+    '</div>' +
+    '<div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button><button class="btn-p" onclick="createNewSeason()">Créer la saison</button></div>'
+  );
+}
+
+// Delete/Add row helpers for new season modal
+var _nsRowCount = 34, _nsCdfRowCount = 8;
+function nsDeleteRow(i){var el=document.getElementById('ns-row'+i);if(el)el.style.display='none';}
+function nsCdfDeleteRow(i){var el=document.getElementById('ns-crow'+i);if(el)el.style.display='none';}
+function nsAddRow(){
+  var c=document.getElementById('ns-rows34');if(!c)return;
+  var i=_nsRowCount++;
+  var d=document.createElement('div');
+  d.id='ns-row'+i;d.style.cssText='display:grid;grid-template-columns:58px 1fr 58px 32px;gap:4px;margin-bottom:4px;align-items:center';
+  d.innerHTML='<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" placeholder="J?" id="ns-j'+i+'">' +
+    '<input class="fi" style="padding:5px 6px;font-size:12px" placeholder="SDR - ADVERSAIRE" id="ns-n'+i+'">' +
+    '<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" placeholder="ADV" id="ns-a'+i+'">' +
+    '<button type="button" onclick="nsDeleteRow('+i+')" style="background:#fff0f0;border:1px solid #fca5a5;border-radius:4px;color:var(--red);font-size:14px;cursor:pointer;padding:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>';
+  c.appendChild(d);
+}
+function nsAddCdfRow(){
+  var c=document.getElementById('ns-crows');if(!c)return;
+  var i=_nsCdfRowCount++;
+  var d=document.createElement('div');
+  d.id='ns-crow'+i;d.style.cssText='display:grid;grid-template-columns:58px 1fr 58px 32px;gap:4px;margin-bottom:4px;align-items:center';
+  d.innerHTML='<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" placeholder="Tour" id="ns-cj'+i+'">' +
+    '<input class="fi" style="padding:5px 6px;font-size:12px" placeholder="Match" id="ns-cn'+i+'">' +
+    '<input class="fi" style="padding:5px 6px;font-size:12px;text-align:center" placeholder="ADV" id="ns-ca'+i+'">' +
+    '<button type="button" onclick="nsCdfDeleteRow('+i+')" style="background:#fff0f0;border:1px solid #fca5a5;border-radius:4px;color:var(--red);font-size:14px;cursor:pointer;padding:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>';
+  c.appendChild(d);
 }
 
 function createNewSeason(){
@@ -2381,26 +2462,30 @@ function createNewSeason(){
     if(!confirm('Créer la saison '+sn+' en '+champ+' ?\n\nStatistiques et matchs effacés.\nJoueurs et staff conservés.'))return;
     APP.pmd={};
     APP.matches.L2=[];
-    for(var i=0;i<34;i++){
+    // Collect all L2 rows (including dynamically added), skip hidden (deleted)
+    for(var i=0;i<_nsRowCount;i++){
+      var row=document.getElementById('ns-row'+i);
+      if(!row||row.style.display==='none')continue;
       var jv=(document.getElementById('ns-j'+i)||{}).value||('J'+(i+1));
       var nv=((document.getElementById('ns-n'+i)||{}).value||'').trim();
       var av=((document.getElementById('ns-a'+i)||{}).value||'').trim();
       if(nv||av)APP.matches.L2.push({id:'m'+Date.now()+'_'+i,j:jv,name:nv||(jv+'-SDR'),adv:av,date:'',score:'',res:''});
     }
     APP.matches.CDF=[];
-    var ct=['7T','8T','32F','16F','8F','QF','SF','F'];
-    for(var ci=0;ci<ct.length;ci++){
-      var cj=(document.getElementById('ns-cj'+ci)||{}).value||ct[ci];
+    for(var ci=0;ci<_nsCdfRowCount;ci++){
+      var crow=document.getElementById('ns-crow'+ci);
+      if(!crow||crow.style.display==='none')continue;
+      var cj=(document.getElementById('ns-cj'+ci)||{}).value||('T'+ci);
       var cn=((document.getElementById('ns-cn'+ci)||{}).value||'').trim();
       var ca=((document.getElementById('ns-ca'+ci)||{}).value||'').trim();
       if(cn||ca)APP.matches.CDF.push({id:'c'+Date.now()+'_'+ci,j:cj,name:cn,adv:ca,date:'',score:'',res:''});
     }
     APP.matches.AMI=[];
     APP.players.forEach(function(p){p.l2_matchs=p.l2_tit=p.l2_rempl=p.l2_min=p.l2_buts=p.cdf_matchs=p.cdf_min=p.cdf_buts=0;});
-    APP.staff.forEach(function(s){/* keep */});
     APP.season=sn; APP.champName=champ;
     var upd=[['season-display',sn+' \u25bc'],['recap-season-lbl',sn],['champ-tab-lbl','Championnat '+champ],['carton-champ-lbl',champ]];
     upd.forEach(function(u){var el=document.getElementById(u[0]);if(el)el.textContent=u[1];});
+    _nsRowCount=34; _nsCdfRowCount=8; // reset counters
     closeModal();curComp='L2';
     document.querySelectorAll('#page-competitions .tab').forEach(function(t,i){if(i===0)t.classList.add('active');else t.classList.remove('active');});
     renderCompStats();renderMatchList();
@@ -3817,6 +3902,8 @@ function deleteMatch(id, comp) {
     delete APP.pmd['STAFF_'+s.id+'_'+id];
     delete APP.pmd['STAFFBA_'+s.id+'_'+id];
   });
+  // Remove logistics
+  if (APP.logistics) delete APP.logistics[id];
   // Remove match from list
   APP.matches[comp] = APP.matches[comp].filter(function(m){ return m.id !== id; });
   // Refresh
@@ -3833,6 +3920,155 @@ function deleteMatch(id, comp) {
   toast.textContent = '🗑 Match supprimé';
   document.body.appendChild(toast);
   setTimeout(function(){ if(toast.parentNode) toast.parentNode.removeChild(toast); }, 2500);
+}
+
+// ═══════════════════════════════════════════════════
+// 📋 LOGISTIQUE MATCH
+// ═══════════════════════════════════════════════════
+
+var LOG_CATEGORIES = [
+  { key:'transport',    label:'Mode de transport',  icon:'🚌', hasType:true,  typeOptions:['Bus','Avion','Train','Van','À définir'], hasPax:true,  hasResponsable:true },
+  { key:'hotel',        label:'Hôtel',              icon:'🏨', hasType:false, hasChambre:true, hasPax:false, hasResponsable:true },
+  { key:'bus_local',    label:'Bus local',          icon:'🚐', hasType:false, hasPax:true,  hasResponsable:true },
+  { key:'catering',     label:'Catering',           icon:'🍽', hasType:false, hasPax:false, hasDetail:true, hasResponsable:true },
+  { key:'jacqueson',    label:'Jacqueson',          icon:'🪪', hasType:false, hasPax:true,  hasResponsable:true }
+];
+
+var LOG_STATUTS = [
+  { val:'',           label:'Non démarré',  color:'#9ca3af', bg:'#f3f4f6' },
+  { val:'en_cours',   label:'En cours',     color:'#1d4ed8', bg:'#dbeafe' },
+  { val:'valide',     label:'Validé',       color:'#15803d', bg:'#dcfce7' }
+];
+
+function logGetStatut(mid, catKey) {
+  return ((APP.logistics||{})[mid]||{})[catKey+'_statut']||'';
+}
+function logIsFullyValidated(mid) {
+  var log = (APP.logistics||{})[mid]||{};
+  if (!log._enabled) return false;
+  return LOG_CATEGORIES.every(function(c){
+    return log[c.key+'_statut']==='valide';
+  });
+}
+function logHasAnyData(mid) {
+  var log = (APP.logistics||{})[mid]||{};
+  return LOG_CATEGORIES.some(function(c){ return !!log[c.key+'_statut']; });
+}
+function logSave(mid, field, val) {
+  if (!APP.logistics) APP.logistics = {};
+  if (!APP.logistics[mid]) APP.logistics[mid] = {};
+  APP.logistics[mid][field] = val;
+  try { renderMatchList(); } catch(e) {}
+  try { sbSave(); } catch(e) {}
+}
+
+function showLogisticsModal(mid, comp) {
+  if (!APP.logistics) APP.logistics = {};
+  if (!APP.logistics[mid]) APP.logistics[mid] = {};
+  var log = APP.logistics[mid];
+  var m = (APP.matches[comp]||[]).find(function(x){return x.id===mid;}) || {};
+
+  // Type: domicile or exterieur
+  var typeDOM = log.type==='dom';
+  var typeEXT = log.type==='ext' || !log.type;
+
+  function buildStatutBadge(catKey) {
+    var sv = log[catKey+'_statut']||'';
+    return LOG_STATUTS.map(function(s){
+      var active = sv===s.val;
+      return '<button onclick="logSave(\''+mid+'\',\''+catKey+'_statut\',\''+s.val+'\');showLogisticsModal(\''+mid+'\',\''+comp+'\')" '+
+        'style="padding:4px 10px;border-radius:20px;border:'+(active?'2px solid '+s.color:'1px solid #ddd')+';'+
+        'background:'+(active?s.bg:'#fff')+';color:'+(active?s.color:'#aaa')+';font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">'+
+        (s.val==='en_cours'?'● ':s.val==='valide'?'✓ ':'')+s.label+'</button>';
+    }).join('');
+  }
+
+  function buildCatRow(cat) {
+    var sv = log[cat.key+'_statut']||'';
+    var statColor = sv==='valide'?'#16a34a':sv==='en_cours'?'#1d4ed8':'#9ca3af';
+    var html = '<div style="border:1.5px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin-bottom:10px;background:#fff">';
+    // Header
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += '<span style="font-size:18px">'+cat.icon+'</span>';
+    html += '<span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.5px">'+cat.label+'</span>';
+    if(sv) html += '<span style="width:8px;height:8px;border-radius:50%;background:'+statColor+';display:inline-block;margin-left:4px"></span>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">'+buildStatutBadge(cat.key)+'</div>';
+    html += '</div>';
+    // Fields
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    if(cat.hasType && cat.typeOptions) {
+      var tv = log[cat.key+'_type']||'';
+      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Type</label>'+
+        '<select style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px" onchange="logSave(\''+mid+'\',\''+cat.key+'_type\',this.value)">'+
+        '<option value="">— Choisir —</option>'+
+        cat.typeOptions.map(function(o){return '<option'+(tv===o?' selected':'')+'>'+o+'</option>';}).join('')+
+        '</select></div>';
+    }
+    if(cat.hasChambre) {
+      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Nb chambres</label>'+
+        '<input type="number" min="0" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_chambres']||'')+'" placeholder="Ex: 22" onchange="logSave(\''+mid+'\',\''+cat.key+'_chambres\',this.value)"></div>';
+      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Hôtel / Prestataire</label>'+
+        '<input type="text" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_nom']||'')+'" placeholder="Ex: Mercure Lyon" onchange="logSave(\''+mid+'\',\''+cat.key+'_nom\',this.value)"></div>';
+    }
+    if(cat.hasPax) {
+      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Nb passagers (PAX)</label>'+
+        '<input type="number" min="0" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_pax']||'')+'" placeholder="Ex: 37" onchange="logSave(\''+mid+'\',\''+cat.key+'_pax\',this.value)"></div>';
+    }
+    if(cat.hasDetail) {
+      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Prestataire / Détail</label>'+
+        '<input type="text" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_nom']||'')+'" placeholder="Ex: Traiteur Ange" onchange="logSave(\''+mid+'\',\''+cat.key+'_nom\',this.value)"></div>';
+    }
+    if(cat.hasResponsable) {
+      html += '<div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Responsable</label>'+
+        '<input type="text" style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:13px;box-sizing:border-box" value="'+(log[cat.key+'_resp']||'')+'" placeholder="Ex: P. Dupont" onchange="logSave(\''+mid+'\',\''+cat.key+'_resp\',this.value)"></div>';
+    }
+    html += '</div>';
+    // Notes
+    html += '<div style="margin-top:8px"><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Notes</label>'+
+      '<textarea style="width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:6px 8px;font-size:12px;resize:vertical;min-height:40px;box-sizing:border-box" placeholder="Informations complémentaires..." onchange="logSave(\''+mid+'\',\''+cat.key+'_notes\',this.value)">'+(log[cat.key+'_notes']||'')+'</textarea></div>';
+    html += '</div>';
+    return html;
+  }
+
+  var allOk = logIsFullyValidated(mid);
+  var progressCount = LOG_CATEGORIES.filter(function(c){return log[c.key+'_statut']==='valide';}).length;
+  var progressPct = Math.round(progressCount/LOG_CATEGORIES.length*100);
+  var statusBanner = allOk
+    ? '<div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px"><span style="font-size:24px">✅</span><span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;color:#15803d;text-transform:uppercase">Logistique complètement validée</span></div>'
+    : '<div style="background:#f0f4ff;border:1.5px solid #c7d2fe;border-radius:8px;padding:10px 16px;margin-bottom:14px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;color:#3730a3">AVANCEMENT : '+progressCount+'/'+LOG_CATEGORIES.length+' validés</span>'
+      +'<span style="font-weight:800;color:#3730a3">'+progressPct+'%</span></div>'
+      +'<div style="background:#e0e7ff;border-radius:20px;height:8px;overflow:hidden"><div style="background:#4f46e5;height:8px;border-radius:20px;width:'+progressPct+'%;transition:width .3s"></div></div>'
+      +'</div>';
+
+  var typeSelector = '<div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;padding:12px 16px;margin-bottom:14px">'
+    +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:8px">Type de déplacement</div>'
+    +'<div style="display:flex;gap:10px">'
+    +'<button onclick="logSave(\''+mid+'\',\'type\',\'dom\');logSave(\''+mid+'\',\'_enabled\',true);showLogisticsModal(\''+mid+'\',\''+comp+'\')" '
+    +'style="flex:1;padding:12px;border-radius:8px;border:2px solid '+(log.type==='dom'?'var(--red)':'#e5e7eb')+';background:'+(log.type==='dom'?'#fff1f2':'#fff')+';cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase">'
+    +'🏠 Domicile</button>'
+    +'<button onclick="logSave(\''+mid+'\',\'type\',\'ext\');logSave(\''+mid+'\',\'_enabled\',true);showLogisticsModal(\''+mid+'\',\''+comp+'\')" '
+    +'style="flex:1;padding:12px;border-radius:8px;border:2px solid '+(log.type==='ext'?'var(--red)':'#e5e7eb')+';background:'+(log.type==='ext'?'#fff1f2':'#fff')+';cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px;text-transform:uppercase">'
+    +'🚌 Extérieur</button>'
+    +'</div></div>';
+
+  var catsHtml = LOG_CATEGORIES.map(buildCatRow).join('');
+
+  openModal(
+    '<div class="mo-hdr" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8)">'
+    +'<div class="mo-title">📋 '+m.name+' — Logistique</div>'
+    +'<button class="mo-x" onclick="closeModal()">×</button></div>'
+    +'<div class="mo-body" style="max-height:70vh;overflow-y:auto">'
+    + statusBanner
+    + typeSelector
+    + catsHtml
+    +'</div>'
+    +'<div class="mo-foot"><button class="btn-c" onclick="closeModal()">Fermer</button>'
+    +'<button class="btn-p" onclick="closeModal();showMatchModal(\''+mid+'\')">← Retour au match</button></div>'
+  );
 }
 
 function renderRecapThead() {
@@ -3874,34 +4110,93 @@ function showRecapDetail(pid, field) {
   var total = 0;
   var allMatches = APP.matches.L2.map(function(m){return{m:m,comp:'L2'};})
     .concat(APP.matches.CDF.map(function(m){return{m:m,comp:'CDF'};}));
+
+  // Sort by date for all fields
+  allMatches.sort(function(a,b){
+    var da = a.m.date||''; var db = b.m.date||'';
+    if(!da && !db) return 0; if(!da) return 1; if(!db) return -1;
+    return da < db ? -1 : da > db ? 1 : 0;
+  });
+
+  // Carton detail fields
+  var isCarton = field==='cartons_j'||field==='cartons_r'||field==='cartons_s';
+
   allMatches.forEach(function(mc) {
     var m = mc.m, comp = mc.comp;
     var d = (APP.pmd||{})[pid+'_'+m.id]||{};
     if (!d.statut) return;
-    var val = 0;
-    if (field==='buts') val = d.buts||0;
-    else if (field==='min') val = d.min||0;
-    else if (field==='matchs') val = (d.statut==='T'||d.statut==='R')?1:0;
-    else if (field==='l2b') { if(comp==='L2') val=d.buts||0; else return; }
-    else if (field==='cdfb') { if(comp==='CDF') val=d.buts||0; else return; }
-    if (field==='matchs'||val>0||field==='min') {
-      var compBadge = '<span style="font-size:10px;background:'+(comp==='CDF'?'#f59e0b':'#3b82f6')+';color:#fff;border-radius:3px;padding:1px 4px;font-weight:700">'+comp+'</span>';
-      rows += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0ede8">'
-        +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;min-width:30px">'+m.j+'</div>'
+
+    var compBadge = '<span style="font-size:10px;background:'+(comp==='CDF'?'#f59e0b':'#3b82f6')+';color:#fff;border-radius:3px;padding:1px 5px;font-weight:700">'+comp+'</span>';
+    var dateFr = m.date ? frDate(m.date, m.time||'') : '';
+
+    // Playing time info
+    var minVal = parseInt(d.min)||0;
+    var statutLabel = d.statut==='T'
+      ? '<span style="color:#3b82f6;font-size:11px;font-weight:700">TIT</span>'
+      : '<span style="color:#8b5cf6;font-size:11px;font-weight:700">REM</span>';
+    var timeLabel = minVal>0 ? '<span style="font-size:11px;color:#555;font-weight:700">⏱ '+minVal+'\'</span>'
+                            : '<span style="font-size:11px;color:#aaa">🪑</span>';
+
+    if (isCarton) {
+      // Show all matches where player had a card
+      var hasJ = d.c_j||d.carton==='jaune'||d.c_j2||d.carton==='dj';
+      var hasR = d.c_r||d.carton==='rouge'||d.c_j2||d.carton==='dj';
+      var hasS = d.suspension;
+      var show = (field==='cartons_j'&&hasJ)||(field==='cartons_r'&&hasR)||(field==='cartons_s'&&hasS);
+      if (!show) return;
+      var cartonIcons = '';
+      if(d.c_j||d.carton==='jaune') cartonIcons+='<span style="display:inline-block;width:10px;height:13px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-right:2px"></span>';
+      if(d.c_j2||d.carton==='dj') cartonIcons+='<span style="display:inline-block;width:10px;height:13px;background:#FFD700;border-radius:1px;vertical-align:middle;margin-right:1px"></span><span style="display:inline-block;width:10px;height:13px;background:var(--red);border-radius:1px;vertical-align:middle;margin-right:2px"></span>';
+      if(d.c_r||d.carton==='rouge') cartonIcons+='<span style="display:inline-block;width:10px;height:13px;background:var(--red);border-radius:1px;vertical-align:middle;margin-right:2px"></span>';
+      if(d.suspension) cartonIcons+='<span style="background:var(--red);color:#fff;font-size:9px;font-weight:800;border-radius:2px;padding:1px 3px;vertical-align:middle">S</span>';
+      rows += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede8">'
+        +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;min-width:28px">'+m.j+'</div>'
         +compBadge
-        +'<div style="flex:1;font-size:13px;color:#555">'+m.name+'</div>'
-        +(m.date?'<div style="font-size:11px;color:#aaa">'+m.date+'</div>':'')
-        +'<div style="font-weight:800;font-size:15px;color:var(--red);min-width:30px;text-align:right">'+(field==='matchs'?d.statut:val+(field.indexOf('b')>=0?' ⚽':'\' '))+'</div>'
+        +'<div style="flex:1;font-size:13px;font-weight:600">'+m.name+'</div>'
+        +(dateFr?'<div style="font-size:10px;color:#aaa;white-space:nowrap">'+dateFr+'</div>':'')
+        +'<div style="display:flex;align-items:center;gap:4px">'+cartonIcons+'</div>'
         +'</div>';
-      total += val;
+      total++;
+    } else {
+      var val = 0;
+      if (field==='buts') val = d.buts||0;
+      else if (field==='min') val = d.min||0;
+      else if (field==='matchs') val = 1;
+      else if (field==='l2b') { if(comp==='L2') val=d.buts||0; else return; }
+      else if (field==='cdfb') { if(comp==='CDF') val=d.buts||0; else return; }
+
+      if (field==='matchs'||val>0||field==='min') {
+        var rightVal = '';
+        if (field==='matchs') {
+          rightVal = '<div style="display:flex;align-items:center;gap:6px">'+statutLabel+timeLabel+'</div>';
+        } else if (field.indexOf('b')>=0) {
+          rightVal = '<div style="font-weight:800;font-size:15px;color:var(--red)">'+val+' ⚽</div>';
+        } else {
+          rightVal = '<div style="font-weight:800;font-size:14px;color:#555">'+val+'\'</div>';
+        }
+        rows += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0ede8">'
+          +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;min-width:28px">'+m.j+'</div>'
+          +compBadge
+          +'<div style="flex:1;font-size:13px;font-weight:600">'+m.name+'</div>'
+          +(dateFr?'<div style="font-size:10px;color:#aaa;white-space:nowrap">'+dateFr+'</div>':'')
+          +rightVal
+          +'</div>';
+        total += (typeof val==='number'?val:1);
+      }
     }
   });
-  var fieldLabel = {buts:'Buts totaux',min:'Minutes jouées',matchs:'Matchs joués',l2b:'Buts '+APP.champName,cdfb:'Buts CDF'}[field]||field;
+
+  var fieldLabel = {
+    buts:'Buts totaux', min:'Minutes jouées', matchs:'Matchs joués',
+    l2b:'Buts '+APP.champName, cdfb:'Buts Coupe de France',
+    cartons_j:'Cartons jaunes', cartons_r:'Cartons rouges', cartons_s:'Suspensions'
+  }[field]||field;
+
   openModal(
     '<div class="mo-hdr"><div class="mo-title">'+(p.nomMaillot||p.name)+'</div>'
     +'<button class="mo-x" onclick="closeModal()">✕</button></div>'
     +'<div class="mo-body">'
-    +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">'+fieldLabel+(field!=='matchs'?' · Total : '+total:'')+'</div>'
+    +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">'+fieldLabel+' · Total : '+total+'</div>'
     +(rows||'<div style="color:#aaa;padding:20px;text-align:center">Aucune donnée</div>')
     +'</div>'
     +'<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>'
