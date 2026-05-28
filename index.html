@@ -223,6 +223,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
   <button class="nb" data-page="joueurs" onclick="showPage('joueurs',this)">👥 Joueurs</button>
   <button class="nb" data-page="staff" onclick="showPage('staff',this)">👔 Staff</button>
   <button class="nb gold-tab" data-page="passeport" onclick="showPage('passeport',this)">⚠️ Passeport <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span></button>
+  <button class="nb" data-page="invitations" onclick="showPage('invitations',this)">🎟️ Invitations</button>
   <button class="nb" data-page="reglages" onclick="showPage('reglages',this)">⚙️ Réglages</button>
 </nav>
 
@@ -411,6 +412,159 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
   </div>
 </div>
 
+<!-- INVITATIONS -->
+<div id="page-invitations" class="hidden">
+  <div class="page-title">🎟️ Invitations</div>
+
+  <!-- Match selector -->
+  <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:14px">
+    <div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px">Match extérieur</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <select id="inv-match-select" onchange="invSelectMatch(this.value)" style="flex:1;min-width:200px;border:1.5px solid var(--border);border-radius:7px;padding:9px 12px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;background:#fafaf8">
+        <option value="">— Choisir un match extérieur —</option>
+      </select>
+      <div id="inv-match-badge" style="display:none;background:#1c1c1c;color:#fff;border-radius:8px;padding:8px 14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px"></div>
+    </div>
+  </div>
+
+  <!-- STEP TABS (hidden until match selected) -->
+  <div id="inv-steps" style="display:none">
+
+    <!-- Step nav -->
+    <div style="display:flex;gap:0;margin-bottom:16px;border:1.5px solid var(--border);border-radius:10px;overflow:hidden">
+      <button id="inv-tab-1" onclick="invShowStep(1)"
+        style="flex:1;padding:12px 16px;border:none;cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.5px;border-right:1px solid var(--border);background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="background:rgba(255,255,255,0.3);border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px">1</span>
+        Sélection des invités
+        <span id="inv-step1-count" style="background:rgba(255,255,255,0.25);border-radius:20px;padding:1px 8px;font-size:12px"></span>
+      </button>
+      <button id="inv-tab-2" onclick="invShowStep(2)"
+        style="flex:1;padding:12px 16px;border:none;cursor:pointer;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.5px;background:#f5f3ef;color:#888;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="background:rgba(0,0,0,0.1);border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px">2</span>
+        Attribution des places
+      </button>
+    </div>
+
+    <!-- ══════ STEP 1: Sélection ══════ -->
+    <div id="inv-step1-panel">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <input id="inv-sel-search" type="text" placeholder="🔍 Rechercher..." oninput="invRenderSelection()"
+          style="border:1.5px solid var(--border);border-radius:7px;padding:8px 12px;font-size:14px;flex:1;min-width:160px;font-family:Barlow,sans-serif">
+        <select id="inv-sel-filter" onchange="invRenderSelection()"
+          style="border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;background:#fafaf8">
+          <option value="all">Tous</option>
+          <option value="joueurs">Joueurs</option>
+          <option value="staff">Staff</option>
+        </select>
+        <button onclick="invSelectAll()" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:7px;padding:8px 12px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:13px;color:#15803d;cursor:pointer">✅ Tout sélectionner</button>
+        <button onclick="invSelectNone()" style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:8px 12px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:13px;color:#888;cursor:pointer">✕ Tout désélectionner</button>
+      </div>
+
+      <!-- Joueurs section -->
+      <div style="margin-bottom:12px">
+        <div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px">
+          👥 Joueurs
+          <span id="inv-sel-joueurs-count" style="background:#e5e7eb;border-radius:20px;padding:1px 8px;font-size:11px;color:#555;font-weight:700"></span>
+        </div>
+        <div id="inv-sel-joueurs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+      </div>
+
+      <!-- Staff section -->
+      <div id="inv-sel-staff-section">
+        <div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px">
+          👔 Staff
+          <span id="inv-sel-staff-count" style="background:#e5e7eb;border-radius:20px;padding:1px 8px;font-size:11px;color:#555;font-weight:700"></span>
+        </div>
+        <div id="inv-sel-staff" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+      </div>
+
+      <!-- Go to step 2 -->
+      <div style="margin-top:16px;display:flex;justify-content:flex-end">
+        <button onclick="invShowStep(2)" style="background:var(--red);color:#fff;border:none;border-radius:7px;padding:12px 28px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase;cursor:pointer;letter-spacing:.5px">
+          Passer à l'attribution → 
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ STEP 2: Attribution ══════ -->
+    <div id="inv-step2-panel" style="display:none">
+
+      <!-- Quota bar -->
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.5px">Total invitations :</span>
+            <input id="inv-total-input" type="number" min="0" max="999" value="0"
+              style="width:80px;border:2px solid var(--red);border-radius:7px;padding:7px 10px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-align:center;color:var(--red)"
+              oninput="invUpdateTotal(this.value)">
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div style="text-align:center">
+              <div id="inv-used" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:26px;color:var(--red)">0</div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888">Attribuées</div>
+            </div>
+            <div style="font-size:24px;color:#ddd">|</div>
+            <div style="text-align:center">
+              <div id="inv-remaining" style="font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:26px;color:#16a34a">0</div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888">Restantes</div>
+            </div>
+            <div style="flex:1;min-width:120px">
+              <div style="height:8px;background:#e5e7eb;border-radius:20px;overflow:hidden">
+                <div id="inv-progress-fill" style="height:8px;background:var(--red);border-radius:20px;width:0%;transition:width .3s"></div>
+              </div>
+              <div id="inv-progress-label" style="font-size:10px;color:#aaa;margin-top:3px;font-weight:600">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <input id="inv-search" type="text" placeholder="🔍 Rechercher..." oninput="invRender()"
+          style="border:1.5px solid var(--border);border-radius:7px;padding:8px 12px;font-size:14px;flex:1;min-width:160px;font-family:Barlow,sans-serif">
+        <select id="inv-filter-group" onchange="invRender()"
+          style="border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;background:#fafaf8">
+          <option value="all">Tous</option>
+          <option value="joueurs">Joueurs</option>
+          <option value="staff">Staff</option>
+        </select>
+        <div style="margin-left:auto;display:flex;gap:7px">
+          <button onclick="invExportXLS()" class="btn-exp">⬇ Excel</button>
+          <button onclick="invResetMatch()" style="background:#fff;border:1.5px solid #fca5a5;border-radius:6px;padding:7px 14px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:13px;color:#dc2626;cursor:pointer">🗑 Réinitialiser</button>
+        </div>
+      </div>
+
+      <!-- Attribution table -->
+      <div style="overflow-x:auto;border-radius:10px;border:1.5px solid var(--border)">
+        <table style="width:100%;border-collapse:collapse;font-family:Barlow Condensed,sans-serif">
+          <thead>
+            <tr style="background:#1c1c1c;color:#fff">
+              <th style="padding:11px 14px;text-align:left;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;min-width:44px">#</th>
+              <th style="padding:11px 14px;text-align:left;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;min-width:150px">Nom</th>
+              <th style="padding:11px 14px;text-align:center;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;min-width:80px">Rôle</th>
+              <th style="padding:11px 14px;text-align:center;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;min-width:110px;color:var(--gold)">Places</th>
+              <th style="padding:11px 14px;text-align:left;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px">Bénéficiaire(s)</th>
+              <th style="padding:11px 14px;text-align:center;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;min-width:80px">Statut</th>
+            </tr>
+          </thead>
+          <tbody id="inv-tbody"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:12px">
+        <button onclick="invShowStep(1)" style="background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:10px 20px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;color:#555;cursor:pointer">← Modifier la sélection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div id="inv-empty" style="text-align:center;padding:60px 20px;color:#aaa;display:none">
+    <div style="font-size:48px;margin-bottom:12px">🚌</div>
+    <div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Aucun match extérieur</div>
+    <div style="font-size:14px">Ajoutez des matchs extérieurs dans l'onglet Compétitions.</div>
+  </div>
+</div>
+
 </div><!-- /main -->
 
 <!-- FAB LIVE -->
@@ -504,7 +658,9 @@ function sbSave() {
       matches_l2: JSON.stringify(APP.matches.L2 || []),
       matches_cdf: JSON.stringify(APP.matches.CDF || []),
       matches_ami: JSON.stringify(APP.matches.AMI || []),
-      pmd: JSON.stringify(APP.pmd || {})
+      pmd: JSON.stringify(APP.pmd || {}),
+      logistics: JSON.stringify(APP.logistics || {}),
+      invitations: JSON.stringify(APP.invitations || {})
     };
     sbFetch('POST', _SB.table + '?on_conflict=room_id', [row]).then(function() {
       _SB.lastTs = ts; _SB.saving = false;
@@ -537,6 +693,8 @@ function sbApply(row) {
     if (row.matches_cdf) APP.matches.CDF = JSON.parse(row.matches_cdf) || [];
     if (row.matches_ami) APP.matches.AMI = JSON.parse(row.matches_ami) || [];
     if (row.pmd)         APP.pmd = JSON.parse(row.pmd) || {};
+    if (row.logistics)   APP.logistics = JSON.parse(row.logistics) || {};
+    if (row.invitations) APP.invitations = JSON.parse(row.invitations) || {};
     if (row.season)      APP.season = row.season;
     if (row.champ_name)  APP.champName = row.champ_name;
     sbRefreshUI(); sbStatus('synced');
@@ -751,7 +909,8 @@ var APP = {
   staff: [],
   matches: { L2: [], CDF: [], AMI: [] },
   pmd: {},
-  logistics: {}
+  logistics: {},
+  invitations: {}
 };
 
 function initData() {
@@ -986,6 +1145,7 @@ var NAV_DEFAULT = [
   {page:'joueurs',      label:'👥 Joueurs'},
   {page:'staff',        label:'👔 Staff'},
   {page:'passeport',    label:'⚠️ Passeport'},
+  {page:'invitations',  label:'🎟️ Invitations'},
   {page:'reglages',     label:'⚙️ Réglages'}
 ];
 var NAV_STORAGE_KEY = 'sdr_nav_order_v2';
@@ -1002,6 +1162,7 @@ function showPage(page, btn) {
   if (page==='recap') renderRecap();
   if (page==='passeport'){renderPassportAlerts();try{renderStaffPassportAlerts();}catch(e){}}
   if (page==='reglages') reglagesRender();
+  if (page==='invitations') renderInvitations();
 }
 
 // ── NAV ORDER PERSISTENCE ────────────────────────────────────────────────────
@@ -4626,6 +4787,473 @@ function toggleCaptain(pid, mid) {
   var el = document.getElementById('ch_' + pid);
   if (el) el.classList.add('is-captain');
 }
+
+
+// ═══════════════════════════════════════════════════════════════════
+// 🎟️ INVITATIONS — v2 (sélection + attribution)
+// ═══════════════════════════════════════════════════════════════════
+// INVITATIONS v2 - selection + attribution
+// ═══════════════════════════════════════════════════════════════════
+
+var _invMatchId = null;
+var _invStep = 1;
+
+function invGetData(mid) {
+  if (!APP.invitations) APP.invitations = {};
+  if (!APP.invitations[mid]) APP.invitations[mid] = { total:0, selected:{}, entries:{} };
+  if (!APP.invitations[mid].selected) APP.invitations[mid].selected = {};
+  return APP.invitations[mid];
+}
+
+function invSave() { try { sbSave(); } catch(e) {} }
+
+function invGetExtMatches() {
+  var all = [];
+  ['L2','CDF','AMI'].forEach(function(comp) {
+    (APP.matches[comp]||[]).forEach(function(m) {
+      var log = (APP.logistics||{})[m.id]||{};
+      var isExt = log.type === 'ext' || (log.type !== 'dom' && m.name && !m.name.toUpperCase().startsWith('SDR-'));
+      if (isExt) all.push({ m:m, comp:comp });
+    });
+  });
+  all.sort(function(a,b){ var da=a.m.date||'',db=b.m.date||''; if(!da&&!db)return 0; if(!da)return 1; if(!db)return -1; return da<db?-1:da>db?1:0; });
+  return all;
+}
+
+function invGetAllPeople() {
+  var people = [];
+  APP.players.forEach(function(p) { people.push({ id:p.id, num:p.num||'', name:p.name||p.nomMaillot||'', role:p.pos||'Joueur', group:'joueurs' }); });
+  APP.staff.forEach(function(s) { people.push({ id:'staff_'+s.id, num:'', name:s.name||'', role:s.role||'Staff', group:'staff' }); });
+  return people;
+}
+
+function renderInvitations() {
+  var extMatches = invGetExtMatches();
+  var sel = document.getElementById('inv-match-select');
+  if (!sel) return;
+  var prev = sel.value;
+  sel.innerHTML = '<option value="">— Choisir un match extérieur —</option>';
+  extMatches.forEach(function(mc) {
+    var opt = document.createElement('option');
+    opt.value = mc.m.id;
+    var tag = mc.comp==='CDF'?' [CDF]':mc.comp==='AMI'?' [AMI]':'';
+    var dt = mc.m.date?' — '+frDate(mc.m.date,''):'';
+    opt.textContent = mc.m.j+' · '+mc.m.name+tag+dt;
+    if (mc.m.id===prev) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if (extMatches.length===0) {
+    document.getElementById('inv-empty').style.display = 'block';
+    document.getElementById('inv-steps').style.display = 'none';
+    document.getElementById('inv-match-badge').style.display = 'none';
+  } else {
+    document.getElementById('inv-empty').style.display = 'none';
+    if (prev && extMatches.find(function(mc){ return mc.m.id===prev; })) invSelectMatch(prev, true);
+  }
+}
+
+function invSelectMatch(mid, keepStep) {
+  _invMatchId = mid||null;
+  var badge = document.getElementById('inv-match-badge');
+  var steps = document.getElementById('inv-steps');
+  if (!mid) { badge.style.display='none'; steps.style.display='none'; return; }
+  var mc = null;
+  ['L2','CDF','AMI'].forEach(function(comp){ (APP.matches[comp]||[]).forEach(function(m){ if(m.id===mid)mc={m:m,comp:comp}; }); });
+  if (!mc) return;
+  var data = invGetData(mid);
+  badge.style.display='';
+  var ct = mc.comp==='CDF'?'🏆 CDF':mc.comp==='AMI'?'🤝 AMI':'🏆 '+(APP.champName||'L2');
+  badge.innerHTML = '<span style="background:var(--red);border-radius:4px;padding:2px 8px;font-size:12px;margin-right:8px">'+mc.m.j+'</span><span style="margin-right:8px">'+mc.m.name+'</span><span style="background:rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px;font-size:11px">'+ct+'</span>';
+  steps.style.display='block';
+  var ti = document.getElementById('inv-total-input');
+  if (ti) ti.value = data.total||0;
+  if (!keepStep) _invStep = 1;
+  invShowStep(_invStep);
+}
+
+function invShowStep(n) {
+  _invStep = n;
+  var p1=document.getElementById('inv-step1-panel'), p2=document.getElementById('inv-step2-panel');
+  var t1=document.getElementById('inv-tab-1'), t2=document.getElementById('inv-tab-2');
+  if (!p1||!p2||!t1||!t2) return;
+  if (n===1) {
+    p1.style.display='block'; p2.style.display='none';
+    t1.style.background='var(--red)'; t1.style.color='#fff';
+    t2.style.background='#f5f3ef'; t2.style.color='#888';
+    invRenderSelection();
+  } else {
+    p1.style.display='none'; p2.style.display='block';
+    t1.style.background='#f5f3ef'; t1.style.color='#888';
+    t2.style.background='var(--red)'; t2.style.color='#fff';
+    invUpdateCounters(); invRender();
+  }
+}
+
+function invRenderSelection() {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  var search = ((document.getElementById('inv-sel-search')||{}).value||'').toLowerCase();
+  var filter = (document.getElementById('inv-sel-filter')||{}).value||'all';
+  var people = invGetAllPeople();
+  var selCount = 0;
+  Object.keys(data.selected||{}).forEach(function(k){ if(data.selected[k]) selCount++; });
+  var sc1 = document.getElementById('inv-step1-count');
+  if (sc1) sc1.textContent = selCount>0 ? selCount+' selectionne'+(selCount>1?'s':'') : '';
+
+  var joueurs = people.filter(function(p){ return p.group==='joueurs'&&(filter==='all'||filter==='joueurs')&&(!search||p.name.toLowerCase().indexOf(search)>=0||p.role.toLowerCase().indexOf(search)>=0); });
+  var staff = people.filter(function(p){ return p.group==='staff'&&(filter==='all'||filter==='staff')&&(!search||p.name.toLowerCase().indexOf(search)>=0||p.role.toLowerCase().indexOf(search)>=0); });
+
+  function buildCard(p) {
+    var isSel = !!(data.selected||{})[p.id];
+    var borderCol = isSel ? 'var(--red)' : '#e5e7eb';
+    var bgCol = isSel ? '#fff1f2' : '#fff';
+    var iconSel = isSel ? '<span style="color:var(--red);font-size:18px;font-weight:900;min-width:24px;text-align:center">&#10003;</span>' : '<span style="color:#ccc;font-size:18px;min-width:24px;text-align:center">&#9711;</span>';
+    var badge = p.group==='joueurs'
+      ? '<span style="background:'+(isSel?'var(--red)':'#e5e7eb')+';color:'+(isSel?'#fff':'#555')+';border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0">'+(p.num||'?')+'</span>'
+      : '<span style="background:'+(isSel?'#1d4ed8':'#e5e7eb')+';color:'+(isSel?'#fff':'#555')+';border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0">'+(p.name?p.name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase():'S')+'</span>';
+    var nameCol = isSel ? 'var(--red)' : '#222';
+    var div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;border:2px solid '+borderCol+';background:'+bgCol+';transition:all .15s';
+    div.innerHTML = iconSel + badge + '<div style="min-width:0"><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:'+nameCol+'">'+p.name+'</div><div style="font-size:11px;color:#888;font-weight:600">'+p.role+'</div></div>';
+    div.onclick = (function(pid){ return function(){ invToggleSelect(pid); }; })(p.id);
+    return div.outerHTML;
+  }
+
+  var jc = document.getElementById('inv-sel-joueurs');
+  var stc = document.getElementById('inv-sel-staff');
+  var jcount = document.getElementById('inv-sel-joueurs-count');
+  var scount = document.getElementById('inv-sel-staff-count');
+  var ss = document.getElementById('inv-sel-staff-section');
+
+  if (jc) jc.innerHTML = joueurs.map(buildCard).join('') || '<div style="color:#aaa;font-size:13px;padding:10px">Aucun joueur</div>';
+  if (stc) stc.innerHTML = staff.map(buildCard).join('') || '<div style="color:#aaa;font-size:13px;padding:10px">Aucun membre</div>';
+  var selJ = joueurs.filter(function(p){ return !!(data.selected||{})[p.id]; }).length;
+  var selS = staff.filter(function(p){ return !!(data.selected||{})[p.id]; }).length;
+  if (jcount) jcount.textContent = selJ+'/'+joueurs.length+' selectionne'+(selJ>1?'s':'');
+  if (scount) scount.textContent = selS+'/'+staff.length+' selectionne'+(selS>1?'s':'');
+  if (ss) ss.style.display = (filter==='joueurs') ? 'none' : 'block';
+
+  // Attach click handlers after render
+  var jcards = jc ? jc.children : [];
+  for (var i=0; i<jcards.length; i++) {
+    (function(el, pid){ el.onclick = function(){ invToggleSelect(pid); }; })(jcards[i], joueurs[i] ? joueurs[i].id : '');
+  }
+  var scards = stc ? stc.children : [];
+  for (var j=0; j<scards.length; j++) {
+    (function(el, pid){ el.onclick = function(){ invToggleSelect(pid); }; })(scards[j], staff[j] ? staff[j].id : '');
+  }
+}
+
+function invToggleSelect(pid) {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  data.selected[pid] = !data.selected[pid];
+  invSave();
+  invRenderSelection();
+}
+
+function invSelectAll() {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  var search = ((document.getElementById('inv-sel-search')||{}).value||'').toLowerCase();
+  var filter = (document.getElementById('inv-sel-filter')||{}).value||'all';
+  invGetAllPeople().forEach(function(p){ if((filter==='all'||p.group===filter)&&(!search||p.name.toLowerCase().indexOf(search)>=0)) data.selected[p.id]=true; });
+  invSave(); invRenderSelection();
+}
+
+function invSelectNone() {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  var search = ((document.getElementById('inv-sel-search')||{}).value||'').toLowerCase();
+  var filter = (document.getElementById('inv-sel-filter')||{}).value||'all';
+  invGetAllPeople().forEach(function(p){ if((filter==='all'||p.group===filter)&&(!search||p.name.toLowerCase().indexOf(search)>=0)) data.selected[p.id]=false; });
+  invSave(); invRenderSelection();
+}
+
+function invUpdateTotal(val) {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  data.total = parseInt(val)||0;
+  invSave(); invUpdateCounters();
+}
+
+function invUpdateCounters() {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  var used = 0;
+  Object.keys(data.entries||{}).forEach(function(k){ used += parseInt((data.entries[k]||{}).places)||0; });
+  var total = parseInt(data.total)||0;
+  var remaining = total - used;
+  var pct = total>0 ? Math.round(used/total*100) : 0;
+  var usedEl=document.getElementById('inv-used'), remEl=document.getElementById('inv-remaining');
+  var fillEl=document.getElementById('inv-progress-fill'), lblEl=document.getElementById('inv-progress-label');
+  if (usedEl) usedEl.textContent = used;
+  if (remEl) { remEl.textContent=remaining; remEl.style.color=remaining<0?'#dc2626':remaining===0&&total>0?'#f59e0b':'#16a34a'; }
+  if (fillEl) { fillEl.style.width=Math.min(pct,100)+'%'; fillEl.style.background=pct>100?'#dc2626':pct===100?'#f59e0b':'var(--red)'; }
+  if (lblEl) lblEl.textContent = pct+'%'+(remaining<0?' (depasse)':'');
+}
+
+function invRender() {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  var search = ((document.getElementById('inv-search')||{}).value||'').toLowerCase();
+  var filter = (document.getElementById('inv-filter-group')||{}).value||'all';
+  var selected = data.selected||{};
+  var people = invGetAllPeople().filter(function(p){
+    if (!selected[p.id]) return false;
+    if (filter!=='all' && p.group!==filter) return false;
+    if (search && p.name.toLowerCase().indexOf(search)<0 && p.role.toLowerCase().indexOf(search)<0) return false;
+    return true;
+  });
+  var tbody = document.getElementById('inv-tbody');
+  if (!tbody) return;
+
+  // Clear tbody
+  while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+  var selTotal = Object.keys(selected).filter(function(k){return selected[k];}).length;
+  if (people.length===0) {
+    var emptyTr = document.createElement('tr');
+    var emptyTd = document.createElement('td');
+    emptyTd.colSpan = 5;
+    emptyTd.style.cssText = 'text-align:center;padding:30px;color:#aaa;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px';
+    emptyTd.textContent = selTotal===0 ? 'Retournez a l\'etape 1 pour selectionner des invites' : 'Aucun resultat';
+    emptyTr.appendChild(emptyTd);
+    tbody.appendChild(emptyTr);
+    return;
+  }
+
+  people.forEach(function(p, idx) {
+    var entry = (data.entries||{})[p.id]||{places:0,beneficiaires:'',statut:''};
+    var places = parseInt(entry.places)||0;
+    var isStaff = p.group==='staff';
+    var rowBg = idx%2===0 ? '#fff' : '#fafaf8';
+    var hasPlaces = places>0;
+    var statCol = entry.statut==='Confirme'?'#16a34a':entry.statut==='En attente'?'#d97706':entry.statut==='Refuse'?'#dc2626':'#9ca3af';
+
+    var tr = document.createElement('tr');
+    tr.style.cssText = 'background:'+(hasPlaces?'#fffbeb':rowBg)+';border-bottom:1px solid #f0ede8';
+
+    // Badge cell
+    var td0 = document.createElement('td');
+    td0.style.cssText = 'padding:10px 14px;text-align:center';
+    if (isStaff) {
+      var initials = p.name ? p.name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase() : 'S';
+      var staffBadge = document.createElement('span');
+      staffBadge.style.cssText = 'background:#e5e7eb;color:#555;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px';
+      staffBadge.textContent = initials;
+      td0.appendChild(staffBadge);
+    } else {
+      var badge = document.createElement('span');
+      badge.style.cssText = 'background:var(--red);color:#fff;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px';
+      badge.textContent = p.num||'?';
+      td0.appendChild(badge);
+    }
+
+    // Name cell
+    var td1 = document.createElement('td');
+    td1.style.cssText = 'padding:10px 14px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px';
+    td1.textContent = p.name;
+
+    // Role cell
+    var td2 = document.createElement('td');
+    td2.style.cssText = 'padding:10px 14px;text-align:center';
+    var roleSpan = document.createElement('span');
+    roleSpan.style.cssText = 'font-size:11px;background:'+(isStaff?'#eff6ff':'#f0fdf4')+';color:'+(isStaff?'#1d4ed8':'#15803d')+';border-radius:20px;padding:3px 10px;font-weight:700;font-family:Barlow Condensed,sans-serif';
+    roleSpan.textContent = p.role;
+    td2.appendChild(roleSpan);
+
+    // Places cell — input only, no +/- buttons
+    var td3 = document.createElement('td');
+    td3.style.cssText = 'padding:8px 14px;text-align:center';
+    var inputNum = document.createElement('input');
+    inputNum.type = 'number'; inputNum.min = '0'; inputNum.max = '99'; inputNum.value = places;
+    inputNum.style.cssText = 'width:64px;text-align:center;border:2px solid '+(hasPlaces?'var(--gold)':'#e5e7eb')+';border-radius:6px;padding:6px 8px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;color:'+(hasPlaces?'#92400e':'#555');
+    inputNum.onchange = (function(pid){ return function(){ invSetPlaces(pid, this.value); invUpdateCounters(); }; })(p.id);
+    inputNum.oninput = (function(pid){ return function(){ invSetPlaces(pid, this.value); invUpdateCounters(); }; })(p.id);
+    td3.appendChild(inputNum);
+
+    // Beneficiaires cell
+    var td4 = document.createElement('td');
+    td4.style.cssText = 'padding:8px 14px';
+    var inputBen = document.createElement('input');
+    inputBen.type = 'text'; inputBen.value = entry.beneficiaires||''; inputBen.placeholder = 'Ex: Famille, Amis...';
+    inputBen.style.cssText = 'width:100%;border:1.5px solid #e5e7eb;border-radius:6px;padding:7px 9px;font-size:13px;font-family:Barlow,sans-serif;box-sizing:border-box;min-width:140px';
+    inputBen.oninput = (function(pid){ return function(){ invSetField(pid,'beneficiaires',this.value); }; })(p.id);
+    td4.appendChild(inputBen);
+
+    // Statut cell
+    var td5 = document.createElement('td');
+    td5.style.cssText = 'padding:8px 14px;text-align:center';
+    var selStat = document.createElement('select');
+    selStat.style.cssText = 'border:1.5px solid '+statCol+';border-radius:20px;padding:5px 10px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;color:'+statCol+';background:#fff;cursor:pointer';
+    ['','Confirme','En attente','Refuse'].forEach(function(sv){
+      var opt = document.createElement('option');
+      opt.value = sv; opt.textContent = sv||'— Statut —';
+      if (entry.statut===sv) opt.selected = true;
+      selStat.appendChild(opt);
+    });
+    selStat.onchange = (function(pid){ return function(){ invSetField(pid,'statut',this.value); invRender(); }; })(p.id);
+    td5.appendChild(selStat);
+
+    tr.appendChild(td0); tr.appendChild(td1); tr.appendChild(td2);
+    tr.appendChild(td3); tr.appendChild(td4); tr.appendChild(td5);
+    tbody.appendChild(tr);
+  });
+}
+
+function invAdjPlaces(pid, delta) {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  if (!data.entries[pid]) data.entries[pid] = {places:0,beneficiaires:'',statut:''};
+  data.entries[pid].places = Math.max(0,(parseInt(data.entries[pid].places)||0)+delta);
+  invSave(); invUpdateCounters(); invRender();
+}
+
+function invSetPlaces(pid, val) {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  if (!data.entries[pid]) data.entries[pid] = {places:0,beneficiaires:'',statut:''};
+  data.entries[pid].places = Math.max(0,parseInt(val)||0);
+  invSave(); invUpdateCounters();
+}
+
+function invSetField(pid, field, val) {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  if (!data.entries[pid]) data.entries[pid] = {places:0,beneficiaires:'',statut:''};
+  data.entries[pid][field] = val;
+  invSave();
+}
+
+function invResetMatch() {
+  if (!_invMatchId) return;
+  // Use custom modal to avoid confirm() issues on iOS local files
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML =
+    '<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;width:100%;text-align:center">' +
+    '<div style="font-size:36px;margin-bottom:10px">🗑️</div>' +
+    '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;text-transform:uppercase;margin-bottom:8px">Reinitialiser ?</div>' +
+    '<div style="font-size:13px;color:#666;margin-bottom:20px;line-height:1.5">Toutes les selections et attributions de places seront effacees pour ce match.</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center">' +
+    '<button id="inv-reset-cancel" style="flex:1;padding:12px;border:2px solid #ddd;border-radius:8px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;cursor:pointer;background:#fff">Annuler</button>' +
+    '<button id="inv-reset-confirm" style="flex:1;padding:12px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-transform:uppercase">Reinitialiser</button>' +
+    '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('inv-reset-cancel').onclick = function(){ overlay.remove(); };
+  document.getElementById('inv-reset-confirm').onclick = function(){
+    overlay.remove();
+    if (!APP.invitations) APP.invitations = {};
+    APP.invitations[_invMatchId] = {total:0,selected:{},entries:{}};
+    var ti = document.getElementById('inv-total-input');
+    if (ti) ti.value = 0;
+    invSave(); invUpdateCounters(); invRenderSelection(); invRender();
+  };
+}
+
+function invExportXLS() {
+  if (!_invMatchId) return;
+  var data = invGetData(_invMatchId);
+  var selected = data.selected||{};
+
+  // Find match name for filename
+  var matchName = _invMatchId;
+  ['L2','CDF','AMI'].forEach(function(comp){
+    (APP.matches[comp]||[]).forEach(function(m){ if(m.id===_invMatchId) matchName=m.j+'-'+m.name; });
+  });
+
+  // Build data rows
+  var headers = ['#','Nom','Role','Places','Beneficiaires','Statut'];
+  var rows = [];
+  invGetAllPeople().forEach(function(p){
+    if (!selected[p.id]) return;
+    var e = (data.entries||{})[p.id]||{};
+    rows.push([p.num||'', p.name, p.role, parseInt(e.places)||0, e.beneficiaires||'', e.statut||'']);
+  });
+
+  // Build minimal XLSX using XML (Office Open XML)
+  function xmlEsc(v) { return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  var sharedStrings = [];
+  var ssMap = {};
+  function si(val) {
+    var s = String(val);
+    if (!(s in ssMap)) { ssMap[s]=sharedStrings.length; sharedStrings.push(s); }
+    return ssMap[s];
+  }
+
+  // Pre-register all strings
+  headers.forEach(function(h){ si(h); });
+  rows.forEach(function(r){ r.forEach(function(v,i){ if(i!==3) si(v); }); });
+
+  function cellRef(c,r){ return String.fromCharCode(65+c)+(r+1); }
+
+  var sheetRows = '';
+  // Header row
+  sheetRows += '<row r="1">';
+  headers.forEach(function(h,c){ sheetRows += '<c r="'+cellRef(c,0)+'" t="s"><v>'+si(h)+'</v></c>'; });
+  sheetRows += '</row>';
+  // Data rows
+  rows.forEach(function(row,ri){
+    sheetRows += '<row r="'+(ri+2)+'">';
+    row.forEach(function(v,c){
+      if (c===3) { // Places — numeric
+        sheetRows += '<c r="'+cellRef(c,ri+1)+'"><v>'+v+'</v></c>';
+      } else {
+        sheetRows += '<c r="'+cellRef(c,ri+1)+'" t="s"><v>'+si(v)+'</v></c>';
+      }
+    });
+    sheetRows += '</row>';
+  });
+
+  var sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +'<sheetData>'+sheetRows+'</sheetData></worksheet>';
+
+  var ssXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="'+sharedStrings.length+'" uniqueCount="'+sharedStrings.length+'">'
+    +sharedStrings.map(function(s){ return '<si><t xml:space="preserve">'+xmlEsc(s)+'</t></si>'; }).join('')
+    +'</sst>';
+
+  var wbXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    +'<sheets><sheet name="Invitations" sheetId="1" r:id="rId1"/></sheets></workbook>';
+
+  var wbRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+    +'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+    +'</Relationships>';
+
+  var appRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+    +'</Relationships>';
+
+  var contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    +'<Default Extension="xml" ContentType="application/xml"/>'
+    +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+    +'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+    +'<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
+    +'</Types>';
+
+  // Build zip using pure JS (no library needed for simple xlsx)
+  // Use a data URL with base64-encoded zip
+  // Simpler fallback: generate as TSV renamed .xls (Excel opens it natively)
+  var tsvLines = [headers.join('\t')];
+  rows.forEach(function(r){ tsvLines.push(r.join('\t')); });
+  var tsv = tsvLines.join('\r\n');
+  var a = document.createElement('a');
+  a.href = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(tsv);
+  a.download = 'Invitations_' + matchName.replace(/[^a-zA-Z0-9_-]/g,'_') + '.xls';
+  a.click();
+}
+
+
+
 
 </script>
 </body></html>
