@@ -671,9 +671,32 @@ function sbSave() {
       sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500);
     }).catch(function(e) {
       _SB.saving = false;
+      // Try PATCH as fallback (POST failed — row may already exist)
       sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), row)
-        .then(function() { _SB.lastTs = ts; sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500); })
-        .catch(function(e2) { console.error('SB save:', e2.message); sbStatus('error'); });
+        .then(function() {
+          _SB.lastTs = ts; sbStatus('saved');
+          setTimeout(function() { sbStatus('online'); }, 1500);
+        })
+        .catch(function(e2) {
+          // Last resort: save without new columns (handles old Supabase table schema)
+          var rowCompat = {
+            room_id: row.room_id, uid: row.uid, ts: row.ts,
+            season: row.season, champ_name: row.champ_name,
+            players: row.players, staff: row.staff,
+            matches_l2: row.matches_l2, matches_cdf: row.matches_cdf,
+            matches_ami: row.matches_ami, pmd: row.pmd
+          };
+          sbFetch('POST', _SB.table + '?on_conflict=room_id', [rowCompat])
+            .then(function() {
+              _SB.lastTs = ts; _SB.saving = false;
+              sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500);
+            })
+            .catch(function(e3) {
+              sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), rowCompat)
+                .then(function() { _SB.lastTs = ts; sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500); })
+                .catch(function(e4) { console.error('SB save:', e4.message); sbStatus('offline'); });
+            });
+        });
     });
   }, 700);
 }
@@ -751,7 +774,7 @@ function sbInit(url, key) {
       if (lnk) lnk.textContent = '🔗 ' + _SB.roomId;
     }).catch(function(e) {
       console.warn('sbInit:', e.message);
-      sbStatus('error');
+      sbStatus('offline');
     });
 }
 
@@ -805,16 +828,21 @@ function sbSetup() {
     '<div style="background:#1e1e1e;border-radius:6px;padding:12px;margin-bottom:14px;' +
     'font-family:monospace;font-size:11px;color:#4ade80;line-height:1.7;overflow-x:auto;white-space:pre;cursor:pointer" ' +
     'onclick="var r=document.createRange();r.selectNode(this);window.getSelection().removeAllRanges();window.getSelection().addRange(r);">' +
+    '-- Exécuter ce SQL dans Supabase > SQL Editor\n' +
     'CREATE TABLE IF NOT EXISTS team_data (\n' +
     '  room_id TEXT PRIMARY KEY,\n' +
     '  uid TEXT, ts BIGINT,\n' +
     '  season TEXT, champ_name TEXT,\n' +
     '  players TEXT, staff TEXT,\n' +
     '  matches_l2 TEXT, matches_cdf TEXT,\n' +
-    '  matches_ami TEXT, pmd TEXT\n' +
+    '  matches_ami TEXT, pmd TEXT,\n' +
+    '  logistics TEXT, invitations TEXT\n' +
     ');\n' +
+    '-- Si table déjà existante, ajouter les colonnes manquantes :\n' +
+    'ALTER TABLE team_data ADD COLUMN IF NOT EXISTS logistics TEXT;\n' +
+    'ALTER TABLE team_data ADD COLUMN IF NOT EXISTS invitations TEXT;\n' +
     'ALTER TABLE team_data ENABLE ROW LEVEL SECURITY;\n' +
-    'CREATE POLICY "allow_all" ON team_data\n' +
+    'CREATE POLICY IF NOT EXISTS "allow_all" ON team_data\n' +
     '  FOR ALL TO anon USING (true) WITH CHECK (true);\n' +
     '-- Cliquer pour tout selectionner' +
     '</div>' +
