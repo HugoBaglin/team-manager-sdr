@@ -410,6 +410,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
       <div><strong>Stockage :</strong> Local (navigateur) + Supabase optionnel</div>
     </div>
   </div>
+
 </div>
 
 <!-- INVITATIONS -->
@@ -899,6 +900,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+
 </script>
 <script>
 // ── APP STATE ────────────────────────────────────────────────────────────────
@@ -1038,55 +1040,8 @@ function clearAllMatchData() {
   try{renderStaff();}catch(e){}
 }
 
-initData();(function(){
-  var x=APP.players.find(function(q){return q.name==="OKUMU";}); if(x){x.firstName="Joseph Stanley";x.dob="1997-05-26";x.natText="Kenya";x.nat="🇰🇪";x.licence="784441720251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="SEKINE";}); if(x){x.firstName="Hiroki";x.dob="2002-08-11";x.natText="Japon";x.nat="🇯🇵";x.licence="144957620251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="BUSI";}); if(x){x.firstName="Maxime";x.dob="1999-10-14";x.natText="Belgique";x.nat="🇧🇪";x.licence="642253720251";x.qualifDate="2025-07-08";} 
-  var x=APP.players.find(function(q){return q.name==="PALLOIS";}); if(x){x.firstName="Nicolas";x.dob="1987-09-19";x.natText="France";x.nat="🇫🇷";x.licence="832084020251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="LEAUTEY";}); if(x){x.firstName="Antoine";x.dob="1996-04-14";x.natText="France";x.nat="🇫🇷";x.licence="4664088020252";x.qualifDate="2025-08-27";} 
-  var x=APP.players.find(function(q){return q.name==="T.DIARRA";}); if(x){x.firstName="Thiemoko";x.dob="2003-04-19";x.natText="Mali";x.nat="🇲🇱";x.licence="827693620251";x.qualifDate="2025-07-11";} 
-  var x=APP.players.find(function(q){return q.name==="NAKAMURA";}); if(x){x.firstName="Keito";x.dob="2000-07-28";x.natText="Japon";x.nat="🇯🇵";x.licence="179536220251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="KHADRA";}); if(x){x.firstName="Reda";x.dob="2001-07-04";x.natText="Allemagne";x.nat="🇩🇪";x.licence="524486820251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="FOFANA";}); if(x){x.firstName="Yaya Kader";x.dob="2004-06-12";x.natText="Cote Ivoire";x.nat="🇨🇮";x.licence="748331820251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DARAMY";}); if(x){x.firstName="Mohamed";x.dob="2002-01-07";x.natText="Danemark";x.nat="🇩🇰";x.licence="477021420251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="O.DIAKITE";}); if(x){x.firstName="Oumar";x.dob="2003-12-20";x.natText="Cote Ivoire";x.nat="🇨🇮";x.licence="339762620251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DEMONCY";}); if(x){x.firstName="Yohan";x.dob="1996-07-04";x.natText="France";x.nat="🇫🇷";x.licence="170341920251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DIADIE";}); if(x){x.firstName="Mohamed-Ali";x.dob="2004-10-22";x.natText="France";x.nat="🇫🇷";x.licence="891199120251";x.qualifDate="2025-08-16";} 
-  var x=APP.players.find(function(q){return q.name==="JAOUEN";}); if(x){x.firstName="Ewen";x.dob="2005-12-29";x.natText="France";x.nat="🇫🇷";x.licence="433879520251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="GBANE";}); if(x){x.firstName="Roman Mory";x.dob="2000-12-25";x.natText="Cote Ivoire";x.nat="🇨🇮";x.licence="305240220251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="AKIEME";}); if(x){x.firstName="Sergio Rodriguez";x.dob="1997-12-16";x.natText="Espagne";x.nat="🇪🇸";x.licence="262772220251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="A.BOJANG";}); if(x){x.firstName="Adama";x.dob="2004-05-28";x.natText="Gambie";x.nat="🇬🇲";x.licence="304452920251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="J.PATRICK";}); if(x){x.firstName="John Joe Patrick";x.dob="2003-09-24";x.natText="Espagne";x.nat="🇪🇸";x.licence="215557920251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="IBRAHIM";}); if(x){x.firstName="Hafiz Umar";x.dob="2005-12-20";x.natText="Nigeria";x.nat="🇳🇬";x.licence="464409720251";x.qualifDate="2025-07-01";x.passport="2025-09-28";} 
-  var x=APP.players.find(function(q){return q.name==="TIA MARTIAL";}); if(x){x.firstName="Ange Martial";x.dob="2006-11-20";x.natText="Mali";x.nat="🇲🇱";x.licence="505145820251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="ABDOUL KONE";}); if(x){x.firstName="Abdoul";x.dob="2005-04-22";x.natText="France";x.nat="🇫🇷";x.licence="104041920251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="SYLLA";}); if(x){x.firstName="Soumaila";x.dob="2004-03-15";x.natText="France";x.nat="🇫🇷";x.licence="531977720251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="GADOU";}); if(x){x.firstName="Arone";x.dob="2009-01-19";x.natText="France";x.nat="🇫🇷";x.licence="635307820251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DIARRASSOUBA";}); if(x){x.firstName="Tidiane Khalil";x.dob="2008-08-29";x.natText="France";x.nat="🇫🇷";x.licence="623655820252";x.qualifDate="2025-12-07";} 
-  var x=APP.players.find(function(q){return q.name==="KIE";}); if(x){x.firstName="Khalil-Liam";x.dob="2008-07-16";x.natText="France";x.nat="🇫🇷";x.licence="157658020251";x.qualifDate="2025-12-07";} 
-  var x=APP.players.find(function(q){return q.name==="GUEU";}); if(x){x.firstName="Zabi Patrick Eloge";x.dob="2006-09-24";x.natText="Cote Ivoire";x.nat="🇨🇮";x.licence="513199920251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="OCHOCHE";}); if(x){x.firstName="Amos Onyejefu";x.dob="2006-03-22";x.natText="Nigeria";x.nat="🇳🇬";x.licence="362104220251";x.qualifDate="2025-07-01";x.passport="2026-01-31";} 
-  var x=APP.players.find(function(q){return q.name==="ORAZI";}); if(x){x.firstName="Ikechukwu";x.dob="2007-06-11";x.natText="Irlande";x.nat="🇮🇪";x.licence="629356220251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="SIEBATCHEU";}); if(x){x.firstName="Theoson-Jordan";x.dob="1996-04-26";x.natText="France";x.nat="🇫🇷";x.licence="820448120251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="TEUMA";}); if(x){x.firstName="Teddy";x.dob="1993-09-30";x.natText="France";x.nat="🇫🇷";x.licence="308061520251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="JENG";}); if(x){x.firstName="Malcolm John";x.dob="2003-03-09";x.natText="Suede";x.nat="🇸🇪";x.licence="768917820251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="SALAMA";}); if(x){x.firstName="Amine";x.dob="2000-07-18";x.natText="France";x.nat="🇫🇷";x.licence="713077720251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="MAMBUKU";}); if(x){x.firstName="Jean-Tryfose";x.dob="2008-07-08";x.natText="Italie";x.nat="🇮🇹";x.licence="757728220252";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DE LA CRUZ";}); if(x){x.firstName="Maiky";x.dob="2004-08-13";x.natText="Equateur";x.nat="🇪🇨";x.licence="189121020251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DEBONDT";}); if(x){x.firstName="Mael Mila M";x.dob="2007-05-11";x.natText="Belgique";x.nat="🇧🇪";x.licence="989114220251";x.qualifDate="2025-07-09";} 
-  var x=APP.players.find(function(q){return q.name==="KONDE";}); if(x){x.firstName="Jean-Charles";x.dob="2007-01-01";x.natText="France";x.nat="🇫🇷";x.licence="130655720251";x.qualifDate="2025-07-03";} 
-  var x=APP.players.find(function(q){return q.name==="SOLVET";}); if(x){x.firstName="Anddrys";x.dob="2007-06-23";x.natText="France";x.nat="🇫🇷";x.licence="554874920251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="TSOUH";}); if(x){x.firstName="Justin";x.dob="2007-11-23";x.natText="France";x.nat="🇫🇷";x.licence="486095720251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="BAH";}); if(x){x.firstName="Therno";x.dob="2008-07-07";x.natText="France";x.nat="🇫🇷";x.licence="896225520251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="BARADJI";}); if(x){x.firstName="Adama";x.dob="2007-10-10";x.natText="France";x.nat="🇫🇷";x.licence="170628620251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DANSOKHO";}); if(x){x.firstName="Ansoumana";x.dob="2006-06-06";x.natText="France";x.nat="🇫🇷";x.licence="668308920251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="OLLIERO";}); if(x){x.firstName="Alexandre";x.dob="1996-02-15";x.natText="France";x.nat="🇫🇷";x.licence="607238120251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="DIARRA";}); if(x){x.firstName="Thiemoko";x.dob="2003-04-19";x.natText="Mali";x.nat="🇲🇱";x.licence="827693620251";x.qualifDate="2025-07-11";} 
-  var x=APP.players.find(function(q){return q.name==="ATANGANA";}); if(x){x.firstName="Valentin";x.dob="2005-08-25";x.natText="France";x.nat="🇫🇷";x.licence="227156120251";x.qualifDate="2025-07-01";} 
-  var x=APP.players.find(function(q){return q.name==="FINN BENOA";}); if(x){x.firstName="John Joe Patrick";x.dob="2003-09-24";x.natText="Espagne";x.nat="🇪🇸";x.licence="215557920251";x.qualifDate="2025-07-01";} 
-})();
+initData();
 
-// ── PAX MANIFEST — Données passeport (source: PAX_MANIFEST_SDR_I_FULL.xlsx) ──
 (function(){
   var PP = {
     'OKUMU':'2029-11-20','SEKINE':'2027-01-26','BUSI':'2027-08-12','PALLOIS':'2029-11-25',
@@ -4368,9 +4323,24 @@ function showLogisticsModal(mid, comp) {
     + buildSection('🚐','Bus local','bus_local',busFields)
     + buildSection('🍽','Catering','catering',catFields)
     +'</div>'
-    +'<div class="mo-foot"><button class="btn-c" onclick="closeModal()">Fermer</button>'
-    +'<button class="btn-p" onclick="closeModal();showMatchModal(\''+mid+'\')">← Retour au match</button></div>'
+    +'<div class="mo-foot">'
+    +'<button class="btn-c" onclick="closeModal()">Fermer</button>'
+    +'<button class="btn-p" onclick="closeModal();showMatchModal(\''+mid+'\')">← Retour au match</button>'
+    +'<button onclick="logForceSave(\''+mid+'\')" style="background:#16a34a;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer;letter-spacing:.5px;margin-left:auto" id="log-save-btn-'+mid+'">💾 Enregistrer</button>'
+    +'</div>'
   );
+}
+
+function logForceSave(mid) {
+  try { sbSave(); } catch(e) {}
+  // Visual feedback on the save button
+  var btn = document.getElementById('log-save-btn-'+mid);
+  if (btn) {
+    var orig = btn.textContent;
+    btn.textContent = '✅ Enregistré !';
+    btn.style.background = '#15803d';
+    setTimeout(function(){ btn.textContent = orig; btn.style.background = '#16a34a'; }, 2000);
+  }
 }
 
 function logToggleTrans(mid, type, comp) {
