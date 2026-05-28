@@ -200,7 +200,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </style>
 </head>
 <body>
-<div id="sb-bar" style="background:#0a0a0a;padding:6px 18px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-family:Barlow Condensed,sans-serif;letter-spacing:.5px"><span id="sb-status" style="color:#888;font-weight:700">⚫ Sync désactivée</span><div style="display:flex;gap:12px;align-items:center"><span id="sb-room-link" style="color:#555;font-size:11px;cursor:pointer;font-weight:600" onclick="sbCopyLink()">🔗 Copier le lien</span><button onclick="sbSetup()" style="background:rgba(22,163,74,.15);border:1.5px solid rgba(22,163,74,.6);color:#16a34a;border-radius:4px;padding:3px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:Barlow Condensed,sans-serif;text-transform:uppercase;letter-spacing:1px">⚡ Supabase</button></div></div>
+<div id="sb-bar" style="background:#0a0a0a;padding:6px 18px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-family:Barlow Condensed,sans-serif;letter-spacing:.5px"><span id="sb-status" style="color:#888;font-weight:700">⚫ Sync désactivée</span><button id="sb-reset-btn" onclick="sbResetConfig()" style="display:none;background:#555;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;margin-left:6px;font-family:Barlow Condensed,sans-serif">Réinitialiser</button><div style="display:flex;gap:12px;align-items:center"><span id="sb-room-link" style="color:#555;font-size:11px;cursor:pointer;font-weight:600" onclick="sbCopyLink()">🔗 Copier le lien</span><button onclick="sbSetup()" style="background:rgba(22,163,74,.15);border:1.5px solid rgba(22,163,74,.6);color:#16a34a;border-radius:4px;padding:3px 12px;font-size:11px;font-weight:800;cursor:pointer;font-family:Barlow Condensed,sans-serif;text-transform:uppercase;letter-spacing:1px">⚡ Supabase</button></div></div>
 
 
 <div class="hdr">
@@ -617,11 +617,14 @@ function sbStatus(s, detail) {
     'saved':   ['💾 Sauvegardé', '#1a7a3c'],
     'synced':  ['✅ Synchronisé', '#1a7a3c'],
     'offline': ['🔴 Hors ligne', '#C82010'],
-    'error':   ['⚠️ Erreur config', '#C82010'],
+    'error':   ['⚠️ Sync inactive', '#888'],
     'hosting': ['⚠️ Hébergement requis', '#e6a817']
   };
   var cfg = map[s] || [s, '#888'];
   el.textContent = cfg[0] + (detail ? ' — ' + detail : '');
+  // Show/hide reset button when config error
+  var resetBtn = document.getElementById('sb-reset-btn');
+  if (resetBtn) resetBtn.style.display = (s === 'error') ? 'inline-block' : 'none';
   el.style.color = cfg[1];
 }
 
@@ -747,9 +750,8 @@ function sbInit(url, key) {
       var lnk = document.getElementById('sb-room-link');
       if (lnk) lnk.textContent = '🔗 ' + _SB.roomId;
     }).catch(function(e) {
-      console.error('sbInit:', e.message);
+      console.warn('sbInit:', e.message);
       sbStatus('error');
-      alert('Erreur Supabase : ' + e.message + '\n\nVérifiez URL, clé anon et que la table existe.');
     });
 }
 
@@ -847,6 +849,15 @@ function sbActivate() {
   try { localStorage.setItem('sb_config', JSON.stringify({url:url, key:key})); } catch(e) {}
   closeModal();
   sbInit(url, key);
+}
+
+function sbResetConfig() {
+  try { localStorage.removeItem('sb_config'); } catch(e) {}
+  _SB.enabled = false;
+  clearInterval(_SB.pollTimer);
+  sbStatus('off');
+  var lnk = document.getElementById('sb-room-link');
+  if (lnk) lnk.textContent = '🔗 Copier le lien';
 }
 
 function sbCopyLink() {
