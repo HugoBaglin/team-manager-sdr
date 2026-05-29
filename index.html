@@ -684,7 +684,8 @@ function sbSave() {
             season: row.season, champ_name: row.champ_name,
             players: row.players, staff: row.staff,
             matches_l2: row.matches_l2, matches_cdf: row.matches_cdf,
-            matches_ami: row.matches_ami, pmd: row.pmd
+            matches_ami: row.matches_ami, pmd: row.pmd,
+            logistics: row.logistics, invitations: row.invitations
           };
           sbFetch('POST', _SB.table + '?on_conflict=room_id', [rowCompat])
             .then(function() {
@@ -698,7 +699,34 @@ function sbSave() {
             });
         });
     });
-  }, 700);
+  }, 300);
+}
+
+// Sauvegarde immédiate sans debounce (utilisé lors des changements d'onglet, fermeture modal, etc.)
+function sbSaveNow() {
+  if (!_SB.enabled || _SB.saving || _SB.loading) return;
+  clearTimeout(_SB.saveTimer);
+  _SB.saving = true;
+  var ts = Date.now();
+  var row = {
+    room_id: _SB.roomId, uid: _SB.uid, ts: ts,
+    season: APP.season || '', champ_name: APP.champName || '',
+    players: JSON.stringify(APP.players || []),
+    staff: JSON.stringify(APP.staff || []),
+    matches_l2: JSON.stringify(APP.matches.L2 || []),
+    matches_cdf: JSON.stringify(APP.matches.CDF || []),
+    matches_ami: JSON.stringify(APP.matches.AMI || []),
+    pmd: JSON.stringify(APP.pmd || {}),
+    logistics: JSON.stringify(APP.logistics || {}),
+    invitations: JSON.stringify(APP.invitations || {})
+  };
+  sbFetch('POST', _SB.table + '?on_conflict=room_id', [row])
+    .then(function() { _SB.lastTs = ts; _SB.saving = false; sbStatus('saved'); setTimeout(function(){sbStatus('online');},1500); })
+    .catch(function() {
+      sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), row)
+        .then(function() { _SB.lastTs = ts; _SB.saving = false; sbStatus('saved'); setTimeout(function(){sbStatus('online');},1500); })
+        .catch(function(e) { _SB.saving = false; console.error('SB saveNow:', e.message); });
+    });
 }
 
 function sbPoll() {
@@ -714,16 +742,31 @@ function sbPoll() {
 function sbApply(row) {
   _SB.loading = true;
   try {
+    // Restaurer les données principales (remplacer si présentes)
     if (row.players)     APP.players = JSON.parse(row.players) || [];
     if (row.staff)       APP.staff = JSON.parse(row.staff) || [];
     if (row.matches_l2)  APP.matches.L2 = JSON.parse(row.matches_l2) || [];
     if (row.matches_cdf) APP.matches.CDF = JSON.parse(row.matches_cdf) || [];
     if (row.matches_ami) APP.matches.AMI = JSON.parse(row.matches_ami) || [];
     if (row.pmd)         APP.pmd = JSON.parse(row.pmd) || {};
-    if (row.logistics)   APP.logistics = JSON.parse(row.logistics) || {};
-    if (row.invitations) APP.invitations = JSON.parse(row.invitations) || {};
     if (row.season)      APP.season = row.season;
     if (row.champ_name)  APP.champName = row.champ_name;
+    // Restaurer logistics : fusionner avec données locales (ne pas écraser si Supabase vide)
+    try {
+      var sbLog = row.logistics ? JSON.parse(row.logistics) : null;
+      if (sbLog && Object.keys(sbLog).length > 0) {
+        APP.logistics = sbLog;
+      }
+      // Si Supabase n'a pas de logistics, garder ce qui est en mémoire
+    } catch(e) { console.warn('SB apply logistics:', e); }
+    // Restaurer invitations : fusionner avec données locales (ne pas écraser si Supabase vide)
+    try {
+      var sbInv = row.invitations ? JSON.parse(row.invitations) : null;
+      if (sbInv && Object.keys(sbInv).length > 0) {
+        APP.invitations = sbInv;
+      }
+      // Si Supabase n'a pas d'invitations, garder ce qui est en mémoire
+    } catch(e) { console.warn('SB apply invitations:', e); }
     sbRefreshUI(); sbStatus('synced');
     setTimeout(function() { sbStatus('online'); }, 2000);
   } catch(e) { console.error('SB apply:', e); }
@@ -766,7 +809,7 @@ function sbInit(url, key) {
     .then(function(rows) {
       if (rows && rows.length) {
         var row = rows[0]; _SB.lastTs = row.ts || 0;
-        if (row.uid !== _SB.uid) sbApply(row); else sbStatus('online');
+        sbApply(row); // Toujours restaurer les données depuis Supabase
       } else { sbSave(); sbStatus('online'); }
       clearInterval(_SB.pollTimer);
       _SB.pollTimer = setInterval(sbPoll, 5000);
@@ -914,7 +957,7 @@ function sbWrap() {
 
 document.addEventListener('DOMContentLoaded', function() {
   sbStatus('off');
-  sbWrap();
+  // sbWrap() est appelé à la fin du script 2, après que toutes les fonctions sont définies
   // Show hosting warning if on file://
   if (!sbIsSecure()) {
     sbStatus('hosting');
@@ -927,16 +970,9 @@ document.addEventListener('DOMContentLoaded', function() {
       warn.onclick = sbShowHostingHelp;
       bar.parentNode.insertBefore(warn, bar.nextSibling);
     }
-  } else {
-    // HTTPS — try to restore saved config
-    try {
-      var saved = localStorage.getItem('sb_config');
-      if (saved) {
-        var cfg = JSON.parse(saved);
-        if (cfg && cfg.url && cfg.key) sbInit(cfg.url, cfg.key);
-      }
-    } catch(e) { console.warn('SB restore:', e); }
   }
+  // La restauration de la config Supabase est gérée dans le script 2
+  // après que toutes les fonctions de l'app sont définies
 });
 
 
@@ -1145,6 +1181,8 @@ var NAV_DEFAULT = [
 var NAV_STORAGE_KEY = 'sdr_nav_order_v2';
 
 function showPage(page, btn) {
+  // Sauvegarde immédiate avant de changer d'onglet (protège logistics, invitations, etc.)
+  if (typeof sbSaveNow === 'function') { setTimeout(sbSaveNow, 50); }
   document.querySelectorAll('[id^="page-"]').forEach(function(p){ p.classList.add('hidden'); });
   var pg = document.getElementById('page-'+page);
   if (pg) pg.classList.remove('hidden');
@@ -1935,8 +1973,10 @@ setTimeout(function(){
 function openModal(html){ document.getElementById('mo').innerHTML=html; document.getElementById('ov').classList.remove('hidden'); }
 function closeModal(){
   document.getElementById('ov').classList.add('hidden');
+  // Sauvegarde immédiate à la fermeture de toute modal (logistique, joueur, invitations, etc.)
+  if (typeof sbSaveNow === 'function') { setTimeout(sbSaveNow, 50); }
   // If live is running, keep timer going and show indicator
-  if (_LIVE.active && _LIVE.running) {
+  if (_LIVE && _LIVE.active && _LIVE.running) {
     liveShowIndicator();
   }
 }
@@ -5261,8 +5301,55 @@ function invExportXLS() {
   a.click();
 }
 
+// ── INIT SUPABASE + sbWrap après toutes les définitions ─────────────────────
+// sbWrap() est appelé ici pour être sûr que saveMatch, savePlayer, etc. sont définis
+document.addEventListener('DOMContentLoaded', function() {
+  sbWrap();
+  // Restaurer la config Supabase depuis localStorage
+  if (typeof sbIsSecure === 'function' && sbIsSecure()) {
+    try {
+      var saved = localStorage.getItem('sb_config');
+      if (saved) {
+        var cfg = JSON.parse(saved);
+        if (cfg && cfg.url && cfg.key) sbInit(cfg.url, cfg.key);
+      }
+    } catch(e) { console.warn('SB restore script2:', e); }
+  }
 
+  // Sauvegarde immédiate avant fermeture de l'onglet/app
+  window.addEventListener('beforeunload', function() {
+    if (typeof _SB !== 'undefined' && _SB.enabled && !_SB.saving) {
+      // Annuler le debounce en cours et sauvegarder immédiatement
+      clearTimeout(_SB.saveTimer);
+      var ts = Date.now();
+      var row = {
+        room_id: _SB.roomId, uid: _SB.uid, ts: ts,
+        season: APP.season || '', champ_name: APP.champName || '',
+        players: JSON.stringify(APP.players || []),
+        staff: JSON.stringify(APP.staff || []),
+        matches_l2: JSON.stringify(APP.matches.L2 || []),
+        matches_cdf: JSON.stringify(APP.matches.CDF || []),
+        matches_ami: JSON.stringify(APP.matches.AMI || []),
+        pmd: JSON.stringify(APP.pmd || {}),
+        logistics: JSON.stringify(APP.logistics || {}),
+        invitations: JSON.stringify(APP.invitations || {})
+      };
+      // Sauvegarde synchrone via navigator.sendBeacon (ne bloque pas le navigateur)
+      var body = JSON.stringify([row]);
+      var url = _SB.url + '/rest/v1/' + _SB.table + '?on_conflict=room_id';
+      try {
+        navigator.sendBeacon(url + '&apikey=' + _SB.key, new Blob([body], {type:'application/json'}));
+      } catch(e) {}
+    }
+  });
 
+  // Sauvegarde immédiate quand l'utilisateur change d'onglet navigateur ou minimise
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden && typeof sbSaveNow === 'function') {
+      sbSaveNow();
+    }
+  });
+});
 
 </script>
 </body></html>
