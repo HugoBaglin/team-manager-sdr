@@ -10,9 +10,9 @@
 :root{--red:#E8301A;--dark:#1C1C1C;--bg:#F0EEE9;--border:#E2DDD8;--muted:#888;--green:#1a7a3c;--gold:#e6a817;--violet:#7B2D8B}
 body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:16px;-webkit-font-smoothing:antialiased}
 .hdr{background:linear-gradient(110deg,#B82010,#E03018 50%,#CC2814);display:flex;align-items:stretch;min-height:80px}
-.hdr-logo{width:90px;background:rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:6px}
+.hdr-logo{width:90px;background:rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;padding:6px;cursor:pointer;transition:background .2s;border-right:1px solid rgba(255,255,255,.1)}
 .hdr-logo img{height:64px;width:auto;object-fit:contain;border-radius:4px}
-.hdr-sep{width:1px;background:rgba(255,255,255,.2);margin:10px 0}
+.hdr-logo:hover{background:rgba(255,255,255,.18)!important}.hdr-logo:active{background:rgba(255,255,255,.3)!important}.hdr-sep{width:1px;background:rgba(255,255,255,.2);margin:10px 0}
 .hdr-info{padding:14px 18px;flex:1;display:flex;flex-direction:column;justify-content:center}
 .hdr-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:30px;color:#fff;letter-spacing:2px;text-transform:uppercase;line-height:1}
 .hdr-sub{font-size:12px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:2px;margin-top:4px}
@@ -204,7 +204,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 
 
 <div class="hdr">
-  <div class="hdr-logo"><img src="data:image/jpeg;base64,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" alt="SDR"></div>
+  <div class="hdr-logo" id="save-btn-wrap" onclick="sbSaveNow()" title="Enregistrer maintenant" style="cursor:pointer;flex-direction:column;gap:3px;transition:background .2s" onmouseenter="this.style.background='rgba(255,255,255,0.18)'" onmouseleave="this.style.background='rgba(0,0,0,.12)'">
+    <div id="save-btn-icon" style="font-size:28px;line-height:1">💾</div>
+    <div id="save-btn-label" style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.9);letter-spacing:1px;text-transform:uppercase;font-family:Barlow Condensed,sans-serif">Enreg.</div>
+  </div>
   <div class="hdr-sep"></div>
   <div class="hdr-info">
     <div class="hdr-title">Team Manager</div>
@@ -607,6 +610,29 @@ function sbGetRoomId() {
   return id;
 }
 
+function sbUpdateSaveBtn(state) {
+  var icon = document.getElementById('save-btn-icon');
+  var label = document.getElementById('save-btn-label');
+  if (!icon || !label) return;
+  if (state === 'saving') {
+    icon.textContent = '⏳'; label.textContent = 'Envoi...';
+  } else if (state === 'saved') {
+    icon.textContent = '✅'; label.textContent = 'Enreg. !';
+    setTimeout(function() {
+      if (icon) icon.textContent = '💾';
+      if (label) label.textContent = 'Enreg.';
+    }, 2000);
+  } else if (state === 'offline') {
+    icon.textContent = '❌'; label.textContent = 'Erreur';
+    setTimeout(function() {
+      if (icon) icon.textContent = '💾';
+      if (label) label.textContent = 'Enreg.';
+    }, 3000);
+  } else if (state === 'off') {
+    icon.textContent = '💾'; label.textContent = 'Enreg.';
+  }
+}
+
 function sbStatus(s, detail) {
   var el = document.getElementById('sb-status');
   if (!el) return;
@@ -626,6 +652,8 @@ function sbStatus(s, detail) {
   var resetBtn = document.getElementById('sb-reset-btn');
   if (resetBtn) resetBtn.style.display = (s === 'error') ? 'inline-block' : 'none';
   el.style.color = cfg[1];
+  // Mettre à jour le bouton Enregistrer dans le header
+  try { sbUpdateSaveBtn(s); } catch(e) {}
 }
 
 function sbIsSecure() {
@@ -649,7 +677,7 @@ function sbFetch(method, path, body) {
 }
 
 function sbSave() {
-  if (!_SB.enabled || _SB.loading || _SB.saving) return;
+  if (!_SB.enabled || _SB.saving) return; // _SB.loading ne bloque plus
   clearTimeout(_SB.saveTimer);
   _SB.saveTimer = setTimeout(function() {
     _SB.saving = true;
@@ -695,7 +723,7 @@ function sbSave() {
             .catch(function(e3) {
               sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), rowCompat)
                 .then(function() { _SB.lastTs = ts; sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500); })
-                .catch(function(e4) { console.error('SB save:', e4.message); sbStatus('offline'); });
+                .catch(function(e4) { console.error('SB save:', e4.message); sbStatus('error'); setTimeout(function(){if(_SB.enabled) sbStatus('online');}, 5000); });
             });
         });
     });
@@ -704,9 +732,10 @@ function sbSave() {
 
 // Sauvegarde immédiate sans debounce (utilisé lors des changements d'onglet, fermeture modal, etc.)
 function sbSaveNow() {
-  if (!_SB.enabled || _SB.saving || _SB.loading) return;
+  if (!_SB.enabled || _SB.saving) return; // NE PAS bloquer sur _SB.loading
   clearTimeout(_SB.saveTimer);
   _SB.saving = true;
+  try { sbUpdateSaveBtn('saving'); } catch(e) {}
   var ts = Date.now();
   var row = {
     room_id: _SB.roomId, uid: _SB.uid, ts: ts,
@@ -725,7 +754,7 @@ function sbSaveNow() {
     .catch(function() {
       sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), row)
         .then(function() { _SB.lastTs = ts; _SB.saving = false; sbStatus('saved'); setTimeout(function(){sbStatus('online');},1500); })
-        .catch(function(e) { _SB.saving = false; console.error('SB saveNow:', e.message); });
+        .catch(function(e) { _SB.saving = false; try { sbUpdateSaveBtn('offline'); } catch(ex) {} console.error('SB saveNow:', e.message); });
     });
 }
 
@@ -818,6 +847,21 @@ function sbInit(url, key) {
     }).catch(function(e) {
       console.warn('sbInit:', e.message);
       sbStatus('offline');
+      // Retry automatique dans 10 secondes si hors ligne
+      setTimeout(function() {
+        if (_SB.enabled && document.getElementById('sb-status') &&
+            document.getElementById('sb-status').textContent.includes('Hors ligne')) {
+          sbStatus('connect');
+          sbFetch('GET', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId) + '&select=*')
+            .then(function(rows) {
+              if (rows && rows.length) { var row=rows[0]; _SB.lastTs=row.ts||0; sbApply(row); }
+              else { sbSave(); }
+              clearInterval(_SB.pollTimer);
+              _SB.pollTimer = setInterval(sbPoll, 5000);
+              sbStatus('online');
+            }).catch(function() { sbStatus('offline'); });
+        }
+      }, 10000);
     });
 }
 
