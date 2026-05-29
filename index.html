@@ -204,7 +204,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 
 
 <div class="hdr">
-  <div class="hdr-logo" id="save-btn-wrap" onclick="sbSaveNow()" title="Enregistrer maintenant" style="cursor:pointer;flex-direction:column;gap:3px;transition:background .2s" onmouseenter="this.style.background='rgba(255,255,255,0.18)'" onmouseleave="this.style.background='rgba(0,0,0,.12)'">
+  <div class="hdr-logo" id="save-btn-wrap" onclick="btnSave()" title="Enregistrer maintenant" style="cursor:pointer;flex-direction:column;gap:3px;transition:background .2s" onmouseenter="this.style.background='rgba(255,255,255,0.18)'" onmouseleave="this.style.background='rgba(0,0,0,.12)'">
     <div id="save-btn-icon" style="font-size:28px;line-height:1">💾</div>
     <div id="save-btn-label" style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.9);letter-spacing:1px;text-transform:uppercase;font-family:Barlow Condensed,sans-serif">Enreg.</div>
   </div>
@@ -614,21 +614,23 @@ function sbUpdateSaveBtn(state) {
   var icon = document.getElementById('save-btn-icon');
   var label = document.getElementById('save-btn-label');
   if (!icon || !label) return;
-  if (state === 'saving') {
+  if (state === 'saving' || state === 'connect') {
     icon.textContent = '⏳'; label.textContent = 'Envoi...';
-  } else if (state === 'saved') {
+  } else if (state === 'saved' || state === 'synced') {
     icon.textContent = '✅'; label.textContent = 'Enreg. !';
     setTimeout(function() {
       if (icon) icon.textContent = '💾';
-      if (label) label.textContent = 'Enreg.';
+      if (label) label.textContent = _SB && _SB.enabled ? 'Enreg.' : 'Config';
     }, 2000);
   } else if (state === 'offline') {
     icon.textContent = '❌'; label.textContent = 'Erreur';
     setTimeout(function() {
       if (icon) icon.textContent = '💾';
-      if (label) label.textContent = 'Enreg.';
+      if (label) label.textContent = _SB && _SB.enabled ? 'Enreg.' : 'Config';
     }, 3000);
-  } else if (state === 'off') {
+  } else if (state === 'off' || state === 'error' || state === 'hosting') {
+    icon.textContent = '💾'; label.textContent = 'Config';
+  } else if (state === 'online') {
     icon.textContent = '💾'; label.textContent = 'Enreg.';
   }
 }
@@ -666,13 +668,14 @@ function sbFetch(method, path, body) {
     'apikey': _SB.key,
     'Authorization': 'Bearer ' + _SB.key,
     'Content-Type': 'application/json',
-    'Prefer': 'return=representation'
+    'Prefer': method === 'GET' ? 'return=representation' : 'return=minimal'
   };
   var opts = { method: method, headers: headers };
   if (body) opts.body = JSON.stringify(body);
   return fetch(_SB.url + '/rest/v1/' + path, opts).then(function(r) {
     if (!r.ok) return r.text().then(function(t) { throw new Error(r.status + ': ' + t.substr(0,200)); });
-    return r.text().then(function(t) { return t ? JSON.parse(t) : null; });
+    // Pour POST/PATCH avec return=minimal, la réponse peut être vide (204) → OK
+    return r.text().then(function(t) { return (t && t.trim()) ? JSON.parse(t) : null; });
   });
 }
 
@@ -728,6 +731,49 @@ function sbSave() {
         });
     });
   }, 300);
+}
+
+// Bouton Enregistrer dans le header — intelligent selon l'état de connexion
+function btnSave() {
+  var icon = document.getElementById('save-btn-icon');
+  var label = document.getElementById('save-btn-label');
+
+  // Cas 1 : Supabase non configuré ou non connecté
+  if (!_SB.enabled) {
+    // Essayer de restaurer depuis localStorage
+    try {
+      var saved = localStorage.getItem('sb_config');
+      if (saved) {
+        var cfg = JSON.parse(saved);
+        if (cfg && cfg.url && cfg.key) {
+          // Config trouvée → reconnecter et sauvegarder
+          if (icon) icon.textContent = '🔄';
+          if (label) label.textContent = 'Connex.';
+          sbInit(cfg.url, cfg.key);
+          // Après 2s, tenter la sauvegarde
+          setTimeout(function() {
+            if (_SB.enabled) {
+              sbSaveNow();
+            } else {
+              if (icon) { icon.textContent = '⚡'; label.textContent = 'Config'; }
+              sbSetup(); // Ouvrir la config si toujours pas connecté
+            }
+          }, 2000);
+          return;
+        }
+      }
+    } catch(e) {}
+    // Aucune config → ouvrir la modale de configuration
+    if (icon) { icon.textContent = '⚡'; label.textContent = 'Config'; }
+    setTimeout(function() {
+      if (icon) { icon.textContent = '💾'; label.textContent = 'Enreg.'; }
+    }, 2000);
+    sbSetup();
+    return;
+  }
+
+  // Cas 2 : Supabase connecté → sauvegarde immédiate
+  sbSaveNow();
 }
 
 // Sauvegarde immédiate sans debounce (utilisé lors des changements d'onglet, fermeture modal, etc.)
