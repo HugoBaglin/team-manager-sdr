@@ -830,6 +830,8 @@ function sbApply(row) {
     if (!row.pmd || Object.keys(APP.pmd).length === 0) {
       try { rebuildPmdFromMatches(); } catch(e) {}
     }
+    // Toujours recalculer 🏠/🚌 depuis les noms de matchs
+    try { rebuildLogisticsFromMatches(); } catch(e) {}
     renderSeasonDropdown();
     // Restaurer logistics : fusionner avec données locales (ne pas écraser si Supabase vide)
     try {
@@ -2669,17 +2671,54 @@ function saveMatch(id,comp){
   m.name=(document.getElementById('em-name')||{}).value||m.name;
   m.score=(document.getElementById('em-score')||{}).value||'';
   m.res=getRes(m.score,m.name);
+  // Mettre à jour le type logistique si le nom du match a changé
+  if (APP.logistics && APP.logistics[id]) {
+    APP.logistics[id].type = isHomeMatch(m.name) ? 'dom' : 'ext';
+  } else {
+    autoInitLogistics(id, m.name);
+  }
   closeModal();renderCompStats();renderMatchList();try{renderRecap();}catch(e){}
 }
 
 function showAddMatchModal(){
   openModal('<div class="mo-hdr"><div class="mo-title">Nouveau match</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div class="frow"><div class="fg"><label class="fl">Journée</label><input class="fi" id="am-j" placeholder="J15"></div><div class="fg"><label class="fl">Adversaire</label><input class="fi" id="am-adv" placeholder="MHSC"></div></div><div class="frow"><div class="fg"><label class="fl">Nom du match</label><input class="fi" id="am-name" placeholder="SDR - MONTPELLIER"></div><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="am-date"></div><div class="fg" style="max-width:110px"><label class="fl">Heure</label><input class="fi" type="time" id="am-time"></div></div><div class="fg full" style="margin-bottom:12px"><label class="fl">Score (vide si à venir)</label><input class="fi" id="am-score" placeholder="2-1"></div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button><button class="btn-p" onclick="addMatch()">Enregistrer</button></div>');
 }
+
+// Détecter si SDR joue à domicile (nom commence par "SDR")
+function isHomeMatch(name) {
+  return (name||'').trim().toUpperCase().indexOf('SDR') === 0;
+}
+// Initialiser la logistique automatiquement selon domicile/extérieur
+// Toujours recalculer le type selon le nom du match
+function autoInitLogistics(matchId, matchName) {
+  if (!APP.logistics) APP.logistics = {};
+  if (!APP.logistics[matchId]) APP.logistics[matchId] = {};
+  var log = APP.logistics[matchId];
+  log._enabled = true;
+  log.type = isHomeMatch(matchName) ? 'dom' : 'ext';
+}
+
+// Recalculer la logistique de tous les matchs (appelé au chargement d'archive)
+function rebuildLogisticsFromMatches() {
+  if (!APP.logistics) APP.logistics = {};
+  ['L2','CDF','AMI'].forEach(function(comp) {
+    (APP.matches[comp]||[]).forEach(function(m) {
+      if (!APP.logistics[m.id]) APP.logistics[m.id] = {};
+      var log = APP.logistics[m.id];
+      // Toujours forcer le bon type selon le nom
+      log._enabled = true;
+      log.type = isHomeMatch(m.name) ? 'dom' : 'ext';
+    });
+  });
+}
+
 function addMatch(){
   var j=(document.getElementById('am-j')||{}).value,n=(document.getElementById('am-name')||{}).value;
   if(!j||!n){alert('Journée et nom requis');return;}
   var score=(document.getElementById('am-score')||{}).value||'';
-  APP.matches[curComp].push({id:'m'+Date.now(),j:j,adv:(document.getElementById('am-adv')||{}).value||'',name:n,date:(document.getElementById('am-date')||{}).value||'',time:(document.getElementById('am-time')||{}).value||'',score:score,res:score?getRes(score,n):''});
+  var newMId='m'+Date.now();
+  APP.matches[curComp].push({id:newMId,j:j,adv:(document.getElementById('am-adv')||{}).value||'',name:n,date:(document.getElementById('am-date')||{}).value||'',time:(document.getElementById('am-time')||{}).value||'',score:score,res:score?getRes(score,n):''});
+  autoInitLogistics(newMId, n);
   closeModal();renderCompStats();renderMatchList();
 }
 
@@ -3214,6 +3253,8 @@ function loadArchivedSeason(idx) {
 
   // Reconstruire APP.pmd depuis les données tit/rempl des matchs
   rebuildPmdFromMatches();
+  // Reconstruire 🏠/🚌 depuis les noms de matchs
+  rebuildLogisticsFromMatches();
 
   sbRefreshUI();
   renderSeasonDropdown();
@@ -3347,6 +3388,10 @@ function createNewSeason(){
     _nsRowCount=34; _nsCdfRowCount=8; // reset counters
     closeModal();curComp='L2';
     document.querySelectorAll('#page-competitions .tab').forEach(function(t,i){if(i===0)t.classList.add('active');else t.classList.remove('active');});
+    // Auto-init logistique pour tous les matchs créés
+    APP.matches.L2.forEach(function(m){ autoInitLogistics(m.id, m.name); });
+    APP.matches.CDF.forEach(function(m){ autoInitLogistics(m.id, m.name); });
+    APP.matches.AMI.forEach(function(m){ autoInitLogistics(m.id, m.name); });
     renderCompStats();renderMatchList();
     renderSeasonDropdown();
     setTimeout(function(){ try{sbSaveNow();}catch(e){} }, 500);
