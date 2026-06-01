@@ -677,6 +677,8 @@ function sbSave() {
   clearTimeout(_SB.saveTimer);
   _SB.saveTimer = setTimeout(function() {
     _SB.saving = true;
+    // Safety: reset saving lock after 10s max
+    setTimeout(function() { _SB.saving = false; }, 10000);
     var ts = Date.now();
     var row = {
       room_id: _SB.roomId, uid: _SB.uid, ts: ts,
@@ -721,7 +723,7 @@ function sbSave() {
             .catch(function(e3) {
               sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), rowCompat)
                 .then(function() { _SB.lastTs = ts; sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500); })
-                .catch(function(e4) { console.error('SB save:', e4.message); sbStatus('error'); setTimeout(function(){if(_SB.enabled) sbStatus('online');}, 5000); });
+                .catch(function(e4) { _SB.saving = false; console.error('SB save:', e4.message); sbStatus('error'); setTimeout(function(){if(_SB.enabled) sbStatus('online');}, 5000); });
             });
         });
     });
@@ -983,8 +985,7 @@ function sbSetup() {
     'ALTER TABLE team_data ADD COLUMN IF NOT EXISTS invitations TEXT;\n' +
     'ALTER TABLE team_data ADD COLUMN IF NOT EXISTS seasons_archive TEXT;\n' +
     'ALTER TABLE team_data ENABLE ROW LEVEL SECURITY;\n' +
-    'CREATE POLICY IF NOT EXISTS "allow_all" ON team_data\n' +
-    '  FOR ALL TO anon USING (true) WITH CHECK (true);\n' +
+    'DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename=\'team_data\' AND policyname=\'allow_all\') THEN CREATE POLICY "allow_all" ON team_data FOR ALL TO anon USING (true) WITH CHECK (true); END IF; END $$;\n' +
     '-- Cliquer pour tout selectionner' +
     '</div>' +
     '<div class="frow">' +
@@ -1124,7 +1125,12 @@ function sbWrap() {
             };
           } catch(e) { console.warn('archive update err:', e); }
         }
-        sbSave();
+        // Force save (with retry if _SB.saving is locked)
+        if (_SB.saving) {
+          setTimeout(function() { _SB.saving = false; sbSave(); }, 500);
+        } else {
+          sbSave();
+        }
         return r;
       };
     }
@@ -1132,11 +1138,27 @@ function sbWrap() {
   // Also snapshot logSave and invSetField
   var _origLogSave = window.logSave;
   if (typeof _origLogSave === 'function') {
-    window.logSave = function() { undoSnapshot('logSave'); return _origLogSave.apply(this,arguments); };
+    window.logSave = function() {
+      undoSnapshot('logSave');
+      var r2 = _origLogSave.apply(this,arguments);
+      if (typeof _archiveEditIdx !== 'undefined' && _archiveEditIdx >= 0) {
+        try { APP.seasonsArchive[_archiveEditIdx].logistics = JSON.parse(JSON.stringify(APP.logistics||{})); } catch(e) {}
+      }
+      if (_SB.saving) { setTimeout(function(){ _SB.saving=false; sbSave(); }, 500); } else { sbSave(); }
+      return r2;
+    };
   }
   var _origInvSetField = window.invSetField;
   if (typeof _origInvSetField === 'function') {
-    window.invSetField = function() { undoSnapshot('invSetField'); return _origInvSetField.apply(this,arguments); };
+    window.invSetField = function() {
+      undoSnapshot('invSetField');
+      var r3 = _origInvSetField.apply(this,arguments);
+      if (typeof _archiveEditIdx !== 'undefined' && _archiveEditIdx >= 0) {
+        try { APP.seasonsArchive[_archiveEditIdx].invitations = JSON.parse(JSON.stringify(APP.invitations||{})); } catch(e) {}
+      }
+      if (_SB.saving) { setTimeout(function(){ _SB.saving=false; sbSave(); }, 600); } else { sbSave(); }
+      return r3;
+    };
   }
   var origRR = window.renderRecap;
   if (typeof origRR === 'function') {
