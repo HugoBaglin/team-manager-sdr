@@ -823,52 +823,55 @@ function sbApply(row) {
       var sbArch = row.seasons_archive ? JSON.parse(row.seasons_archive) : null;
       // Partir des archives Supabase (ou vide)
       var merged = Array.isArray(sbArch) ? sbArch.slice() : [];
-      // Fusionner avec _BUILTIN_ARCHIVES : ajouter celles absentes de Supabase
-      if (typeof _BUILTIN_ARCHIVES !== 'undefined') {
-        _BUILTIN_ARCHIVES.forEach(function(ba) {
-          var exists = merged.some(function(m){ return m.season === ba.season; });
-          if (!exists) merged.push(ba);
-        });
-      }
-      // Fusionner avec les archives déjà en mémoire (APP.seasonsArchive)
+      // Fusionner avec les archives déjà en mémoire
       (APP.seasonsArchive || []).forEach(function(la) {
         var exists = merged.some(function(m){ return m.season === la.season; });
         if (!exists) merged.push(la);
       });
       APP.seasonsArchive = merged;
-      // Si on a plus d'archives que Supabase → sauvegarder
-      if (merged.length > (Array.isArray(sbArch) ? sbArch.length : 0)) {
-        setTimeout(function(){ try{ sbSaveNow(); }catch(e){ sbSave(); } }, 3000);
-      }
     } catch(e) { console.warn('SB apply seasons_archive:', e); }
     // Rebuild pmd from tit/rempl if pmd is empty
     if (!row.pmd || Object.keys(APP.pmd).length === 0) {
       try { rebuildPmdFromMatches(); } catch(e) {}
     }
-    // Si l'archive locale contient des saisons que Supabase n'avait pas, sauvegarder
-    var sbArchLen = 0;
-    try { sbArchLen = (row.seasons_archive ? JSON.parse(row.seasons_archive) : []).length; } catch(e) {}
-    if (APP.seasonsArchive.length > sbArchLen) {
-      setTimeout(function(){ try{ sbSaveNow(); }catch(e){ sbSave(); } }, 3000);
+
+    // Toujours s'assurer que _INIT_SEASON_2627 est dans seasonsArchive avec ses données
+    if (typeof _INIT_SEASON_2627 !== 'undefined') {
+      var idx2627 = APP.seasonsArchive.findIndex(function(s){ return s.season === '2026/2027'; });
+      if (idx2627 < 0) {
+        // Absent → ajouter
+        APP.seasonsArchive.unshift(_INIT_SEASON_2627);
+      } else if (!APP.seasonsArchive[idx2627].players || APP.seasonsArchive[idx2627].players.length === 0) {
+        // Présent mais vide → restaurer depuis initData
+        APP.seasonsArchive[idx2627] = JSON.parse(JSON.stringify(_INIT_SEASON_2627));
+      }
     }
-    // S'assurer que la saison courante (APP.season) est bien dans seasonsArchive
+    // Toujours s'assurer que _BUILTIN_ARCHIVES (2025/26) est dans seasonsArchive
+    if (typeof _BUILTIN_ARCHIVES !== 'undefined') {
+      _BUILTIN_ARCHIVES.forEach(function(ba) {
+        var e = APP.seasonsArchive.some(function(s){ return s.season === ba.season; });
+        if (!e) APP.seasonsArchive.push(ba);
+      });
+    }
+    // S'assurer que la saison active est aussi dans seasonsArchive
     var curInArch = APP.seasonsArchive.some(function(s){ return s.season === APP.season; });
     if (!curInArch && APP.season) {
-      // Ajouter la saison active dans l'archive avec les données Supabase
-      var curEntry = {
+      APP.seasonsArchive.unshift({
         season: APP.season, champ_name: APP.champName || '',
         archived_at: new Date().toISOString(),
-        players:     JSON.parse(JSON.stringify(APP.players     || [])),
-        staff:       JSON.parse(JSON.stringify(APP.staff       || [])),
-        matches_l2:  JSON.parse(JSON.stringify(APP.matches.L2  || [])),
-        matches_cdf: JSON.parse(JSON.stringify(APP.matches.CDF || [])),
-        matches_ami: JSON.parse(JSON.stringify(APP.matches.AMI || [])),
-        pmd:         JSON.parse(JSON.stringify(APP.pmd         || {})),
-        logistics:   JSON.parse(JSON.stringify(APP.logistics   || {})),
-        invitations: JSON.parse(JSON.stringify(APP.invitations || {}))
-      };
-      APP.seasonsArchive.unshift(curEntry);
-      setTimeout(function(){ try{ sbSaveNow(); }catch(e){ sbSave(); } }, 2000);
+        players: JSON.parse(JSON.stringify(APP.players||[])),
+        staff: JSON.parse(JSON.stringify(APP.staff||[])),
+        matches_l2: JSON.parse(JSON.stringify(APP.matches.L2||[])),
+        matches_cdf: JSON.parse(JSON.stringify(APP.matches.CDF||[])),
+        matches_ami: JSON.parse(JSON.stringify(APP.matches.AMI||[])),
+        pmd: JSON.parse(JSON.stringify(APP.pmd||{})),
+        logistics: JSON.parse(JSON.stringify(APP.logistics||{})),
+        invitations: JSON.parse(JSON.stringify(APP.invitations||{}))
+      });
+    }
+    // Si seasonsArchive a grandi → sauvegarder
+    if (APP.seasonsArchive.length > (Array.isArray(sbArch) ? sbArch.length : 0)) {
+      setTimeout(function(){ try{ sbSaveNow(); }catch(e){ sbSave(); } }, 2500);
     }
     // Toujours recalculer 🏠/🚌 depuis les noms de matchs
     try { rebuildLogisticsFromMatches(); } catch(e) {}
@@ -1225,6 +1228,7 @@ var _BUILTIN_ARCHIVES = [{"season": "2025/2026", "champ_name": "Ligue 2", "archi
 
 
 function initData() {
+  APP.season = '2026/2027';
   APP.champName = 'Ligue 2';
 
   APP.players = [
@@ -1351,24 +1355,24 @@ function clearAllMatchData() {
 
 initData();
 
-// S'assurer que la saison 2026/27 (initData) est dans seasonsArchive
+// Capturer un snapshot permanent de la saison 2026/27 depuis initData()
+var _INIT_SEASON_2627 = {
+  season: '2026/2027',
+  champ_name: APP.champName || 'Ligue 2',
+  archived_at: '2026-06-02T00:00:00.000Z',
+  players:     JSON.parse(JSON.stringify(APP.players     || [])),
+  staff:       JSON.parse(JSON.stringify(APP.staff       || [])),
+  matches_l2:  JSON.parse(JSON.stringify(APP.matches.L2  || [])),
+  matches_cdf: JSON.parse(JSON.stringify(APP.matches.CDF || [])),
+  matches_ami: JSON.parse(JSON.stringify(APP.matches.AMI || [])),
+  pmd:         {},
+  logistics:   {},
+  invitations: {}
+};
+// L'ajouter immédiatement dans seasonsArchive si absent
 (function(){
-  var exists26 = APP.seasonsArchive.some(function(s){ return s.season === '2026/2027'; });
-  if (!exists26) {
-    APP.seasonsArchive.unshift({
-      season: '2026/2027',
-      champ_name: APP.champName || 'Ligue 2',
-      archived_at: new Date().toISOString(),
-      players:     JSON.parse(JSON.stringify(APP.players     || [])),
-      staff:       JSON.parse(JSON.stringify(APP.staff       || [])),
-      matches_l2:  JSON.parse(JSON.stringify(APP.matches.L2  || [])),
-      matches_cdf: JSON.parse(JSON.stringify(APP.matches.CDF || [])),
-      matches_ami: JSON.parse(JSON.stringify(APP.matches.AMI || [])),
-      pmd:         JSON.parse(JSON.stringify(APP.pmd         || {})),
-      logistics:   {},
-      invitations: {}
-    });
-  }
+  var e = APP.seasonsArchive.some(function(s){ return s.season === '2026/2027'; });
+  if (!e) APP.seasonsArchive.unshift(_INIT_SEASON_2627);
 })();
 
 (function(){
@@ -1910,11 +1914,14 @@ function renderCartons() {
 
   var hdr = '<th class="stk sk0">#</th><th class="stk sk1">Joueur</th>';
   rounds.forEach(function(r){
-    hdr += '<th style="min-width:52px;padding:8px 5px" title="'+r.name+'">'+
-      '<div style="display:flex;align-items:center;gap:3px;justify-content:center">'+r.j+
+    // Récupérer l'abréviation à jour depuis APP.matches
+    var mFull = APP.matches.L2.concat(APP.matches.CDF).find(function(x){return x.id===r.id;});
+    var advAbr = (mFull && mFull.adv) ? mFull.adv : (r.adv||'');
+    hdr += '<th style="min-width:54px;padding:6px 3px;text-align:center;vertical-align:bottom" title="'+r.name+'">'+
+      '<div style="display:flex;align-items:center;gap:2px;justify-content:center;font-weight:800;font-size:12px">'+r.j+
       (fCComp==='all'?'<span style="font-size:8px;background:'+(r.comp==='CDF'?'#f59e0b':'#3b82f6')+';color:#fff;border-radius:3px;padding:1px 3px">'+r.comp+'</span>':'')+
       '</div>'+
-      '<div style="font-size:9px;opacity:.55;font-weight:400;max-width:50px;overflow:hidden;text-overflow:ellipsis">'+r.adv+'</div></th>';
+      '<div style="font-size:9px;font-weight:700;color:#fff;text-align:center;margin-top:2px;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+advAbr+'</div></th>';
   });
   hdr += '<th style="color:var(--gold);min-width:46px">Tot.J</th><th style="color:var(--red);min-width:46px">Tot.R</th><th style="color:#fff;min-width:46px">Tot.S</th>';
 
@@ -2547,7 +2554,7 @@ function showEditMatchModal(id) {
     '<div class="mo-body">'+
     '<div style="font-size:12px;color:#888;background:#f5f3ef;border:1.5px solid var(--border);border-radius:5px;padding:8px 12px;margin-bottom:12px;font-weight:600">'+(comp==='L2'?APP.champName:comp==='CDF'?'Coupe de France':'Amical')+'</div>'+
     '<div class="frow"><div class="fg"><label class="fl">Journ&eacute;e</label><input class="fi" id="em-j" value="'+m.j+'"></div><div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="em-date" value="'+(m.date||'')+'"></div><div class="fg" style="max-width:110px"><label class="fl">Heure</label><input class="fi" type="time" id="em-time" value="'+(m.time||'')+'"></div></div>'+
-    '<div class="frow"><div class="fg"><label class="fl">Match</label><input class="fi" id="em-name" value="'+m.name+'"></div><div class="fg"><label class="fl">Score</label><input class="fi" id="em-score" value="'+(m.score||'')+'"></div></div>'+
+    '<div class="frow"><div class="fg"><label class="fl">Nom du match</label><input class="fi" id="em-name" value="'+m.name+'"></div><div class="fg" style="max-width:160px"><label class="fl">Adversaire</label><input class="fi" id="em-adv-name" placeholder="ex: MONTPELLIER" value="'+(m.advName||m.adv||'')+'"></div><div class="fg" style="max-width:90px"><label class="fl">Abr. ADV</label><input class="fi" id="em-adv" placeholder="MHSC" value="'+(m.adv||'')+'"></div><div class="fg" style="max-width:90px"><label class="fl">Score</label><input class="fi" id="em-score" value="'+(m.score||'')+'"></div></div>'+
     '<div class="sec-hdr" style="display:flex;justify-content:space-between;align-items:center"><span>Joueurs</span>'+
     '<span id="cnt" style="background:var(--red);color:#fff;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;padding:3px 11px;border-radius:20px">'+selCnt+' s&eacute;lectionn&eacute;'+(selCnt>1?'s':'')+'</span></div>'+
     '<div style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:4px">Pro 1</div><div class="chip-grid">'+chips1+'</div>'+
@@ -2727,21 +2734,60 @@ function setCarton(key,type,mid){
   renderMPD(mid);
 }
 
+
+// Synchroniser APP.pmd vers match.tit/rempl (cartons, buts, minutes)
+function _syncPmdToMatch(matchId, comp) {
+  var m = (APP.matches[comp]||[]).find(function(x){return x.id===matchId;});
+  if (!m) return;
+  // Update tit
+  (m.tit||[]).forEach(function(entry) {
+    var p = APP.players.find(function(x){return x.name===entry.name;});
+    if (!p) return;
+    var d = APP.pmd[p.id+'_'+matchId]||{};
+    entry.min   = d.min  || entry.min  || 0;
+    entry.buts  = d.buts || entry.buts || 0;
+    // Carton: convert flags to string
+    if (d.c_r || d.c_j2) entry.carton = d.c_j ? 'JR' : 'R';
+    else if (d.c_j)      entry.carton = 'J';
+    else                 entry.carton = '';
+  });
+  // Update rempl
+  (m.rempl||[]).forEach(function(entry) {
+    var p = APP.players.find(function(x){return x.name===entry.name;});
+    if (!p) return;
+    var d = APP.pmd[p.id+'_'+matchId]||{};
+    entry.min   = d.min  || entry.min  || 0;
+    entry.buts  = d.buts || entry.buts || 0;
+    if (d.c_r || d.c_j2) entry.carton = d.c_j ? 'JR' : 'R';
+    else if (d.c_j)      entry.carton = 'J';
+    else                 entry.carton = '';
+  });
+}
+
 function saveMatch(id,comp){
   var m=APP.matches[comp].find(function(x){return x.id===id;});if(!m)return;
   m.j=(document.getElementById('em-j')||{}).value||m.j;
   m.date=(document.getElementById('em-date')||{}).value||m.date;
   m.time=(document.getElementById('em-time')||{}).value||'';
   m.name=(document.getElementById('em-name')||{}).value||m.name;
+  // Sauvegarder adversaire (nom complet et abréviation)
+  var newAdv=(document.getElementById('em-adv')||{}).value||'';
+  var newAdvName=(document.getElementById('em-adv-name')||{}).value||'';
+  if(newAdv) m.adv=newAdv;
+  if(newAdvName) m.advName=newAdvName;
   m.score=(document.getElementById('em-score')||{}).value||'';
   m.res=getRes(m.score,m.name);
-  // Mettre à jour le type logistique si le nom du match a changé
+  // Mettre à jour logistique selon domicile/extérieur
   if (APP.logistics && APP.logistics[id]) {
     APP.logistics[id].type = isHomeMatch(m.name) ? 'dom' : 'ext';
   } else {
     autoInitLogistics(id, m.name);
   }
-  closeModal();renderCompStats();renderMatchList();try{renderRecap();}catch(e){}
+  // Synchroniser les cartons depuis pmd → tit/rempl du match
+  _syncPmdToMatch(id, comp);
+  closeModal();renderCompStats();renderMatchList();
+  try{renderRecap();}catch(e){}
+  try{renderCartons();}catch(e){}
 }
 
 function showAddMatchModal(){
