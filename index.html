@@ -821,11 +821,36 @@ function sbApply(row) {
     if (row.champ_name)  APP.champName = row.champ_name;
     try {
       var sbArch = row.seasons_archive ? JSON.parse(row.seasons_archive) : null;
-      if (Array.isArray(sbArch)) APP.seasonsArchive = sbArch;
+      if (Array.isArray(sbArch) && sbArch.length > 0) {
+        // Supabase a des archives → les utiliser mais fusionner avec local si local en a plus
+        var localArch = APP.seasonsArchive || [];
+        if (localArch.length > sbArch.length) {
+          // Garder les archives locales qui ne sont pas dans Supabase
+          var sbSeasons = sbArch.map(function(a){ return a.season; });
+          localArch.forEach(function(la){
+            if (sbSeasons.indexOf(la.season) < 0) sbArch.push(la);
+          });
+        }
+        APP.seasonsArchive = sbArch;
+      } else if (!Array.isArray(sbArch) || sbArch.length === 0) {
+        // Supabase n'a pas d'archive → garder les archives locales du HTML
+        if (!APP.seasonsArchive || APP.seasonsArchive.length === 0) {
+          APP.seasonsArchive = [];
+        }
+        // Sauvegarder immédiatement les archives locales dans Supabase
+        if (APP.seasonsArchive.length > 0) {
+          setTimeout(function(){ try{ sbSaveNow(); }catch(e){} }, 2000);
+        }
+      }
     } catch(e) { console.warn('SB apply seasons_archive:', e); }
     // Rebuild pmd from tit/rempl if pmd is empty
     if (!row.pmd || Object.keys(APP.pmd).length === 0) {
       try { rebuildPmdFromMatches(); } catch(e) {}
+    }
+    // Si l'archive locale (HTML) contient des saisons que Supabase n'avait pas, sauvegarder
+    var sbArchLen = (row.seasons_archive && JSON.parse(row.seasons_archive||'[]').length) || 0;
+    if (APP.seasonsArchive.length > sbArchLen) {
+      setTimeout(function(){ try{ sbSaveNow(); }catch(e){ sbSave(); } }, 3000);
     }
     // Toujours recalculer 🏠/🚌 depuis les noms de matchs
     try { rebuildLogisticsFromMatches(); } catch(e) {}
