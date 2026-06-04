@@ -884,6 +884,7 @@ function sbApply(row) {
     // Toujours recalculer 🏠/🚌 depuis les noms de matchs
     try { rebuildLogisticsFromMatches(); } catch(e) {}
     renderSeasonDropdown();
+    setTimeout(function(){ try{updateAnnivBadge([]);}catch(e){}; }, 100);
     // Restaurer logistics : fusionner avec données locales (ne pas écraser si Supabase vide)
     try {
       var sbLog = row.logistics ? JSON.parse(row.logistics) : null;
@@ -6107,11 +6108,12 @@ function updateAnnivBadge(soon) {
   var todayBdays = (APP.players||[]).filter(function(p){
     if (!p.birthDate) return false;
     var pts = p.birthDate.split('-');
+    if (pts.length < 3) return false;
     return parseInt(pts[1])===tM && parseInt(pts[2])===tD;
   });
   if (todayBdays.length > 0) {
     badge.textContent = todayBdays.length;
-    badge.style.display = 'inline';
+    badge.style.display = 'inline-block';
     btn.style.color = '#C8102E';
     btn.style.fontWeight = '800';
   } else {
