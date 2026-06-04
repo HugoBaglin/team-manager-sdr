@@ -1758,8 +1758,8 @@ function renderPlayers() {
   if (fSort==='name') list.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
   else if (fSort==='pos') list.sort(function(a,b){return (a.pos||'').localeCompare(b.pos||'');});
   else list.sort(function(a,b){return parseInt(a.num||999)-parseInt(b.num||999);});
-  var groups = [];
-  list.forEach(function(p){ if (groups.indexOf(p.group)<0) groups.push(p.group); });
+  var groupOrderP=['Pro','Elite','Espoir'];
+  var groups = groupOrderP.filter(function(g){return list.some(function(p){return p.group===g;});});
   var html = '';
   groups.forEach(function(g) {
     var gp = list.filter(function(p){ return p.group===g; });
@@ -2093,8 +2093,8 @@ function renderRecap(){
   if(cntEl)cntEl.textContent=list.length+' joueurs';
 
   // ── Build table rows ──────────────────────────────────────────
-  var groups=[];
-  list.forEach(function(p){if(groups.indexOf(p.group)<0)groups.push(p.group);});
+  var groupOrder=['Pro','Elite','Espoir'];
+  var groups=groupOrder.filter(function(g){return list.some(function(p){return p.group===g;});});
 
   var ST='position:sticky;z-index:2;background:#fff;';
   var TD='padding:11px 8px;border-bottom:1px solid #e2ddd8;text-align:center;white-space:nowrap;';
@@ -2112,19 +2112,19 @@ function renderRecap(){
     list.filter(function(p){return p.group===g;}).forEach(function(p){
       var s=getPlayerStats(p);
       rows+='<tr data-pid="'+p.id+'">'+
-        '<td style="'+ST+'left:0;'+TD+'"><div class="nbadge">'+p.num+'</div></td>'+
-        '<td style="'+ST+'left:38px;'+TDl+'font-weight:700;border-right:2px solid #e0dbd6">'+p.name+'</td>'+
+        '<td style="'+ST+'left:0;'+TD+'"><div class="nbadge" onclick="showRecapDetail(\''+p.id+'\',\'matchs\')" style="cursor:pointer" title="Voir détail joueur">'+p.num+'</div></td>'+
+        '<td onclick="showRecapDetail(\''+p.id+'\',\'matchs\')" style="'+ST+'left:38px;'+TDl+'font-weight:700;border-right:2px solid #e0dbd6;cursor:pointer" title="Voir détail joueur">'+p.name+'</td>'+
         '<td class="ed-cell" data-pid="'+p.id+'" data-field="group" style="'+TD+'cursor:pointer">'+
           '<span class="pc-badge pc-badge-'+p.group+'" style="font-size:11px">'+p.group+'</span>'+
         '</td>'+
         '<td onclick="showRecapDetail(\''+p.id+'\',\'matchs\')" style="'+TD+'font-weight:600;cursor:pointer" title="Voir détail">'+s.tm+'</td>'+
-        '<td style="'+TD+'font-weight:700;color:#3b82f6">'+s.l2t+'</td>'+
-        '<td style="'+TD+'font-weight:700;color:#8b5cf6">'+s.l2r+'</td>'+
-        '<td style="'+TD+'font-weight:700;color:#fb923c" title="Entrées en jeu L2">'+(s.l2ei||'–')+'</td>'+
+        '<td onclick="showRecapDetail(\''+p.id+'\',\'l2tit\')" style="'+TD+'font-weight:700;color:#3b82f6;cursor:pointer" title="Voir les titularisations L2">'+s.l2t+'</td>'+
+        '<td onclick="showRecapDetail(\''+p.id+'\',\'l2rem\')" style="'+TD+'font-weight:700;color:#8b5cf6;cursor:pointer" title="Voir les remplacements L2">'+s.l2r+'</td>'+
+        '<td onclick="showRecapDetail(\''+p.id+'\',\'l2ei\')" style="'+TD+'font-weight:700;color:#fb923c;cursor:pointer" title="Entrées en jeu L2">'+(s.l2ei||'–')+'</td>'+
         '<td style="'+TD+'font-weight:600">'+s.l2min+' min</td>'+
-        '<td style="'+TD+'font-weight:700;color:#86efac">'+s.cdft+'</td>'+
-        '<td style="'+TD+'font-weight:700;color:#d8b4fe">'+s.cdfr+'</td>'+
-        '<td style="'+TD+'font-weight:700;color:#fb923c" title="Entrées en jeu CDF">'+(s.cdfei||'–')+'</td>'+
+        '<td onclick="showRecapDetail(\''+p.id+'\',\'cdftit\')" style="'+TD+'font-weight:700;color:#86efac;cursor:pointer" title="Voir les titularisations CDF">'+s.cdft+'</td>'+
+        '<td onclick="showRecapDetail(\''+p.id+'\',\'cdfrem\')" style="'+TD+'font-weight:700;color:#d8b4fe;cursor:pointer" title="Voir les remplacements CDF">'+s.cdfr+'</td>'+
+        '<td onclick="showRecapDetail(\''+p.id+'\',\'cdfei\')" style="'+TD+'font-weight:700;color:#fb923c;cursor:pointer" title="Entrées en jeu CDF">'+(s.cdfei||'–')+'</td>'+
         '<td style="'+TD+'font-weight:600">'+s.cdfmin+' min</td>'+
         '<td onclick="showRecapDetail(\''+p.id+'\',\'min\')" style="'+TD+'font-weight:600;color:#555;cursor:pointer" title="Voir détail">'+s.tmin+' min</td>'+
         '<td onclick="showRecapDetail(\''+p.id+'\',\'l2b\')" style="'+TDr+'cursor:pointer" title="Voir détail">'+s.l2b+'</td>'+
@@ -5185,11 +5185,19 @@ function showRecapDetail(pid, field) {
       else if (field==='matchs') val = 1;
       else if (field==='l2b') { if(comp==='L2') val=d.buts||0; else return; }
       else if (field==='cdfb') { if(comp==='CDF') val=d.buts||0; else return; }
+      else if (field==='l2tit') { if(comp==='L2'&&d.statut==='T') val=1; else return; }
+      else if (field==='l2rem') { if(comp==='L2'&&d.statut==='R') val=1; else return; }
+      else if (field==='l2ei')  { if(comp==='L2'&&d.statut==='R'&&minVal>0) val=1; else return; }
+      else if (field==='cdftit'){ if(comp==='CDF'&&d.statut==='T') val=1; else return; }
+      else if (field==='cdfrem'){ if(comp==='CDF'&&d.statut==='R') val=1; else return; }
+      else if (field==='cdfei') { if(comp==='CDF'&&d.statut==='R'&&minVal>0) val=1; else return; }
 
-      if (field==='matchs'||val>0||field==='min') {
+      var isStat = field==='l2tit'||field==='l2rem'||field==='l2ei'||field==='cdftit'||field==='cdfrem'||field==='cdfei';
+      if (field==='matchs'||val>0||field==='min'||isStat) {
         var rightVal = '';
-        if (field==='matchs') {
-          rightVal = '<div style="display:flex;align-items:center;gap:6px">'+statutLabel+timeLabel+'</div>';
+        if (field==='matchs'||isStat) {
+          var buts = d.buts||0;
+          rightVal = '<div style="display:flex;align-items:center;gap:6px">'+statutLabel+timeLabel+(buts>0?'<span style="color:var(--red);font-weight:800;font-size:12px">'+buts+' ⚽</span>':'')+'</div>';
         } else if (field.indexOf('b')>=0) {
           rightVal = '<div style="font-weight:800;font-size:15px;color:var(--red)">'+val+' ⚽</div>';
         } else {
@@ -5210,6 +5218,8 @@ function showRecapDetail(pid, field) {
   var fieldLabel = {
     buts:'Buts totaux', min:'Minutes jouées', matchs:'Matchs joués',
     l2b:'Buts '+APP.champName, cdfb:'Buts Coupe de France',
+    l2tit:'Titularisations '+APP.champName, l2rem:'Remplaçants '+APP.champName, l2ei:'Entrées en jeu '+APP.champName,
+    cdftit:'Titularisations CDF', cdfrem:'Remplaçants CDF', cdfei:'Entrées en jeu CDF',
     cartons_j:'Cartons jaunes', cartons_r:'Cartons rouges', cartons_s:'Suspensions',
     cartons_all:'Sanctions — saison complète'
   }[field]||field;
@@ -5225,8 +5235,9 @@ function showRecapDetail(pid, field) {
     summaryHtml += '</div>';
   }
 
+  var playerHeader = '<span style="font-size:13px;color:#aaa;font-weight:500;margin-right:8px">#'+p.num+'</span>'+(p.firstName||p.prenom||''?'<span style="color:#fb923c;margin-right:6px">'+(p.firstName||p.prenom)+'</span>':'')+(p.nomMaillot||p.name);
   openModal(
-    '<div class="mo-hdr"><div class="mo-title">'+(p.nomMaillot||p.name)+'</div>'
+    '<div class="mo-hdr"><div class="mo-title">'+playerHeader+'</div>'
     +'<button class="mo-x" onclick="closeModal()">✕</button></div>'
     +'<div class="mo-body">'
     +'<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px">'+fieldLabel+(field!=='cartons_all'?' · Total : '+total:'')+'</div>'
