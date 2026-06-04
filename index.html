@@ -255,8 +255,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
         <option value="date">📅 Par date</option>
         <option value="journee">🔢 Par journée</option>
       </select>
-      <button class="btn-exp" onclick="exportData('competitions','csv')">⬇ CSV</button>
-      <button class="btn-exp" onclick="exportData('competitions','xlsx')">⬇ Excel</button>
+      <button class="btn-exp" onclick="showCompExportModal()">⬇ Exporter</button>
     </div>
   </div>
   <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;color:var(--muted)">Matchs joués</div>
@@ -1737,7 +1736,8 @@ function renderMatchList() {
     var bgCol = !hasLog ? 'rgba(255,255,255,0.04)' : allOk ? 'rgba(22,163,74,0.12)' : 'rgba(220,38,38,0.12)';
     var typeIcon = log.type === 'ext' ? '🚌' : '🏠';
     var logIcon = '<span onclick="event.stopPropagation();showLogisticsModal(\''+m.id+'\',\''+curComp+'\')" title="Logistique" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;border:2px solid '+borderCol+';background:'+bgCol+';flex-shrink:0;margin-left:8px;font-size:16px;line-height:1">'+typeIcon+'</span>';
-    return '<div class="mi" onclick="showMatchModal(\''+m.id+'\')"><div class="mi-j">'+m.j+'</div><div class="mi-info" style="display:flex;align-items:center;gap:0;flex:1;min-width:0"><div><div class="mi-name">'+m.name+'</div><div class="mi-date">'+frDate(m.date, m.time)+'</div></div>'+logIcon+'</div><div style="display:flex;align-items:center;flex-shrink:0">'+sc+'<span class="mi-arr">▼</span></div></div>';
+    var expBtn='<span onclick="event.stopPropagation();showMatchExportModal(\''+m.id+'\',\''+m.j+'\',\''+curComp+'\')" title="Exporter ce match" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);flex-shrink:0;margin-left:4px;font-size:14px;line-height:1">⬇</span>';
+    return '<div class="mi" onclick="showMatchModal(\''+m.id+'\')"><div class="mi-j">'+m.j+'</div><div class="mi-info" style="display:flex;align-items:center;gap:0;flex:1;min-width:0"><div><div class="mi-name">'+m.name+'</div><div class="mi-date">'+frDate(m.date, m.time)+'</div></div>'+logIcon+expBtn+'</div><div style="display:flex;align-items:center;flex-shrink:0">'+sc+'<span class="mi-arr">▼</span></div></div>';
   }).join('');
 }
 
@@ -3426,58 +3426,257 @@ function createNewSeason(){
 }
 
 // EXPORT
-function exportData(type,format){
-  var data=[],headers=[],filename='export';
-  if(type==='competitions'){
-    headers=['Journée','Match','Date','Score','Résultat'];
-    var all=APP.matches.L2.map(function(m){return Object.assign({},m,{comp:'L2'});})
-      .concat(APP.matches.CDF.map(function(m){return Object.assign({},m,{comp:'CDF'});}))
-      .concat(APP.matches.AMI.map(function(m){return Object.assign({},m,{comp:'Amical'});}));
-    data=all.map(function(m){return[m.j,m.name||'',m.date||'',m.score||'',m.res||''];});
-    filename='competitions_'+(APP.season||'saison');
-  } else if(type==='cartons'){
-    headers=['Numéro','Joueur','Groupe','Jaunes','Rouges','Suspensions'];
-    data=APP.players.map(function(p){
+// ═══════════════════════════════════════════════════
+// EXPORT — fonctions d'exportation complètes
+// ═══════════════════════════════════════════════════
+
+// Helper: get competition label for a match id
+function _getCompLabel(mid) {
+  if (APP.matches.L2.find(function(x){return x.id===mid;})) return APP.champName||'L2';
+  if (APP.matches.CDF.find(function(x){return x.id===mid;})) return 'Coupe de France';
+  return 'Amical';
+}
+
+// Helper: build player rows for a single match (sorted: Tit then Rem, Pro>Elite>Espoir)
+function _matchPlayerRows(mid) {
+  var groupRank = {Pro:0, Elite:1, Espoir:2};
+  var players = APP.players.filter(function(p) {
+    var d = (APP.pmd||{})[p.id+'_'+mid]||{};
+    return d.statut==='T' || d.statut==='R';
+  });
+  players.sort(function(a,b) {
+    var da=(APP.pmd||{})[a.id+'_'+mid]||{};
+    var db=(APP.pmd||{})[b.id+'_'+mid]||{};
+    var sa=da.statut==='T'?0:1, sb=db.statut==='T'?0:1;
+    if (sa!==sb) return sa-sb;
+    var ga=(groupRank[a.group]||9), gb=(groupRank[b.group]||9);
+    if (ga!==gb) return ga-gb;
+    return (parseInt(a.num)||99)-(parseInt(b.num)||99);
+  });
+  return players.map(function(p) {
+    var d = (APP.pmd||{})[p.id+'_'+mid]||{};
+    var statut = d.statut==='T' ? 'Titulaire' : 'Remplaçant';
+    var mins = (d.min!==undefined && d.min!=='') ? d.min : (d.statut==='T' ? 90 : 0);
+    var entree = d.statut==='R' && parseInt(mins)>0 ? 'Oui' : '';
+    var buts = d.buts||0;
+    var cj  = (d.c_j || d.carton==='jaune') ? 'Oui' : '';
+    var cj2 = d.c_j2 ? 'Oui' : '';
+    var cr  = (d.c_r || d.carton==='rouge' || d.carton==='dj') ? 'Oui' : '';
+    var susp= d.suspension ? 'Oui' : '';
+    var cap = d.capitaine ? 'Oui' : '';
+    return [p.num||'', p.name, p.group, statut, mins, entree, buts, cj, cj2, cr, susp, cap];
+  });
+}
+
+// Export a single match (toutes les données)
+function exportMatch(mid, format) {
+  var m = APP.matches.L2.concat(APP.matches.CDF).concat(APP.matches.AMI||[]).find(function(x){return x.id===mid;});
+  if (!m) return;
+  var compLabel = _getCompLabel(mid);
+  var headers = [
+    'Compétition','Journée','Match','Date','Heure','Score','Résultat',
+    '#','Joueur','Groupe','Statut','Temps de jeu (min)','Entré en jeu',
+    'Buts','Carton Jaune','2e Jaune','Carton Rouge','Suspension','Capitaine'
+  ];
+  var playerRows = _matchPlayerRows(mid);
+  var data = [];
+  if (playerRows.length === 0) {
+    data.push([compLabel, m.j, m.name||'', m.date||'', m.time||'', m.score||'', m.res||'',
+      '', '(Aucun joueur enregistré)', '', '', '', '', '', '', '', '', '', '']);
+  } else {
+    playerRows.forEach(function(pr) {
+      data.push([compLabel, m.j, m.name||'', m.date||'', m.time||'', m.score||'', m.res||''].concat(pr));
+    });
+  }
+  var safeName = (m.name||'match').replace(/[^a-z0-9]/gi,'_').substring(0,25);
+  _doExport(headers, data, 'match_J'+m.j+'_'+safeName, format);
+}
+
+// Export tous les matchs — détail par joueur
+function _exportAllMatchesDetail(format) {
+  var headers = [
+    'Compétition','Journée','Match','Date','Heure','Score','Résultat',
+    '#','Joueur','Groupe','Statut','Temps de jeu (min)','Entré en jeu',
+    'Buts','Carton Jaune','2e Jaune','Carton Rouge','Suspension','Capitaine'
+  ];
+  var allMatches = APP.matches.L2.map(function(m){return Object.assign({},m,{_comp:APP.champName||'L2'});})
+    .concat(APP.matches.CDF.map(function(m){return Object.assign({},m,{_comp:'Coupe de France'});}))
+    .concat((APP.matches.AMI||[]).map(function(m){return Object.assign({},m,{_comp:'Amical'});}));
+  var data = [];
+  allMatches.forEach(function(m) {
+    var playerRows = _matchPlayerRows(m.id);
+    if (playerRows.length === 0) {
+      data.push([m._comp, m.j, m.name||'', m.date||'', m.time||'', m.score||'', m.res||'',
+        '', '(Aucun joueur)', '', '', '', '', '', '', '', '', '', '']);
+    } else {
+      playerRows.forEach(function(pr) {
+        data.push([m._comp, m.j, m.name||'', m.date||'', m.time||'', m.score||'', m.res||''].concat(pr));
+      });
+    }
+  });
+  _doExport(headers, data, 'competitions_detail_'+(APP.season||'saison'), format);
+}
+
+// Export tous les matchs — résumé (1 ligne par match)
+function _exportAllMatchesSummary(format) {
+  var headers = [
+    'Compétition','Journée','Match','Date','Heure','Score','Résultat',
+    'Joueurs utilisés','Titulaires','Remplaçants','Entrées en jeu',
+    'Buts marqués','Cartons Jaunes','Cartons Rouges','Suspensions'
+  ];
+  var allMatches = APP.matches.L2.map(function(m){return Object.assign({},m,{_comp:APP.champName||'L2'});})
+    .concat(APP.matches.CDF.map(function(m){return Object.assign({},m,{_comp:'Coupe de France'});}))
+    .concat((APP.matches.AMI||[]).map(function(m){return Object.assign({},m,{_comp:'Amical'});}));
+  var data = allMatches.map(function(m) {
+    var tit=0, rem=0, ei=0, buts=0, j=0, r=0, s=0;
+    APP.players.forEach(function(p) {
+      var d = (APP.pmd||{})[p.id+'_'+m.id]||{};
+      if (d.statut==='T') { tit++; buts+=(d.buts||0); }
+      else if (d.statut==='R') {
+        rem++;
+        var mins = (d.min!==undefined&&d.min!=='') ? parseInt(d.min) : 0;
+        if (mins>0) ei++;
+        buts+=(d.buts||0);
+      }
+      if (d.c_j||d.carton==='jaune') j++;
+      if (d.c_j2) { j++; r++; }
+      if (d.c_r||d.carton==='rouge'||d.carton==='dj') r++;
+      if (d.suspension) s++;
+    });
+    return [m._comp, m.j, m.name||'', m.date||'', m.time||'', m.score||'', m.res||'',
+      tit+rem, tit, rem, ei, buts, j, r, s];
+  });
+  _doExport(headers, data, 'competitions_resume_'+(APP.season||'saison'), format);
+}
+
+// Ancien point d'entrée exportData (cartons + recap inchangés)
+function exportData(type, format) {
+  if (type==='competitions') {
+    _exportAllMatchesDetail(format);
+  } else if (type==='competitions_summary') {
+    _exportAllMatchesSummary(format);
+  } else if (type==='cartons') {
+    var headers=['Numéro','Joueur','Groupe','Jaunes','Rouges','Suspensions'];
+    var data=APP.players.map(function(p){
       var j=0,r=0,s=0;
       APP.matches.L2.concat(APP.matches.CDF||[]).forEach(function(m){
         var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
-        if(d.carton==='jaune')j++;
-        else if(d.carton==='dj'){j+=2;r++;}
-        else if(d.carton==='rouge')r++;
+        if(d.c_j||d.carton==='jaune')j++;
+        if(d.c_j2){j++;r++;}
+        if(d.c_r||d.carton==='rouge'||d.carton==='dj')r++;
         if(d.suspension)s++;
       });
       return[p.num||'',p.name,p.group,j,r,s];
     });
-    filename='cartons_'+(APP.season||'saison');
+    _doExport(headers,data,'cartons_'+(APP.season||'saison'),format);
   } else {
-    headers=['#','Joueur','Groupe','Matchs','L2 Tit.','L2 Rempl.','Min L2','Min CDF','Min Total','Buts L2','Buts CDF','Buts Total','Jaunes','Rouges'];
-    data=APP.players.map(function(p){
+    var headers2=['#','Joueur','Groupe','Matchs','L2 Tit.','L2 Rempl.','Min L2','Min CDF','Min Total','Buts L2','Buts CDF','Buts Total','Jaunes','Rouges'];
+    var data2=APP.players.map(function(p){
       var pJ=0,pR=0;
       APP.matches.L2.concat(APP.matches.CDF||[]).forEach(function(m){
         var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
-        if(d.c_j)pJ++;
-        if(d.c_j2){pJ+=2;pR++;}
-        if(d.c_r)pR++;
+        if(d.c_j)pJ++;if(d.c_j2){pJ+=2;pR++;}if(d.c_r)pR++;
       });
       return[p.num||'',p.name,p.group,(p.l2_matchs||0)+(p.cdf_matchs||0),p.l2_tit||0,p.l2_rempl||0,p.l2_min||0,p.cdf_min||0,(p.l2_min||0)+(p.cdf_min||0),p.l2_buts||0,p.cdf_buts||0,(p.l2_buts||0)+(p.cdf_buts||0),pJ,pR];
     });
-    filename='recap_'+(APP.season||'saison');
+    _doExport(headers2,data2,'recap_'+(APP.season||'saison'),format);
   }
+}
+
+// Modale export compétitions
+function showCompExportModal(){
+  var listHtml = _buildMatchExportList();
+  openModal(
+    '<div class="mo-hdr"><div class="mo-title">⬇ Exporter les compétitions</div><button class="mo-x" onclick="closeModal()">✕</button></div>'+
+    '<div class="mo-body" style="max-height:80vh;overflow-y:auto">'+
+      '<div style="display:flex;flex-direction:column;gap:12px">'+
+        '<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'+
+          '<div style="font-weight:800;font-size:14px;margin-bottom:3px">📋 Tous les matchs — détail joueurs</div>'+
+          '<div style="font-size:11px;color:#888;margin-bottom:10px">Une ligne par joueur/match · composition, statut, temps de jeu, buts, cartons, entrées en jeu, capitaine…</div>'+
+          '<div style="display:flex;gap:8px">'+
+            '<button class="btn-exp" onclick="exportData(\'competitions\',\'csv\');closeModal()">⬇ CSV</button>'+
+            '<button class="btn-exp" onclick="exportData(\'competitions\',\'xlsx\');closeModal()">⬇ Excel</button>'+
+          '</div>'+
+        '</div>'+
+        '<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'+
+          '<div style="font-weight:800;font-size:14px;margin-bottom:3px">📊 Tous les matchs — résumé</div>'+
+          '<div style="font-size:11px;color:#888;margin-bottom:10px">Une ligne par match · score, résultat, effectif utilisé, buts, cartons…</div>'+
+          '<div style="display:flex;gap:8px">'+
+            '<button class="btn-exp" onclick="exportData(\'competitions_summary\',\'csv\');closeModal()">⬇ CSV</button>'+
+            '<button class="btn-exp" onclick="exportData(\'competitions_summary\',\'xlsx\');closeModal()">⬇ Excel</button>'+
+          '</div>'+
+        '</div>'+
+        '<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'+
+          '<div style="font-weight:800;font-size:14px;margin-bottom:3px">🔍 Exporter match par match</div>'+
+          '<div style="font-size:11px;color:#888;margin-bottom:8px">Toutes les données du match sélectionné</div>'+
+          '<div style="max-height:200px;overflow-y:auto">'+listHtml+'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>'
+  );
+}
+
+function _buildMatchExportList(){
+  var all=APP.matches.L2.map(function(m){return Object.assign({},m,{_comp:APP.champName||'L2',_color:'#3b82f6'});})
+    .concat(APP.matches.CDF.map(function(m){return Object.assign({},m,{_comp:'CDF',_color:'#f59e0b'});}))
+    .concat((APP.matches.AMI||[]).map(function(m){return Object.assign({},m,{_comp:'Amical',_color:'#6b7280'});}));
+  if(!all.length) return '<div style="color:#aaa;font-size:13px;padding:8px">Aucun match disponible</div>';
+  return all.map(function(m){
+    var score=m.score?' — '+m.score:'';
+    var cnt=APP.players.filter(function(p){var d=(APP.pmd||{})[p.id+'_'+m.id]||{};return d.statut==='T'||d.statut==='R';}).length;
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0ede8">'+
+      '<span style="font-size:10px;background:'+m._color+';color:#fff;border-radius:3px;padding:1px 5px;font-weight:700;flex-shrink:0">'+m._comp+'</span>'+
+      '<span style="font-size:11px;font-weight:700;color:#555;flex-shrink:0">J'+m.j+'</span>'+
+      '<span style="font-size:11px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+m.name+score+'</span>'+
+      '<span style="font-size:10px;color:#aaa;flex-shrink:0">'+cnt+' j.</span>'+
+      '<div style="display:flex;gap:4px;flex-shrink:0">'+
+        '<button class="btn-exp" style="font-size:10px;padding:3px 7px" onclick="exportMatch(\''+m.id+'\',\'csv\')">CSV</button>'+
+        '<button class="btn-exp" style="font-size:10px;padding:3px 7px" onclick="exportMatch(\''+m.id+'\',\'xlsx\')">XLS</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+// Modale export match individuel (depuis le bouton ⬇ sur chaque match)
+function showMatchExportModal(mid, journee, comp){
+  var m = APP.matches.L2.concat(APP.matches.CDF).concat(APP.matches.AMI||[]).find(function(x){return x.id===mid;});
+  if(!m) return;
+  var compLabel = _getCompLabel(mid);
+  var cnt = APP.players.filter(function(p){var d=(APP.pmd||{})[p.id+'_'+mid]||{};return d.statut==='T'||d.statut==='R';}).length;
+  openModal(
+    '<div class="mo-hdr"><div class="mo-title">⬇ Export — J'+journee+'</div><button class="mo-x" onclick="closeModal()">✕</button></div>'+
+    '<div class="mo-body">'+
+      '<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px;margin-bottom:14px">'+
+        '<div style="font-weight:800;font-size:15px;margin-bottom:3px">'+m.name+'</div>'+
+        '<div style="font-size:12px;color:#888">'+compLabel+(m.date?' · '+m.date:'')+(m.score?' · Score : '+m.score:'')+'</div>'+
+        '<div style="font-size:12px;color:#555;margin-top:5px">'+cnt+' joueur'+(cnt>1?'s':'')+' enregistré'+(cnt>1?'s':'')+'</div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:#888;margin-bottom:10px">Données exportées : composition, statut (Tit/Rem), temps de jeu, entrée en jeu, buts, cartons jaunes, 2e jaune, carton rouge, suspension, capitaine.</div>'+
+      '<div style="display:flex;gap:10px">'+
+        '<button class="btn-exp" style="flex:1;padding:12px" onclick="exportMatch(\''+mid+'\',\'csv\');closeModal()">⬇ CSV</button>'+
+        '<button class="btn-exp" style="flex:1;padding:12px" onclick="exportMatch(\''+mid+'\',\'xlsx\');closeModal()">⬇ Excel</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mo-foot"><button class="btn-p" onclick="closeModal()">Fermer</button></div>'
+  );
+}
+
+function _doExport(headers, data, filename, format){
   if(format==='csv'){
     var bom='\uFEFF';
     var csv=bom+headers.map(function(h){return'"'+h+'"';}).join(',')
       +'\n'
-      +data.map(function(row){return row.map(function(c){return'"'+(c||'').toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-    dlFile(csv,filename+'.csv','text/csv;charset=utf-8;');
+      +data.map(function(row){return row.map(function(c){return'"'+(c===null||c===undefined?'':c).toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+    dlFile(csv, filename+'.csv', 'text/csv;charset=utf-8;');
   } else {
-    var style='<style>body{font-family:Arial,sans-serif;font-size:12px}table{border-collapse:collapse;width:100%}th{background:#1C1C1C;color:#fff;padding:8px 12px;font-weight:700;text-align:left}td{border:1px solid #ddd;padding:7px 12px}tr:nth-child(even){background:#f9f9f9}</style>';
-    var tbl=headers.map(function(h){return'<th>'+h+'</th>';}).join('');
-    tbl='<tr>'+tbl+'</tr>';
-    data.forEach(function(row){tbl+='<tr>'+row.map(function(c){return'<td>'+(c||'')+'</td>';}).join('')+'</tr>';});
+    var style='<style>body{font-family:Arial,sans-serif;font-size:11px}table{border-collapse:collapse;width:100%}th{background:#1C1C1C;color:#fff;padding:7px 10px;font-weight:700;text-align:left;white-space:nowrap}td{border:1px solid #ddd;padding:6px 10px}tr:nth-child(even){background:#f9f9f9}</style>';
+    var tbl='<tr>'+headers.map(function(h){return'<th>'+h+'</th>';}).join('')+'</tr>';
+    data.forEach(function(row){tbl+='<tr>'+row.map(function(c){return'<td>'+(c===null||c===undefined?'':c)+'</td>';}).join('')+'</tr>';});
     var xls='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'+
-      '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>'+filename+'</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'+style+'</head>'+
+      '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>'+filename.substring(0,31)+'</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'+style+'</head>'+
       '<body><table>'+tbl+'</table></body></html>';
-    dlFile(xls,filename+'.xls','application/vnd.ms-excel;charset=utf-8;');
+    dlFile(xls, filename+'.xls', 'application/vnd.ms-excel;charset=utf-8;');
   }
 }
 
