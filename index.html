@@ -5977,6 +5977,7 @@ function renderAnniversaires() {
     return diff;
   }
 
+  // Âge actuel = année actuelle - année naissance (ajusté si anniversaire pas encore passé)
   function age(birthDate) {
     if (!birthDate) return null;
     var parts = birthDate.split('-');
@@ -5984,21 +5985,22 @@ function renderAnniversaires() {
     var yr = parseInt(parts[0]);
     var bM = parseInt(parts[1]);
     var bD = parseInt(parts[2]);
-    // Age actuel
     var a = todayYear - yr;
     if (todayM < bM || (todayM === bM && todayD < bD)) a--;
     return a;
   }
-  // Prochain âge = âge au prochain anniversaire
+  // Âge qu'il aura à son prochain anniversaire
   function nextBirthdayAge(birthDate) {
-    var a = age(birthDate);
-    if (a === null) return null;
+    if (!birthDate) return null;
     var parts = birthDate.split('-');
     var bM = parseInt(parts[1]);
     var bD = parseInt(parts[2]);
-    // Si l'anniversaire n'est pas encore passé cette année → prochain = age actuel + 1
-    // Si déjà passé cette année (ou aujourd'hui) → prochain = age actuel + 1
-    return a + 1;
+    var currentAge = age(birthDate);
+    if (currentAge === null) return null;
+    // Si c'est aujourd'hui → il a déjà l'âge
+    if (bM === todayM && bD === todayD) return currentAge;
+    // Sinon → prochain anniversaire = age actuel + 1
+    return currentAge + 1;
   }
 
   function formatDate(birthDate) {
@@ -6078,7 +6080,10 @@ function renderAnniversaires() {
             + 'display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px">' + p.num + '</span>' : '')
             + (p.name || '') + '</div>';
       html += '<div style="font-size:12px;color:#888;margin-top:2px">'
-            + formatDate(p.birthDate) + (nextAge > 0 ? ' · Aura <strong>' + nextAge + ' ans</strong>' : '') + '</div>';
+            + formatDate(p.birthDate)
+            + (d === 0 ? ' · <strong>' + nextAge + ' ans aujourd\'hui 🎉</strong>'
+               : ' · Aura <strong>' + nextAge + ' ans</strong>')
+            + '</div>';
       html += '</div>';
 
       // Countdown badge
@@ -6096,13 +6101,23 @@ function updateAnnivBadge(soon) {
   var badge = document.getElementById('abadge');
   var btn   = document.getElementById('nb-anniversaires');
   if (!badge || !btn) return;
-  if (soon.length > 0) {
-    badge.textContent = soon.length;
+  // Pastille uniquement pour les anniversaires AUJOURD'HUI (jour J)
+  var today2 = new Date();
+  var tM = today2.getMonth()+1, tD = today2.getDate();
+  var todayBdays = (APP.players||[]).filter(function(p){
+    if (!p.birthDate) return false;
+    var pts = p.birthDate.split('-');
+    return parseInt(pts[1])===tM && parseInt(pts[2])===tD;
+  });
+  if (todayBdays.length > 0) {
+    badge.textContent = todayBdays.length;
     badge.style.display = 'inline';
     btn.style.color = '#C8102E';
+    btn.style.fontWeight = '800';
   } else {
     badge.style.display = 'none';
     btn.style.color = '';
+    btn.style.fontWeight = '';
   }
 }
 
@@ -6111,18 +6126,8 @@ function checkAnnivOnLoad() {
   var today = new Date();
   var todayM = today.getMonth() + 1;
   var todayD = today.getDate();
-  var soon = (APP.players || []).filter(function(p) {
-    if (!p.birthDate) return false;
-    var parts = p.birthDate.split('-');
-    if (parts.length < 3) return false;
-    var bM = parseInt(parts[1]);
-    var bD = parseInt(parts[2]);
-    // Demain
-    var tmrw = new Date(today); tmrw.setDate(tmrw.getDate() + 1);
-    return (bM === todayM && bD === todayD) ||
-           (bM === tmrw.getMonth()+1 && bD === tmrw.getDate());
-  });
-  updateAnnivBadge(soon);
+  // Badge: uniquement aujourd'hui
+  updateAnnivBadge([]);  // will recalculate inside
 
   // Alerte si anniversaire demain
   var tmrw = new Date(today); tmrw.setDate(tmrw.getDate() + 1);
