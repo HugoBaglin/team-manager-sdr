@@ -1513,7 +1513,11 @@ function navApplyToDOM(items, save) {
     var btn = document.createElement('button');
     btn.className = 'nb' + (item.page==='passeport' ? ' gold-tab' : '');
     btn.setAttribute('data-page', item.page);
-    var badgeHtml = item.page==='passeport' ? ' <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span>' : '';
+    if (item.page==='anniversaires') btn.id = 'nb-anniversaires';
+    if (item.page==='passeport') btn.id = 'nb-passeport';
+    var badgeHtml = '';
+    if (item.page==='passeport') badgeHtml = ' <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span>';
+    if (item.page==='anniversaires') badgeHtml = ' <span id="abadge" style="display:none;background:#C8102E;color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span>';
     btn.innerHTML = item.label + badgeHtml;
     btn.addEventListener('click', (function(pg){ return function(){ showPage(pg, btn); }; })(item.page));
     nav.appendChild(btn);
