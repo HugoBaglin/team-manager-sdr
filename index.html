@@ -281,9 +281,9 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 <div id="page-joueurs" class="hidden">
   <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:0">
     <div class="page-title" style="margin-bottom:0">Joueurs</div>
-    <button onclick="saveAllPlayers()" id="btn-save-joueurs" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.18)">
-      <span id="btn-save-joueurs-icon" style="font-size:16px">💾</span>
-      <span id="btn-save-joueurs-label">Sauvegarder</span>
+    <button onclick="showExportJoueursModal()" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:background .2s;box-shadow:0 2px 8px rgba(0,0,0,.18)">
+      <span style="font-size:16px">⬇</span>
+      <span>Exporter</span>
     </button>
   </div>
   <div class="toolbar">
@@ -309,9 +309,9 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 <div id="page-staff" class="hidden">
   <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:0">
     <div class="page-title" style="margin-bottom:0">Staff</div>
-    <button onclick="saveAllStaff()" id="btn-save-staff" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.18)">
-      <span id="btn-save-staff-icon" style="font-size:16px">💾</span>
-      <span id="btn-save-staff-label">Sauvegarder</span>
+    <button onclick="showExportStaffModal()" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:background .2s;box-shadow:0 2px 8px rgba(0,0,0,.18)">
+      <span style="font-size:16px">⬇</span>
+      <span>Exporter</span>
     </button>
   </div>
   <div class="toolbar">
@@ -754,81 +754,198 @@ function sbSave() {
 }
 
 // Bouton Enregistrer dans le header — intelligent selon l'état de connexion
-function saveAllStaff() {
-  var btn  = document.getElementById('btn-save-staff');
-  var icon = document.getElementById('btn-save-staff-icon');
-  var lbl  = document.getElementById('btn-save-staff-label');
-  function setBtn(ico, txt, color) {
-    if(icon) icon.textContent = ico;
-    if(lbl)  lbl.textContent  = txt;
-    if(btn)  btn.style.background = color || '#1a1a1a';
-  }
-  setBtn('🔄', 'Sauvegarde...', '#333');
-  if(_SB.enabled) {
-    clearTimeout(_SB.saveTimer);
-    _SB.saving = false;
-    try { sbSaveNow(); } catch(e) { sbSave(); }
-    setTimeout(function() {
-      setBtn('✅', 'Sauvegardé !', '#16a34a');
-      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
-    }, 800);
-  } else {
-    try {
-      localStorage.setItem('app_staff_backup_'+Date.now(), JSON.stringify({
-        staff: APP.staff, pmd: APP.pmd, season: APP.season
-      }));
-      setBtn('✅', 'Sauvegardé !', '#16a34a');
-      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
-    } catch(e) {
-      setBtn('⚠️', 'Erreur', '#dc2626');
-      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2500);
-      sbSetup();
-    }
-  }
+function showExportJoueursModal() {
+  var mo = '<div class="ov" id="mo-export-joueurs" onclick="if(event.target===this)this.remove()">'
+    +'<div class="mo" style="max-width:480px">'
+    +'<div class="mo-hdr"><div class="mo-title">⬇ Exporter les Joueurs</div>'
+    +'<button class="mo-x" onclick="document.getElementById(\'mo-export-joueurs\').remove()">✕</button></div>'
+    +'<div class="mo-body" style="display:flex;flex-direction:column;gap:12px;padding:20px">'
+
+    +'<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'
+    +'<div style="font-weight:800;font-size:14px;margin-bottom:3px">👤 Fiche joueurs</div>'
+    +'<div style="font-size:11px;color:#888;margin-bottom:10px">Numéro, nom, groupe, poste, nationalité, statut, date de naissance, poids, taille, pied fort, contrat</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn-exp" onclick="exportJoueurs(\'fiche\',\'csv\');document.getElementById(\'mo-export-joueurs\').remove()">⬇ CSV</button>'
+    +'<button class="btn-exp" onclick="exportJoueurs(\'fiche\',\'xlsx\');document.getElementById(\'mo-export-joueurs\').remove()">⬇ Excel</button>'
+    +'</div></div>'
+
+    +'<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'
+    +'<div style="font-weight:800;font-size:14px;margin-bottom:3px">📊 Stats saison</div>'
+    +'<div style="font-size:11px;color:#888;margin-bottom:10px">Matchs, titularisations, remplacements, minutes L2/CDF/Total, buts, cartons jaunes/rouges, suspensions</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn-exp" onclick="exportJoueurs(\'stats\',\'csv\');document.getElementById(\'mo-export-joueurs\').remove()">⬇ CSV</button>'
+    +'<button class="btn-exp" onclick="exportJoueurs(\'stats\',\'xlsx\');document.getElementById(\'mo-export-joueurs\').remove()">⬇ Excel</button>'
+    +'</div></div>'
+
+    +'<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'
+    +'<div style="font-weight:800;font-size:14px;margin-bottom:3px">📋 Complet (fiche + stats)</div>'
+    +'<div style="font-size:11px;color:#888;margin-bottom:10px">Toutes les colonnes ci-dessus réunies en un seul fichier</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn-exp" onclick="exportJoueurs(\'complet\',\'csv\');document.getElementById(\'mo-export-joueurs\').remove()">⬇ CSV</button>'
+    +'<button class="btn-exp" onclick="exportJoueurs(\'complet\',\'xlsx\');document.getElementById(\'mo-export-joueurs\').remove()">⬇ Excel</button>'
+    +'</div></div>'
+
+    +'</div>'
+    +'<div class="mo-foot"><button class="btn-p" onclick="document.getElementById(\'mo-export-joueurs\').remove()">Fermer</button></div>'
+    +'</div></div>';
+  var ex = document.getElementById('mo-export-joueurs');
+  if(ex) ex.remove();
+  document.body.insertAdjacentHTML('beforeend', mo);
 }
 
-function saveAllPlayers() {
-  var btn = document.getElementById('btn-save-joueurs');
-  var icon = document.getElementById('btn-save-joueurs-icon');
-  var lbl  = document.getElementById('btn-save-joueurs-label');
-  function setBtn(ico, txt, color) {
-    if(icon) icon.textContent = ico;
-    if(lbl)  lbl.textContent  = txt;
-    if(btn)  btn.style.background = color||'#1a1a1a';
-  }
-  setBtn('🔄', 'Sauvegarde...', '#333');
-  if(_SB.enabled) {
-    // Sauvegarde Supabase immédiate
-    clearTimeout(_SB.saveTimer);
-    _SB.saving = false; // force unlock
-    try {
-      sbSaveNow();
-    } catch(e) {
-      sbSave();
-    }
-    // Feedback visuel
-    setTimeout(function() {
-      setBtn('✅', 'Sauvegardé !', '#16a34a');
-      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
-    }, 800);
+function exportJoueurs(type, format) {
+  var season = APP.season || 'saison';
+  var headers, data, filename;
+
+  if(type === 'fiche') {
+    headers = ['N°','Nom','Prénom','Nom Maillot','Poste','Date naissance','Groupe','Statut','Nationalité','Expir. Passeport'];
+    data = APP.players.map(function(p){
+      var natText = p.natText || p.nat || '';
+      return [
+        p.num||'', p.name||'', p.firstName||p.prenom||'', p.nomMaillot||'',
+        p.pos||'', p.birthDate||'', p.group||'', p.status||'actif',
+        natText, p.passport||''
+      ];
+    });
+    filename = 'joueurs_fiche_'+season;
+
+  } else if(type === 'stats') {
+    headers = ['N°','Nom','Groupe','Poste','Matchs L2','Tit. L2','Rempl. L2','Entr. L2','Min L2','Buts L2','Matchs CDF','Tit. CDF','Rempl. CDF','Entr. CDF','Min CDF','Buts CDF','Total Matchs','Total Min','Total Buts','Jaunes','Rouges','Suspensions'];
+    data = APP.players.map(function(p){
+      var tJ=0,tR=0,tS=0,l2ei=0,cdfei=0;
+      var allM = APP.matches.L2.concat(APP.matches.CDF||[]);
+      allM.forEach(function(m){
+        var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
+        var mins=d.min||0;
+        var isL2 = !!(APP.matches.L2.find(function(x){return x.id===m.id;}));
+        if(d.statut==='R'&&mins>0){ if(isL2) l2ei++; else cdfei++; }
+        if(d.c_j) tJ++; if(d.c_j2){tJ++;tR++;} if(d.c_r) tR++;
+        if(!d.c_j&&!d.c_j2&&!d.c_r){ if(d.carton==='jaune')tJ++; if(d.carton==='rouge')tR++; if(d.carton==='dj'){tJ+=2;tR++;} }
+        if(d.suspension) tS++;
+      });
+      var l2M=(p.l2_tit||0)+(p.l2_rempl||0);
+      var cdfM=(p.cdf_tit||0)+(p.cdf_rempl||0);
+      return [
+        p.num||'', p.name||'', p.group||'', p.pos||'',
+        l2M, p.l2_tit||0, p.l2_rempl||0, l2ei, p.l2_min||0, p.l2_buts||0,
+        cdfM, p.cdf_tit||0, p.cdf_rempl||0, cdfei, p.cdf_min||0, p.cdf_buts||0,
+        l2M+cdfM, (p.l2_min||0)+(p.cdf_min||0), (p.l2_buts||0)+(p.cdf_buts||0),
+        tJ, tR, tS
+      ];
+    });
+    filename = 'joueurs_stats_'+season;
+
   } else {
-    // Pas de Supabase → localStorage de secours
-    try {
-      localStorage.setItem('app_backup_'+Date.now(), JSON.stringify({
-        players: APP.players,
-        staff: APP.staff,
-        matches: APP.matches,
-        pmd: APP.pmd,
-        season: APP.season
-      }));
-      setBtn('✅', 'Sauvegardé !', '#16a34a');
-      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
-    } catch(e) {
-      setBtn('⚠️', 'Erreur', '#dc2626');
-      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2500);
-      sbSetup(); // Invite à configurer Supabase
-    }
+    headers = ['N°','Nom','Prénom','Nom Maillot','Poste','Date naissance','Groupe','Statut','Nationalité','Expir. Passeport','Matchs L2','Tit. L2','Rempl. L2','Entr. L2','Min L2','Buts L2','Matchs CDF','Tit. CDF','Rempl. CDF','Entr. CDF','Min CDF','Buts CDF','Total Matchs','Total Min','Total Buts','Jaunes','Rouges','Suspensions'];
+    data = APP.players.map(function(p){
+      var tJ=0,tR=0,tS=0,l2ei=0,cdfei=0;
+      var natText = p.natText || p.nat || '';
+      var allM = APP.matches.L2.concat(APP.matches.CDF||[]);
+      allM.forEach(function(m){
+        var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
+        var mins=d.min||0;
+        var isL2 = !!(APP.matches.L2.find(function(x){return x.id===m.id;}));
+        if(d.statut==='R'&&mins>0){ if(isL2) l2ei++; else cdfei++; }
+        if(d.c_j) tJ++; if(d.c_j2){tJ++;tR++;} if(d.c_r) tR++;
+        if(!d.c_j&&!d.c_j2&&!d.c_r){ if(d.carton==='jaune')tJ++; if(d.carton==='rouge')tR++; if(d.carton==='dj'){tJ+=2;tR++;} }
+        if(d.suspension) tS++;
+      });
+      var l2M=(p.l2_tit||0)+(p.l2_rempl||0);
+      var cdfM=(p.cdf_tit||0)+(p.cdf_rempl||0);
+      return [
+        p.num||'', p.name||'', p.firstName||p.prenom||'', p.nomMaillot||'',
+        p.pos||'', p.birthDate||'', p.group||'', p.status||'actif',
+        natText, p.passport||'',
+        l2M, p.l2_tit||0, p.l2_rempl||0, l2ei, p.l2_min||0, p.l2_buts||0,
+        cdfM, p.cdf_tit||0, p.cdf_rempl||0, cdfei, p.cdf_min||0, p.cdf_buts||0,
+        l2M+cdfM, (p.l2_min||0)+(p.cdf_min||0), (p.l2_buts||0)+(p.cdf_buts||0),
+        tJ, tR, tS
+      ];
+    });
+    filename = 'joueurs_complet_'+season;
   }
+  _doExport(headers, data, filename, format==='xlsx'?'xlsx':'csv');
+}
+
+function showExportStaffModal() {
+  var mo = '<div class="ov" id="mo-export-staff" onclick="if(event.target===this)this.remove()">'
+    +'<div class="mo" style="max-width:480px">'
+    +'<div class="mo-hdr"><div class="mo-title">⬇ Exporter le Staff</div>'
+    +'<button class="mo-x" onclick="document.getElementById(\'mo-export-staff\').remove()">✕</button></div>'
+    +'<div class="mo-body" style="display:flex;flex-direction:column;gap:12px;padding:20px">'
+
+    +'<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'
+    +'<div style="font-weight:800;font-size:14px;margin-bottom:3px">👔 Fiche staff</div>'
+    +'<div style="font-size:11px;color:#888;margin-bottom:10px">Nom, rôle, initiales — liste complète du staff</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn-exp" onclick="exportStaff(\'fiche\',\'csv\');document.getElementById(\'mo-export-staff\').remove()">⬇ CSV</button>'
+    +'<button class="btn-exp" onclick="exportStaff(\'fiche\',\'xlsx\');document.getElementById(\'mo-export-staff\').remove()">⬇ Excel</button>'
+    +'</div></div>'
+
+    +'<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'
+    +'<div style="font-weight:800;font-size:14px;margin-bottom:3px">🟨 Cartons & Sanctions</div>'
+    +'<div style="font-size:11px;color:#888;margin-bottom:10px">Cartons jaunes, rouges et suspensions par membre du staff</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn-exp" onclick="exportStaff(\'cartons\',\'csv\');document.getElementById(\'mo-export-staff\').remove()">⬇ CSV</button>'
+    +'<button class="btn-exp" onclick="exportStaff(\'cartons\',\'xlsx\');document.getElementById(\'mo-export-staff\').remove()">⬇ Excel</button>'
+    +'</div></div>'
+
+    +'<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'
+    +'<div style="font-weight:800;font-size:14px;margin-bottom:3px">📋 Complet (fiche + cartons)</div>'
+    +'<div style="font-size:11px;color:#888;margin-bottom:10px">Toutes les colonnes réunies en un seul fichier</div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn-exp" onclick="exportStaff(\'complet\',\'csv\');document.getElementById(\'mo-export-staff\').remove()">⬇ CSV</button>'
+    +'<button class="btn-exp" onclick="exportStaff(\'complet\',\'xlsx\');document.getElementById(\'mo-export-staff\').remove()">⬇ Excel</button>'
+    +'</div></div>'
+
+    +'</div>'
+    +'<div class="mo-foot"><button class="btn-p" onclick="document.getElementById(\'mo-export-staff\').remove()">Fermer</button></div>'
+    +'</div></div>';
+  var ex = document.getElementById('mo-export-staff');
+  if(ex) ex.remove();
+  document.body.insertAdjacentHTML('beforeend', mo);
+}
+
+function exportStaff(type, format) {
+  var season = APP.season || 'saison';
+  var headers, data, filename;
+
+  if(type === 'fiche') {
+    headers = ['Initiales','Nom','Prénom','Rôle','Date naissance','Expir. Passeport'];
+    data = APP.staff.map(function(s){ return [s.init||'', s.name||'', s.firstName||s.prenom||'', s.role||'', s.birthDate||'', s.passport||'']; });
+    filename = 'staff_fiche_'+season;
+
+  } else if(type === 'cartons') {
+    headers = ['Nom','Rôle','Jaunes','Rouges','Suspensions'];
+    data = APP.staff.map(function(s){
+      var tJ=0,tR=0,tS=0;
+      APP.matches.L2.concat(APP.matches.CDF||[]).forEach(function(m){
+        var d=(APP.pmd||{})[s.id+'_'+m.id]||{};
+        if(d.carton==='jaune') tJ++;
+        else if(d.carton==='dj'){tJ+=2;tR++;}
+        else if(d.carton==='rouge') tR++;
+        if(d.suspension) tS++;
+      });
+      return [s.name||'', s.role||'', tJ, tR, tS];
+    });
+    filename = 'staff_cartons_'+season;
+
+  } else {
+    headers = ['Initiales','Nom','Prénom','Rôle','Date naissance','Expir. Passeport','Jaunes','Rouges','Suspensions'];
+    data = APP.staff.map(function(s){
+      var tJ=0,tR=0,tS=0;
+      APP.matches.L2.concat(APP.matches.CDF||[]).forEach(function(m){
+        var d=(APP.pmd||{})[s.id+'_'+m.id]||{};
+        if(d.carton==='jaune') tJ++;
+        else if(d.carton==='dj'){tJ+=2;tR++;}
+        else if(d.carton==='rouge') tR++;
+        if(d.suspension) tS++;
+      });
+      return [s.init||'', s.name||'', s.firstName||s.prenom||'', s.role||'', s.birthDate||'', s.passport||'', tJ, tR, tS];
+    });
+    filename = 'staff_complet_'+season;
+  }
+  _doExport(headers, data, filename, format==='xlsx'?'xlsx':'csv');
 }
 
 function btnSave() {
@@ -3508,6 +3625,10 @@ function showAddStaffModal(eid){
     '</div>'+
     '<input type="file" id="sf-photo-input" accept="image/*" style="display:none" onchange="sfPreviewProfilePhoto(this)">'+
     '<input type="hidden" id="sf-photo-data" value="'+profilePhoto+'">'+
+    '<div class="frow" style="margin-bottom:10px">'+
+      '<div class="fg"><label class="fl">Prénom</label><input class="fi" id="sf-prenom" value="'+(s.firstName||s.prenom||'')+'"></div>'+
+      '<div class="fg"><label class="fl">Date de naissance</label><input class="fi" type="date" id="sf-birthdate" value="'+(s.birthDate||'')+'"></div>'+
+    '</div>'+
     '<div class="fg full" style="margin-bottom:14px">'+
       '<label class="fl">Rôle</label>'+
       '<select class="fsel" id="sf-role">'+roleSel+'</select>'+
@@ -3556,11 +3677,13 @@ function delStaff(id) {
 
 function saveStaff(id){
   var data = {
-    name:     (document.getElementById('sf-name')||{}).value || '',
-    init:     ((document.getElementById('sf-init')||{}).value || '').toUpperCase(),
-    role:     (document.getElementById('sf-role')||{}).value || '',
-    passport: (document.getElementById('sf-passport')||{}).value || '',
-    photo:    (document.getElementById('sf-photo-data')||{}).value || ''
+    name:      (document.getElementById('sf-name')||{}).value || '',
+    firstName: (document.getElementById('sf-prenom')||{}).value || '',
+    init:      ((document.getElementById('sf-init')||{}).value || '').toUpperCase(),
+    role:      (document.getElementById('sf-role')||{}).value || '',
+    birthDate: (document.getElementById('sf-birthdate')||{}).value || '',
+    passport:  (document.getElementById('sf-passport')||{}).value || '',
+    photo:     (document.getElementById('sf-photo-data')||{}).value || ''
   };
   if (id) {
     var idx = APP.staff.findIndex(function(x){ return x.id === id; });
@@ -6681,8 +6804,12 @@ function renderAnniversaires() {
     return p[2] + '/' + p[1] + '/' + p[0];
   }
 
-  // Filtrer joueurs avec date de naissance
-  var players = (APP.players || []).filter(function(p) { return p.birthDate; });
+  // Filtrer joueurs ET staff avec date de naissance
+  var players = (APP.players || []).filter(function(p) { return p.birthDate; })
+    .map(function(p){ return Object.assign({}, p, {_type:'joueur'}); });
+  var staffMembers = (APP.staff || []).filter(function(s) { return s.birthDate; })
+    .map(function(s){ return Object.assign({}, s, {_type:'staff', name: s.name, num: null, pos: s.role}); });
+  players = players.concat(staffMembers);
   players.sort(function(a, b) {
     var da = daysUntil(a.birthDate);
     var db = daysUntil(b.birthDate);
@@ -6690,7 +6817,7 @@ function renderAnniversaires() {
   });
 
   if (players.length === 0) {
-    el.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-family:Barlow Condensed,sans-serif;font-size:16px">Aucune date de naissance enregistrée.<br><br>Modifie les fiches joueurs pour ajouter leurs dates de naissance.</div>';
+    el.innerHTML = '<div style="padding:40px;text-align:center;color:#888;font-family:Barlow Condensed,sans-serif;font-size:16px">Aucune date de naissance enregistrée.<br><br>Modifie les fiches joueurs ou membres du staff pour ajouter leurs dates de naissance.</div>';
     updateAnnivBadge([]);
     return;
   }
@@ -6737,24 +6864,28 @@ function renderAnniversaires() {
             + 'box-shadow:0 1px 4px rgba(0,0,0,0.08);border-left:4px solid ' + sec.color + '">';
 
       // Avatar
+      var avatarColor = p._type==='staff' ? '#1a1a1a' : '#C8102E';
       if (p.photo) {
         html += '<img src="' + p.photo + '" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0">';
       } else {
-        var ini = (p.name||'?')[0];
-        html += '<div style="width:44px;height:44px;border-radius:50%;background:#C8102E;'
+        var ini = p._type==='staff' ? (p.init||(p.name||'?')[0]) : (p.name||'?')[0];
+        html += '<div style="width:44px;height:44px;border-radius:50%;background:'+avatarColor+';'
               + 'display:flex;align-items:center;justify-content:center;'
-              + 'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:20px;color:#fff;flex-shrink:0">' + ini + '</div>';
+              + 'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:16px;color:#fff;flex-shrink:0">' + ini + '</div>';
       }
 
       html += '<div style="flex:1;min-width:0">';
+      var typeBadge = p._type==='staff'
+        ? '<span style="background:#1a1a1a;color:#fff;font-size:9px;border-radius:3px;padding:1px 4px;margin-right:5px;vertical-align:middle">STAFF</span>'
+        : (p.num ? '<span style="background:#C8102E;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px">' + p.num + '</span>' : '');
       html += '<div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:16px">'
-            + (p.num ? '<span style="background:#C8102E;color:#fff;border-radius:50%;width:22px;height:22px;'
-            + 'display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px">' + p.num + '</span>' : '')
+            + typeBadge
             + (p.name || '') + '</div>';
       html += '<div style="font-size:12px;color:#888;margin-top:2px">'
             + formatDate(p.birthDate)
             + (d === 0 ? ' · <strong>' + nextAge + ' ans aujourd\'hui 🎉</strong>'
                : ' · Aura <strong>' + nextAge + ' ans</strong>')
+            + (p._type==='staff' && p.role ? ' · '+p.role : (p.pos ? ' · '+p.pos : ''))
             + '</div>';
       html += '</div>';
 
@@ -6776,7 +6907,8 @@ function updateAnnivBadge(soon) {
   // Pastille uniquement pour les anniversaires AUJOURD'HUI (jour J)
   var today2 = new Date();
   var tM = today2.getMonth()+1, tD = today2.getDate();
-  var todayBdays = (APP.players||[]).filter(function(p){
+  var allPeople = (APP.players||[]).concat((APP.staff||[]));
+  var todayBdays = allPeople.filter(function(p){
     if (!p.birthDate) return false;
     var pts = p.birthDate.split('-');
     if (pts.length < 3) return false;
@@ -6804,7 +6936,8 @@ function checkAnnivOnLoad() {
 
   // Alerte si anniversaire demain
   var tmrw = new Date(today); tmrw.setDate(tmrw.getDate() + 1);
-  var tmrwPlayers = (APP.players || []).filter(function(p) {
+  var allPeopleCheck = (APP.players||[]).concat((APP.staff||[]));
+  var tmrwPlayers = allPeopleCheck.filter(function(p) {
     if (!p.birthDate) return false;
     var parts = p.birthDate.split('-');
     if (parts.length < 3) return false;
