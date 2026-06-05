@@ -279,7 +279,13 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 
 <!-- JOUEURS -->
 <div id="page-joueurs" class="hidden">
-  <div class="page-title">Joueurs</div>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:0">
+    <div class="page-title" style="margin-bottom:0">Joueurs</div>
+    <button onclick="saveAllPlayers()" id="btn-save-joueurs" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.18)">
+      <span id="btn-save-joueurs-icon" style="font-size:16px">💾</span>
+      <span id="btn-save-joueurs-label">Sauvegarder</span>
+    </button>
+  </div>
   <div class="toolbar">
     <input class="si" placeholder="Rechercher..." oninput="fSearch=this.value.toLowerCase();renderPlayers()">
     <select class="fs" onchange="fGrp=this.value;renderPlayers()">
@@ -301,7 +307,13 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 
 <!-- STAFF -->
 <div id="page-staff" class="hidden">
-  <div class="page-title">Staff</div>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:0">
+    <div class="page-title" style="margin-bottom:0">Staff</div>
+    <button onclick="saveAllStaff()" id="btn-save-staff" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.18)">
+      <span id="btn-save-staff-icon" style="font-size:16px">💾</span>
+      <span id="btn-save-staff-label">Sauvegarder</span>
+    </button>
+  </div>
   <div class="toolbar">
     <input class="si" placeholder="Rechercher..." style="flex:1">
     <button class="ab" onclick="showAddStaffModal(null)">+ Ajouter</button>
@@ -742,6 +754,83 @@ function sbSave() {
 }
 
 // Bouton Enregistrer dans le header — intelligent selon l'état de connexion
+function saveAllStaff() {
+  var btn  = document.getElementById('btn-save-staff');
+  var icon = document.getElementById('btn-save-staff-icon');
+  var lbl  = document.getElementById('btn-save-staff-label');
+  function setBtn(ico, txt, color) {
+    if(icon) icon.textContent = ico;
+    if(lbl)  lbl.textContent  = txt;
+    if(btn)  btn.style.background = color || '#1a1a1a';
+  }
+  setBtn('🔄', 'Sauvegarde...', '#333');
+  if(_SB.enabled) {
+    clearTimeout(_SB.saveTimer);
+    _SB.saving = false;
+    try { sbSaveNow(); } catch(e) { sbSave(); }
+    setTimeout(function() {
+      setBtn('✅', 'Sauvegardé !', '#16a34a');
+      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
+    }, 800);
+  } else {
+    try {
+      localStorage.setItem('app_staff_backup_'+Date.now(), JSON.stringify({
+        staff: APP.staff, pmd: APP.pmd, season: APP.season
+      }));
+      setBtn('✅', 'Sauvegardé !', '#16a34a');
+      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
+    } catch(e) {
+      setBtn('⚠️', 'Erreur', '#dc2626');
+      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2500);
+      sbSetup();
+    }
+  }
+}
+
+function saveAllPlayers() {
+  var btn = document.getElementById('btn-save-joueurs');
+  var icon = document.getElementById('btn-save-joueurs-icon');
+  var lbl  = document.getElementById('btn-save-joueurs-label');
+  function setBtn(ico, txt, color) {
+    if(icon) icon.textContent = ico;
+    if(lbl)  lbl.textContent  = txt;
+    if(btn)  btn.style.background = color||'#1a1a1a';
+  }
+  setBtn('🔄', 'Sauvegarde...', '#333');
+  if(_SB.enabled) {
+    // Sauvegarde Supabase immédiate
+    clearTimeout(_SB.saveTimer);
+    _SB.saving = false; // force unlock
+    try {
+      sbSaveNow();
+    } catch(e) {
+      sbSave();
+    }
+    // Feedback visuel
+    setTimeout(function() {
+      setBtn('✅', 'Sauvegardé !', '#16a34a');
+      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
+    }, 800);
+  } else {
+    // Pas de Supabase → localStorage de secours
+    try {
+      localStorage.setItem('app_backup_'+Date.now(), JSON.stringify({
+        players: APP.players,
+        staff: APP.staff,
+        matches: APP.matches,
+        pmd: APP.pmd,
+        season: APP.season
+      }));
+      setBtn('✅', 'Sauvegardé !', '#16a34a');
+      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2000);
+    } catch(e) {
+      setBtn('⚠️', 'Erreur', '#dc2626');
+      setTimeout(function() { setBtn('💾', 'Sauvegarder', '#1a1a1a'); }, 2500);
+      sbSetup(); // Invite à configurer Supabase
+    }
+  }
+}
+
 function btnSave() {
   var icon = document.getElementById('save-btn-icon');
   var label = document.getElementById('save-btn-label');
@@ -1866,7 +1955,17 @@ function initStaffCardDrag() {
     var newTi = APP.staff.findIndex(function(s){return s.id===tgtId;});
     APP.staff.splice(newTi, 0, moved);
     sbSave();
-    renderStaff();
+    // Update card order in DOM directly (no full re-render = no drag reset)
+    var g = document.getElementById('staff-grid');
+    if(g) {
+      var srcCard = g.querySelector('.scard[data-sid="'+srcId+'"]');
+      var tgtCard = g.querySelector('.scard[data-sid="'+tgtId+'"]');
+      if(srcCard && tgtCard) {
+        // Insert srcCard before or after tgtCard depending on original positions
+        if(si < newTi) { tgtCard.after(srcCard); } else { tgtCard.before(srcCard); }
+      }
+    }
+    // Always refresh the table below
     renderStaffCartons();
   }
 
@@ -2030,6 +2129,7 @@ function initStaffTableDrag() {
     var newTi = APP.staff.findIndex(function(s){return s.id===tgtId;});
     APP.staff.splice(newTi,0,moved);
     sbSave();
+    // Full re-render for both cards and table (triggered from table drag)
     renderStaff();
     renderStaffCartons();
   }
