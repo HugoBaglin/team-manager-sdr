@@ -3423,7 +3423,7 @@ function setStatut(key, val, mid) {
   renderMPD(mid);
   try { renderRecap(); } catch(e) {}
 }
-function renderMPD(mid){
+function renderMPD(mid){ window._currentMid = mid;
   var sel=APP.players.filter(function(p){var d=APP.pmd[p.id+'_'+mid];return d&&(d.statut==='T'||d.statut==='R');});
   sel.sort(function(a,b){return (parseInt(a.num)||999)-(parseInt(b.num)||999);});
   var c=document.getElementById('mpd');if(!c)return;
@@ -3483,19 +3483,46 @@ function setCarton(key,type,mid){
   if(type==='jaune'){d.c_j=!d.c_j;}
   else if(type==='rouge'){d.c_r=!d.c_r;}
   else if(type==='dj'){
-    // 2J=R = 2 jaunes + rouge
-    if(d.c_j2){d.c_j2=false;d.c_r2=false;}
-    else{d.c_j2=true;d.c_r2=true;}
+    if(d.c_j2){d.c_j2=false;d.c_r=false;}
+    else{d.c_j2=true;d.c_r=true;}
   }
-  // Keep .carton for backward compat with cartons table
-  if(d.c_j2){d.carton='dj';}
+  // Sync .carton legacy field
+  if(d.c_j2&&d.c_r){d.carton='dj';}
   else if(d.c_r){d.carton='rouge';}
   else if(d.c_j){d.carton='jaune';}
   else{d.carton='';}
+  // Also sync back to match tit/rempl entry.carton for full persistence
+  _syncCartonToMatch(key, mid, d);
   renderMPD(mid);
   try { renderCartons(); } catch(x) {}
   try { renderRecap(); } catch(x) {}
+  try { renderCompStats(); } catch(x) {}
   try { sbSave(); } catch(x) {}
+}
+
+function _syncCartonToMatch(key, mid, d) {
+  // Sync pmd carton flags back to match.tit/rempl entry for full persistence
+  var cartStr = '';
+  if(d.c_j2&&d.c_r) cartStr='JJ';
+  else if(d.c_r) cartStr='R';
+  else if(d.c_j) cartStr='J';
+  // Find the player id from key (format: pid_mid)
+  var pid = key.replace('_'+mid, '');
+  var p = APP.players.find(function(x){return x.id===pid;});
+  if(!p) return;
+  var allComps = ['L2','CDF','AMI'];
+  allComps.forEach(function(comp){
+    var matches = APP.matches[comp]||[];
+    var m = matches.find(function(x){return x.id===mid;});
+    if(!m) return;
+    ['tit','rempl'].forEach(function(role){
+      (m[role]||[]).forEach(function(entry){
+        var n = (entry.name||'').trim().toUpperCase();
+        var pn = (p.name||'').trim().toUpperCase();
+        if(n===pn) entry.carton = cartStr;
+      });
+    });
+  });
 }
 
 
@@ -4017,6 +4044,18 @@ function rebuildPmdFromMatches() {
       });
     });
   });
+  // MERGE: keep existing pmd entries not in tit/rempl (suspensions, cartons from cartons tab)
+  Object.keys(APP.pmd).forEach(function(k) {
+    if (!pmd[k]) pmd[k] = APP.pmd[k];
+    else {
+      // Merge: keep existing flags not set by tit/rempl
+      if (!pmd[k].c_j && APP.pmd[k].c_j) { pmd[k].c_j = APP.pmd[k].c_j; pmd[k].c_j_num = APP.pmd[k].c_j_num; }
+      if (!pmd[k].c_j2 && APP.pmd[k].c_j2) { pmd[k].c_j2 = APP.pmd[k].c_j2; pmd[k].c_j2_num = APP.pmd[k].c_j2_num; }
+      if (!pmd[k].c_r && APP.pmd[k].c_r) { pmd[k].c_r = APP.pmd[k].c_r; pmd[k].c_r_num = APP.pmd[k].c_r_num; }
+      if (!pmd[k].suspension && APP.pmd[k].suspension) pmd[k].suspension = APP.pmd[k].suspension;
+      if (!pmd[k].carton && APP.pmd[k].carton) pmd[k].carton = APP.pmd[k].carton;
+    }
+  });
   APP.pmd=pmd; return pmd;
 }
 
@@ -4054,7 +4093,6 @@ function switchToSeason(idx) {
 // Sauvegarder la saison actuellement chargée dans APP vers seasonsArchive
 function _saveCurrentToArchive() {
   if (!APP.season) return;
-  try { rebuildPmdFromMatches(); } catch(e) {}
   var snapshot = {
     season:      APP.season,
     champ_name:  APP.champName || '',
@@ -5445,12 +5483,21 @@ function showSanctionMenu(e, key, refreshFn) {
   menu.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
 
   function doRefresh() {
+    // Sync pmd flags back to match entries for full persistence
+    try {
+      var d2 = APP.pmd[key]||{};
+      _syncCartonToMatch(key, key.split('_').slice(1).join('_'), d2);
+    } catch(x) {}
     try { window[refreshFn](); } catch(x) {}
     try { renderCartons(); } catch(x) {}
     try { renderStaffCartons(); } catch(x) {}
     try { renderRecap(); } catch(x) {}
     try { renderCompStats(); } catch(x) {}
     try { renderMatchList(); } catch(x) {}
+    // Refresh the open match modal if visible
+    if (window._currentMid && document.getElementById('mpd')) {
+      try { renderMPD(window._currentMid); } catch(x) {}
+    }
     try { sbSave(); } catch(x) {}
   }
   function closeMenu() { if (menu.parentNode) menu.parentNode.removeChild(menu); }
