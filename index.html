@@ -2500,7 +2500,7 @@ function renderCartons() {
 
 
 function goToPlayerCard(pid) {
-  showPlayerModal(pid);
+  showPlayerModal(pid, true);
 }
 
 function _numGetPlayers(seasonKey) {
@@ -3004,7 +3004,7 @@ function closeModal(){
 }
 
 // PLAYER DETAIL
-function showPlayerModal(id) {
+function showPlayerModal(id, noEdit) {
   var p=APP.players.find(function(x){return x.id===id;});if(!p)return;
   var tm=0,tM=0,tB=0,l2m=0,l2min=0,l2b=0,cdfm=0,cdfmin=0,cdfb=0;
   APP.matches.L2.forEach(function(m){var d=(APP.pmd||{})[p.id+'_'+m.id]||{};if(d.statut==='T'||d.statut==='R'){l2m++;l2min+=(d.min||0);l2b+=(d.buts||0);}});
@@ -3052,7 +3052,7 @@ function showPlayerModal(id) {
   body += '<div class="sm"><div class="sm-val">'+tm+'</div><div class="sm-lbl">Total</div><div style="font-size:12px;color:#555;margin-top:2px">'+tM+' min · '+tB+' buts</div></div>';
   body += '</div></div>';
 
-  var foot = '<div class="mo-foot"><button class="btn-c" onclick="showEditPlayerModal(\''+p.id+'\')">' +'Modifier</button><button class="btn-p" onclick="closeModal()">Fermer</button></div>';
+  var foot = '<div class="mo-foot">'+(noEdit?'':'<button class="btn-c" onclick="showEditPlayerModal(\''+p.id+'\')">'+'Modifier</button>')+'<button class="btn-p" onclick="closeModal()">Fermer</button></div>';
 
   openModal(hdr + body + foot);
 }
