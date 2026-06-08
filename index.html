@@ -2512,8 +2512,13 @@ function _numGetPlayers(seasonKey) {
 function _numPlayerCard(p) {
   var st = p.status || 'actif';
   var pretLabel = '', pretColor = '';
-  if (st === 'pret') { pretLabel = 'Prêté'; pretColor = '#1d4ed8'; }
-  else if (st === 'pretActifJaune') { pretLabel = 'Prêté'; pretColor = '#b45309'; }
+  if (st === 'pret') {
+    pretLabel = p.club ? 'Prêté à ' + p.club : 'Prêté';
+    pretColor = '#1d4ed8';
+  } else if (st === 'pretActifJaune') {
+    pretLabel = p.club ? 'Prêté par ' + p.club : 'Prêté au club';
+    pretColor = '#b45309';
+  }
   var grpColor = p.group==='Pro'?'#C8102E' : p.group==='Elite'?'#3b82f6' : '#16a34a';
   return '<div style="display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;margin:2px 0">'
     + '<span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase">'
@@ -2535,7 +2540,9 @@ function renderNumerotation(seasonKey) {
     var ps = players.filter(function(x){ return parseInt(x.num) === nn; });
     var cellContent = '';
     if (ps.length > 0) {
-      cellContent = ps.map(function(p){ return _numPlayerCard(p); }).join('<div style="height:2px"></div>');
+      cellContent = '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">'
+        + ps.map(function(p){ return _numPlayerCard(p); }).join('<span style="color:#ccc;font-size:14px">·</span>')
+        + '</div>';
     }
     var rowBg = ps.length ? (n%2===0?'#fff':'#fafafa') : (n%2===0?'#f8f8f8':'#f4f4f4');
     rows += '<tr style="border-bottom:1px solid #ececec;background:'+rowBg+'">'
