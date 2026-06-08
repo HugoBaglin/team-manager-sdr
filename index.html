@@ -282,9 +282,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 <div id="page-numerotation" class="hidden">
   <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px">
     <div class="page-title" style="margin-bottom:0">Numérotation</div>
-    <select id="num-season-sel" onchange="renderNumerotation(this.value)" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;padding:8px 12px;border:1.5px solid #e0dbd6;border-radius:8px;background:#fff;cursor:pointer">
-      <option value="current">Saison en cours</option>
-    </select>
+
     <button onclick="exportNumerotation()" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18)">
       <span style="font-size:16px">⬇</span><span>Exporter</span>
     </button>
@@ -1727,15 +1725,6 @@ function showPage(page, btn) {
   if (btn) btn.classList.add('active');
   if (page==='joueurs') renderPlayers();
   if (page==='numerotation') {
-    // Populate season selector
-    var sel = document.getElementById('num-season-sel');
-    if (sel && sel.options.length <= 1) {
-      (APP.seasonsArchive||[]).forEach(function(a){
-        var opt = document.createElement('option');
-        opt.value = a.season; opt.textContent = a.season;
-        sel.appendChild(opt);
-      });
-    }
     renderNumerotation('current');
   }
     if (page==='anniversaires') { try{renderAnniversaires();}catch(e){} }
@@ -2554,11 +2543,9 @@ function renderNumerotation(seasonKey) {
 }
 
 function exportNumerotation() {
-  var sel = document.getElementById('num-season-sel');
-  var seasonKey = sel ? sel.value : 'current';
-  var seasonLabel = sel ? (sel.options[sel.selectedIndex]||{}).text || seasonKey : 'saison';
+  var seasonKey = 'current';
+  var seasonLabel = APP.season || 'saison_en_cours';
   var players = _numGetPlayers(seasonKey);
-  if (!seasonKey || seasonKey === 'current') seasonLabel = APP.season || 'saison_en_cours';
 
   var headers = ['N°', 'Prénom', 'Nom', 'Groupe', 'Statut'];
   var data = [];
