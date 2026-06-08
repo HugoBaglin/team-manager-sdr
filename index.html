@@ -3665,7 +3665,18 @@ function showStaffModal(id){
   });
 
   openModal(
-    '<div class="mo-hdr"><div class="mo-title">'+s.name+'</div><button class="mo-x" onclick="closeModal()">✕</button></div>'+
+    '<div class="mo-hdr" style="flex-direction:column;align-items:flex-start;gap:4px;padding:18px 20px">'+
+    '<div style="display:flex;width:100%;align-items:center;justify-content:space-between">'+
+      '<div style="display:flex;align-items:center;gap:14px">'+
+        '<div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:17px;color:#fff;flex-shrink:0">'+s.init+'</div>'+
+        '<div>'+
+          '<div style="font-family:Barlow Condensed,sans-serif;font-weight:400;font-size:13px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:1px">'+(s.firstName||s.prenom||'')+'</div>'+
+          '<div class="mo-title" style="margin:0;line-height:1">'+s.name+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<button class="mo-x" onclick="closeModal()">✕</button>'+
+    '</div>'+
+    '</div>'+
     '<div class="mo-body">'+
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">'+
         '<div class="sm"><div class="sm-val" style="color:var(--gold)">'+j+'</div><div class="sm-lbl">Jaunes</div></div>'+
