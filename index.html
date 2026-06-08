@@ -237,9 +237,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
   <button class="nb active" data-page="competitions" onclick="showPage('competitions',this)">🏆 Compétitions</button>
   <button class="nb" data-page="cartons" onclick="showPage('cartons',this)">🟨 Cartons</button>
   <button class="nb" data-page="recap" onclick="showPage('recap',this)">📊 Récapitulatif</button>
+  <button class="nb" data-page="numerotation" onclick="showPage('numerotation',this)">🔢 Numérotation</button>
   <button class="nb" data-page="joueurs" onclick="showPage('joueurs',this)">👥 Joueurs</button>
   <button class="nb" data-page="staff" onclick="showPage('staff',this)">👔 Staff</button>
-  <button class="nb gold-tab" data-page="passeport" onclick="showPage('passeport',this)">⚠️ Passeport <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span></button>
+  <button class="nb gold-tab" data-page="passeport" onclick="showPage('passeport',this)">⚠️ Passeport <span id="pbadge" style="display:none;background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span></button>
 <button class="nb" data-page="anniversaires" onclick="showPage('anniversaires',this)" id="nb-anniversaires">🎂 Anniversaires <span id="abadge" style="display:none;background:#C8102E;color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span></button>
   <button class="nb" data-page="invitations" onclick="showPage('invitations',this)">🎟️ Invitations</button>
   <button class="nb" data-page="reglages" onclick="showPage('reglages',this)">⚙️ Réglages</button>
@@ -278,6 +279,33 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 </div>
 
 <!-- JOUEURS -->
+<div id="page-numerotation" class="hidden">
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px">
+    <div class="page-title" style="margin-bottom:0">Numérotation</div>
+    <select id="num-season-sel" onchange="renderNumerotation(this.value)" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;padding:8px 12px;border:1.5px solid #e0dbd6;border-radius:8px;background:#fff;cursor:pointer">
+      <option value="current">Saison en cours</option>
+    </select>
+    <button onclick="exportNumerotation()" style="display:flex;align-items:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18)">
+      <span style="font-size:16px">⬇</span><span>Exporter</span>
+    </button>
+  </div>
+  <div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.08);max-width:520px">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:#1a1a1a">
+          <th style="padding:10px 16px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.6);width:54px">N°</th>
+          <th style="padding:10px 14px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.6)">Joueur</th>
+        </tr>
+      </thead>
+      <tbody id="num-table-body"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:#aaa;font-family:'Barlow Condensed',sans-serif;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="background:#1d4ed8;color:#fff;font-size:10px;font-weight:800;border-radius:3px;padding:1px 6px">Prêté</span><span>= Prêt (parti)</span>
+    &nbsp;·&nbsp;
+    <span style="background:#b45309;color:#fff;font-size:10px;font-weight:800;border-radius:3px;padding:1px 6px">Prêté</span><span>= Prêté au club</span>
+  </div>
+</div>
 <div id="page-joueurs" class="hidden">
   <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:0">
     <div class="page-title" style="margin-bottom:0">Joueurs</div>
@@ -426,7 +454,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
       📋 Ordre des onglets
     </div>
     <p style="font-size:13px;color:#888;margin-bottom:16px">Utilisez les flèches pour réordonner les onglets de navigation. La modification est enregistrée automatiquement.</p>
-    <div id="reglages-nav-list" style="max-width:420px"></div>
+    <div id="reglages-nav-list" style="max-width:520px"></div>
     <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
       <button onclick="reglagesSaveOrder()" style="background:var(--red);color:#fff;border:none;border-radius:6px;padding:10px 22px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;cursor:pointer;letter-spacing:1px">✅ Enregistrer l'ordre</button>
       <button onclick="reglagesResetOrder()" style="background:#fff;color:#888;border:1.5px solid var(--border);border-radius:6px;padding:10px 18px;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer">↺ Ordre par défaut</button>
@@ -1682,7 +1710,8 @@ var NAV_DEFAULT = [
   {page:'joueurs',       label:'👥 Joueurs'},
   {page:'staff',         label:'👔 Staff'},
   {page:'passeport',     label:'⚠️ Passeport'},
-  {page:'anniversaires', label:'🎂 Anniversaires'},
+  {page:'numerotation', label:'🔢 Numérotation'},
+    {page:'anniversaires', label:'🎂 Anniversaires'},
   {page:'invitations',   label:'🎟️ Invitations'},
   {page:'reglages',      label:'⚙️ Réglages'}
 ];
@@ -1697,7 +1726,19 @@ function showPage(page, btn) {
   document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   if (page==='joueurs') renderPlayers();
-  if (page==='anniversaires') { try{renderAnniversaires();}catch(e){} }
+  if (page==='numerotation') {
+    // Populate season selector
+    var sel = document.getElementById('num-season-sel');
+    if (sel && sel.options.length <= 1) {
+      (APP.seasonsArchive||[]).forEach(function(a){
+        var opt = document.createElement('option');
+        opt.value = a.season; opt.textContent = a.season;
+        sel.appendChild(opt);
+      });
+    }
+    renderNumerotation('current');
+  }
+    if (page==='anniversaires') { try{renderAnniversaires();}catch(e){} }
   if (page==='staff') { renderStaff(); renderStaffCartons(); }
   if (page==='cartons') renderCartons();
   if (page==='recap') renderRecap();
@@ -1730,7 +1771,7 @@ function navApplyToDOM(items, save) {
     if (item.page==='anniversaires') btn.id = 'nb-anniversaires';
     if (item.page==='passeport') btn.id = 'nb-passeport';
     var badgeHtml = '';
-    if (item.page==='passeport') badgeHtml = ' <span id="pbadge" style="background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span>';
+    if (item.page==='passeport') badgeHtml = ' <span id="pbadge" style="display:none;background:var(--gold);color:#000;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span>';
     if (item.page==='anniversaires') badgeHtml = ' <span id="abadge" style="display:none;background:#C8102E;color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:3px;font-weight:800"></span>';
     btn.innerHTML = item.label + badgeHtml;
     btn.addEventListener('click', (function(pg){ return function(){ showPage(pg, btn); }; })(item.page));
@@ -2206,10 +2247,21 @@ function renderStaffCartons() {
       var key = s.id+'_'+m.id;
       var d = APP.pmd[key]||{};
       var cell = '';
+      var parts = [];
       if(d.suspension){cell='<span class="sc2">S</span>';tS++;}
-      else if(d.carton==='dj'){cell='<span class="yc"></span><span class="rc"></span>';tJ+=2;tR++;}
-      else if(d.carton==='rouge'){cell='<span class="rc">'+(d.carton_num||'')+'</span>';tR++;}
-      else if(d.carton==='jaune'){cell='<span class="yc">'+(d.carton_num||'')+'</span>';tJ++;}
+      else {
+        // New multi-card format
+        if(d.c_j){parts.push('<span class="yc">'+(d.c_j_num||'')+'</span>');tJ++;}
+        if(d.c_j2){parts.push('<span class="yc">'+(d.c_j2_num||'')+'</span>');tJ++;}
+        if(d.c_r){parts.push('<span class="rc">'+(d.c_r_num||'')+'</span>');tR++;}
+        // Legacy fallback
+        if(!d.c_j&&!d.c_j2&&!d.c_r){
+          if(d.carton==='dj'){parts.push('<span class="yc"></span><span class="rc"></span>');tJ+=2;tR++;}
+          else if(d.carton==='rouge'){parts.push('<span class="rc">'+(d.carton_num||'')+'</span>');tR++;}
+          else if(d.carton==='jaune'){parts.push('<span class="yc">'+(d.carton_num||'')+'</span>');tJ++;}
+        }
+        cell = parts.join('');
+      }
       cells += '<td style="cursor:pointer;min-width:44px;text-align:center" '
         +'onclick="showSanctionMenu(event,\''+key+'\',\'renderStaffCartons\')">'
         +(cell||'<span style="color:#ddd;font-size:14px">·</span>')+'</td>';
@@ -2447,6 +2499,83 @@ function renderCartons() {
 }
 
 
+function goToPlayerCard(pid) {
+  // Navigate to joueurs tab and open player modal
+  var btn = document.querySelector('[data-page="joueurs"]');
+  showPage('joueurs', btn);
+  setTimeout(function() { showPlayerModal(pid); }, 150);
+}
+
+function _numGetPlayers(seasonKey) {
+  if (!seasonKey || seasonKey === 'current') return APP.players || [];
+  var arch = (APP.seasonsArchive || []).find(function(a){ return a.season === seasonKey; });
+  return arch ? (arch.players || []) : [];
+}
+
+function _numPlayerCard(p) {
+  var st = p.status || 'actif';
+  var pretLabel = '', pretColor = '';
+  if (st === 'pret') { pretLabel = 'Prêté'; pretColor = '#1d4ed8'; }
+  else if (st === 'pretActifJaune') { pretLabel = 'Prêté'; pretColor = '#b45309'; }
+  var grpColor = p.group==='Pro'?'#C8102E' : p.group==='Elite'?'#3b82f6' : '#16a34a';
+  return '<div style="display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;margin:2px 0">'
+    + '<span style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:15px;text-transform:uppercase">'
+    + (p.firstName||p.prenom ? '<span style="font-weight:400;text-transform:none;font-size:12px;color:#888;margin-right:2px">'+(p.firstName||p.prenom)+'</span>' : '')
+    + (p.name||'')
+    + '</span>'
+    + '<span style="font-size:10px;font-weight:800;font-family:Barlow Condensed,sans-serif;text-transform:uppercase;letter-spacing:.5px;background:'+grpColor+';color:#fff;border-radius:3px;padding:1px 5px">'+(p.group||'')+'</span>'
+    + (pretLabel ? '<span style="font-size:10px;font-weight:800;font-family:Barlow Condensed,sans-serif;text-transform:uppercase;background:'+pretColor+';color:#fff;border-radius:3px;padding:1px 5px">'+pretLabel+'</span>' : '')
+    + '</div>';
+}
+
+function renderNumerotation(seasonKey) {
+  var el = document.getElementById('num-table-body');
+  if (!el) return;
+  var players = _numGetPlayers(seasonKey);
+  var rows = '';
+  for (var n = 1; n <= 99; n++) {
+    var nn = n; // capture for filter
+    var ps = players.filter(function(x){ return parseInt(x.num) === nn; });
+    var cellContent = '';
+    if (ps.length > 0) {
+      cellContent = ps.map(function(p){ return _numPlayerCard(p); }).join('<div style="height:2px"></div>');
+    }
+    var rowBg = ps.length ? (n%2===0?'#fff':'#fafafa') : (n%2===0?'#f8f8f8':'#f4f4f4');
+    rows += '<tr style="border-bottom:1px solid #ececec;background:'+rowBg+'">'
+      + '<td style="padding:7px 16px;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:16px;color:'+(ps.length?'#111':'#ccc')+';width:54px;text-align:center;vertical-align:top">'+n+'</td>'
+      + '<td style="padding:7px 14px;vertical-align:top">' + cellContent + '</td>'
+      + '</tr>';
+  }
+  el.innerHTML = rows;
+}
+
+function exportNumerotation() {
+  var sel = document.getElementById('num-season-sel');
+  var seasonKey = sel ? sel.value : 'current';
+  var seasonLabel = sel ? (sel.options[sel.selectedIndex]||{}).text || seasonKey : 'saison';
+  var players = _numGetPlayers(seasonKey);
+  if (!seasonKey || seasonKey === 'current') seasonLabel = APP.season || 'saison_en_cours';
+
+  var headers = ['N°', 'Prénom', 'Nom', 'Groupe', 'Statut'];
+  var data = [];
+  for (var n = 1; n <= 99; n++) {
+    var nn = n;
+    var ps = players.filter(function(x){ return parseInt(x.num) === nn; });
+    if (ps.length > 0) {
+      ps.forEach(function(p, i) {
+        var st = p.status || 'actif';
+        var stLabel = st === 'pret' ? 'Prêté (parti)' : st === 'pretActifJaune' ? 'Prêté au club' : st;
+        data.push([i===0 ? n : '', p.firstName||p.prenom||'', p.name||'', p.group||'', stLabel]);
+      });
+    } else {
+      data.push([n, '', '', '', '']);
+    }
+  }
+
+  var filename = 'numerotation_' + (seasonLabel+'').replace(/[^a-zA-Z0-9]/g,'_');
+  _doExport(headers, data, filename, 'xlsx');
+}
+
 function showCartonsTotalDetail(type) {
   // Build rounds same as renderCartons
   var l2R  = APP.matches.L2.map(function(m){ return {j:m.j,name:m.name,adv:m.adv||'',id:m.id,comp:'L2'}; });
@@ -2683,7 +2812,7 @@ function renderRecap(){
       var s=getPlayerStats(p);
       rows+='<tr data-pid="'+p.id+'">'+
         '<td style="'+ST+'left:0;'+TD+'"><div class="nbadge" onclick="showRecapDetail(\''+p.id+'\',\'matchs\')" style="cursor:pointer" title="Voir détail joueur">'+p.num+'</div></td>'+
-        '<td onclick="showRecapDetail(\''+p.id+'\',\'matchs\')" style="'+ST+'left:38px;'+TDl+'font-weight:700;border-right:2px solid #e0dbd6;cursor:pointer" title="Voir détail joueur">'+p.name+'</td>'+
+        '<td onclick="goToPlayerCard(\''+p.id+'\')" style="'+ST+'left:38px;'+TDl+'font-weight:700;border-right:2px solid #e0dbd6;cursor:pointer;text-decoration:underline dotted" title="Ouvrir la fiche joueur">'+p.name+'</td>'+
         '<td class="ed-cell" data-pid="'+p.id+'" data-field="group" style="'+TD+'cursor:pointer">'+
           '<span class="pc-badge pc-badge-'+p.group+'" style="font-size:11px">'+p.group+'</span>'+
         '</td>'+
@@ -2887,6 +3016,7 @@ function showPlayerModal(id) {
   var st=p.status||'actif';
   var dep=(st==='pret'||st==='vendu')&&p.departDate?'<div style="font-size:13px;color:#888;margin-top:4px">📤 '+p.departDate+(p.club?' → '+p.club:'')+'</div>'
         : st==='pretActifJaune'&&p.club?'<div style="font-size:13px;color:#7a5c00;margin-top:4px;font-weight:700">🟡 Prêté par : '+p.club+'</div>':'';
+  var birthDisplay = p.birthDate ? (function(){var pts=p.birthDate.split('-');return pts[2]+'/'+pts[1]+'/'+pts[0];})() : '';
   var passIcon='';
   var passImg=passIcon;
   var hdr = '<div class="mo-hdr" style="display:flex;align-items:center;gap:10px">';
@@ -2899,7 +3029,7 @@ function showPlayerModal(id) {
 
   var body = '<div class="mo-body">';
   body += '<div style="display:flex;gap:14px;margin-bottom:16px;align-items:flex-start">'+passImg+'<div>';
-  body += '<div style="font-size:15px"><strong>'+p.pos+'</strong> · '+p.group+' · '+(p.nat||'')+' '+(p.natText||'')+'</div>';
+  body += '<div style="font-size:15px;display:flex;align-items:center;flex-wrap:wrap;gap:8px"><span><strong>'+p.pos+'</strong> · '+p.group+' · '+(p.nat||'')+' '+(p.natText||'')+'</span>'+(birthDisplay?'<span style="font-size:13px;color:#888;">🎂 '+birthDisplay+'</span>':'')+'</div>';
   body += '<div style="margin-top:5px"><span class="pc-st s-'+st+'">'+(st==='pretActifJaune'?'🟡 Prêté au club':st)+'</span></div>';
   body += dep;
   if (p.passport) {
@@ -2944,7 +3074,7 @@ function showEditPlayerModal(id) {
     return '<option value="'+x+'"'+(st===x?' selected':'')+'>'+labels[x]+'</option>';
   }).join('');
   var depStyle=(st==='pret'||st==='vendu'||st==='pretActifJaune')?'':'display:none';
-  openModal('<div class="mo-hdr"><div class="mo-title">'+(isE?'Modifier Joueur':'Nouveau Joueur')+'</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div style="text-align:center;margin-bottom:14px"><div id="pp" style="width:62px;height:62px;border-radius:50%;background:#f5f3ef;border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;overflow:hidden" onclick="document.getElementById(\'pi\').click()">'+(p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover">':'📷')+'</div><input type="file" id="pi" accept="image/*" style="display:none" onchange="prevPhoto(this,\'pp\',\'pd\')"><input type="hidden" id="pd" value="'+(p.photo||'')+'"></div><div class="frow"><div class="fg"><label class="fl">Nom *</label><input class="fi" id="p-name" value="'+(p.name||'')+'"></div><div class="fg"><label class="fl">Prénom</label><input class="fi" id="p-prenom" value="'+(p.firstName||p.prenom||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Numéro</label><input class="fi" id="p-num" value="'+(p.num||'')+'"></div><div class="fg"><label class="fl">Nom Maillot</label><input class="fi" id="p-maillot" placeholder="Ex: OKUMU" value="'+(p.nomMaillot||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Date de naissance</label><input class="fi" type="date" id="p-birth" value="'+(p.birthDate||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Groupe</label><select class="fsel" id="p-grp"><option'+(p.group==='Pro'?' selected':'')+'>Pro</option><option'+(p.group==='Elite'?' selected':'')+'>Elite</option><option'+(p.group==='Espoir'?' selected':'')+'>Espoir</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Poste</label><select class="fsel" id="p-pos">'+posSel+'</select></div><div class="fg"><label class="fl">Statut</label><select class="fsel" id="p-stat" onchange="toggleDep(this.value)">'+statSel+'</select></div></div><div id="dep-fields" style="'+depStyle+'"><div class="frow"><div class="fg"><label class="fl" id="p-dep-lbl">\'+(st===\'pretActifJaune\'?\'Date d\'arrivée\':\'Date de départ\')+\'</label><input class="fi" type="date" id="p-dep" value="'+(p.departDate||'')+'"></div><div class="fg"><label class="fl" id="p-club-lbl">'+(st==='pretActifJaune'?'Club prêteur':'Club destination')+'</label><input class="fi" id="p-club" placeholder="Ex: Paris FC" value="'+(p.club||'')+'"></div></div></div><div class="frow"><div class="fg full"><label class="fl">Nationalité</label><select class="fsel" id="p-nat">'+natSel+'</select></div></div><input type="hidden" id="p-nat-c" value=""><div class="sec-hdr" style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#555" stroke-width="4" fill="none"/><circle cx="30" cy="32" r="14" stroke="#555" stroke-width="3.5" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#555" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#555" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#555" stroke-width="2"/><line x1="16" y1="40" x2="44" y2="40" stroke="#555" stroke-width="2"/><rect x="10" y="60" width="40" height="4" rx="2" fill="#555"/><rect x="10" y="68" width="28" height="4" rx="2" fill="#555"/></svg> Passeport</div><div class="frow"><div class="fg full"><label class="fl" style="display:flex;align-items:center;gap:6px"><svg width="16" height="21" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#888" stroke-width="5" fill="none"/><circle cx="30" cy="32" r="14" stroke="#888" stroke-width="4" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#888" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#888" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#888" stroke-width="2.5"/><line x1="16" y1="40" x2="44" y2="40" stroke="#888" stroke-width="2.5"/><rect x="10" y="60" width="40" height="5" rx="2" fill="#888"/><rect x="10" y="68" width="28" height="5" rx="2" fill="#888"/></svg> Date d\'expiration</label><input class="fi" type="date" id="p-pass" value="'+(p.passport||'')+'"></div></div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button>'+(isE?'<button class="btn-d" onclick="delPlayer(\''+p.id+'\')">Supprimer</button>':'')+'<button class="btn-p" onclick="savePlayer(\''+(id||'')+'\')">Enregistrer</button></div>');
+  openModal('<div class="mo-hdr"><div class="mo-title">'+(isE?'Modifier Joueur':'Nouveau Joueur')+'</div><button class="mo-x" onclick="closeModal()">✕</button></div><div class="mo-body"><div style="text-align:center;margin-bottom:14px"><div id="pp" style="width:62px;height:62px;border-radius:50%;background:#f5f3ef;border:2px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;overflow:hidden" onclick="document.getElementById(\'pi\').click()">'+(p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover">':'📷')+'</div><input type="file" id="pi" accept="image/*" style="display:none" onchange="prevPhoto(this,\'pp\',\'pd\')"><input type="hidden" id="pd" value="'+(p.photo||'')+'"></div><div class="frow"><div class="fg"><label class="fl">Nom *</label><input class="fi" id="p-name" value="'+(p.name||'')+'"></div><div class="fg"><label class="fl">Prénom</label><input class="fi" id="p-prenom" value="'+(p.firstName||p.prenom||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Numéro</label><input class="fi" id="p-num" value="'+(p.num||'')+'"></div><div class="fg"><label class="fl">Nom Maillot</label><input class="fi" id="p-maillot" placeholder="Ex: OKUMU" value="'+(p.nomMaillot||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Date de naissance</label><input class="fi" type="date" id="p-birth" value="'+(p.birthDate||'')+'"></div></div><div class="frow"><div class="fg"><label class="fl">Groupe</label><select class="fsel" id="p-grp"><option'+(p.group==='Pro'?' selected':'')+'>Pro</option><option'+(p.group==='Elite'?' selected':'')+'>Elite</option><option'+(p.group==='Espoir'?' selected':'')+'>Espoir</option></select></div></div><div class="frow"><div class="fg"><label class="fl">Poste</label><select class="fsel" id="p-pos">'+posSel+'</select></div><div class="fg"><label class="fl">Statut</label><select class="fsel" id="p-stat" onchange="toggleDep(this.value)">'+statSel+'</select></div></div><div id="dep-fields" style="'+depStyle+'"><div class="frow"><div class="fg"><label class="fl" id="p-dep-lbl">'+(st==='pretActifJaune'?'Date d\'arrivée':'Date de départ')+'</label><input class="fi" type="date" id="p-dep" value="'+(p.departDate||'')+'"></div><div class="fg"><label class="fl" id="p-club-lbl">'+(st==='pretActifJaune'?'Club prêteur':'Club destination')+'</label><input class="fi" id="p-club" placeholder="Ex: Paris FC" value="'+(p.club||'')+'"></div></div></div><div class="frow"><div class="fg full"><label class="fl">Nationalité</label><select class="fsel" id="p-nat">'+natSel+'</select></div></div><input type="hidden" id="p-nat-c" value=""><div class="sec-hdr" style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#555" stroke-width="4" fill="none"/><circle cx="30" cy="32" r="14" stroke="#555" stroke-width="3.5" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#555" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#555" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#555" stroke-width="2"/><line x1="16" y1="40" x2="44" y2="40" stroke="#555" stroke-width="2"/><rect x="10" y="60" width="40" height="4" rx="2" fill="#555"/><rect x="10" y="68" width="28" height="4" rx="2" fill="#555"/></svg> Passeport</div><div class="frow"><div class="fg full"><label class="fl" style="display:flex;align-items:center;gap:6px"><svg width="16" height="21" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="56" height="76" rx="6" stroke="#888" stroke-width="5" fill="none"/><circle cx="30" cy="32" r="14" stroke="#888" stroke-width="4" fill="none"/><line x1="16" y1="32" x2="44" y2="32" stroke="#888" stroke-width="3"/><path d="M30 18 Q36 32 30 46 Q24 32 30 18Z" stroke="#888" stroke-width="2.5" fill="none"/><line x1="16" y1="24" x2="44" y2="24" stroke="#888" stroke-width="2.5"/><line x1="16" y1="40" x2="44" y2="40" stroke="#888" stroke-width="2.5"/><rect x="10" y="60" width="40" height="5" rx="2" fill="#888"/><rect x="10" y="68" width="28" height="5" rx="2" fill="#888"/></svg> Date d\'expiration</label><input class="fi" type="date" id="p-pass" value="'+(p.passport||'')+'"></div></div></div><div class="mo-foot"><button class="btn-c" onclick="closeModal()">Annuler</button>'+(isE?'<button class="btn-d" onclick="delPlayer(\''+p.id+'\')">Supprimer</button>':'')+'<button class="btn-p" onclick="savePlayer(\''+(id||'')+'\')">Enregistrer</button></div>');
 }
 
 function toggleDep(v){
