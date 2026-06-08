@@ -3670,8 +3670,7 @@ function showStaffModal(id){
       '<div style="display:flex;align-items:center;gap:14px">'+
         '<div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:17px;color:#fff;flex-shrink:0">'+s.init+'</div>'+
         '<div>'+
-          '<div style="font-family:Barlow Condensed,sans-serif;font-weight:400;font-size:13px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:1px">'+(s.firstName||s.prenom||'')+'</div>'+
-          '<div class="mo-title" style="margin:0;line-height:1">'+s.name+'</div>'+
+          '<div class="mo-title" style="margin:0;line-height:1">'+(s.firstName||s.prenom ? '<span style="font-weight:400;font-size:16px;opacity:.85;margin-right:6px">'+(s.firstName||s.prenom)+'</span>' : '')+s.name+'</div>'+
         '</div>'+
       '</div>'+
       '<button class="mo-x" onclick="closeModal()">✕</button>'+
