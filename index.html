@@ -69,7 +69,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
 .pc-foot{display:flex;align-items:center;justify-content:space-between;gap:4px}
 .pc-flag{font-size:15px}
 .pc-badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;border:1px solid transparent}.pc-badge-Pro{background:#C8102E;color:#fff;border-color:#a00d24}.pc-badge-Elite{background:#e97c00;color:#fff;border-color:#c46a00}.pc-badge-Espoir{background:#1565c0;color:#fff;border-color:#0d47a1}.pc-badge-joueurs{background:#f5f2ee;color:#777;border-color:#e0dbd6}.pc-badge-staff{background:#f5f2ee;color:#777;border-color:#e0dbd6}
-.pc-st{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:700}
+.pc-st{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .s-actif{background:rgba(26,122,60,.1);color:#1a7a3c;border:1px solid rgba(26,122,60,.25)}
 .s-pret{background:rgba(230,168,23,.12);color:#9a7010;border:1px solid rgba(230,168,23,.35)}
 .s-vendu{background:rgba(232,48,26,.1);color:var(--red);border:1px solid rgba(232,48,26,.25)}
@@ -3011,8 +3011,23 @@ function showPlayerModal(id, noEdit) {
   APP.matches.CDF.forEach(function(m){var d=(APP.pmd||{})[p.id+'_'+m.id]||{};if(d.statut==='T'||d.statut==='R'){cdfm++;cdfmin+=(d.min||0);cdfb+=(d.buts||0);}});
   tm=l2m+cdfm;tM=l2min+cdfmin;tB=l2b+cdfb;
   var st=p.status||'actif';
-  var dep=(st==='pret'||st==='vendu')&&p.departDate?'<div style="font-size:13px;color:#888;margin-top:4px">📤 '+p.departDate+(p.club?' → '+p.club:'')+'</div>'
-        : st==='pretActifJaune'&&p.club?'<div style="font-size:13px;color:#7a5c00;margin-top:4px;font-weight:700">🟡 Prêté par : '+p.club+'</div>':'';
+  var dep = '';
+  if (st==='pret') {
+    dep = '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+    if (p.club) dep += '<span style="display:inline-flex;align-items:center;gap:4px;background:#dbeafe;color:#1d4ed8;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700">📤 Club destination : '+p.club+'</span>';
+    if (p.departDate) dep += '<span style="display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;color:#555;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700">📅 Départ : '+p.departDate+'</span>';
+    dep += '</div>';
+  } else if (st==='vendu') {
+    dep = '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+    if (p.club) dep += '<span style="display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;color:#555;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700">📤 Club destination : '+p.club+'</span>';
+    if (p.departDate) dep += '<span style="display:inline-flex;align-items:center;gap:4px;background:#f1f5f9;color:#555;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700">📅 Départ : '+p.departDate+'</span>';
+    dep += '</div>';
+  } else if (st==='pretActifJaune') {
+    dep = '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+    if (p.club) dep += '<span style="display:inline-flex;align-items:center;gap:4px;background:#fef9c3;color:#854d0e;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700">🟡 Club prêteur : '+p.club+'</span>';
+    if (p.departDate) dep += '<span style="display:inline-flex;align-items:center;gap:4px;background:#fef9c3;color:#854d0e;border-radius:5px;padding:3px 9px;font-size:12px;font-weight:700">📅 Arrivée : '+p.departDate+'</span>';
+    dep += '</div>';
+  }
   var birthDisplay = p.birthDate ? (function(){var pts=p.birthDate.split('-');return pts[2]+'/'+pts[1]+'/'+pts[0];})() : '';
   var passIcon='';
   var passImg=passIcon;
@@ -3027,7 +3042,8 @@ function showPlayerModal(id, noEdit) {
   var body = '<div class="mo-body">';
   body += '<div style="display:flex;gap:14px;margin-bottom:16px;align-items:flex-start">'+passImg+'<div>';
   body += '<div style="font-size:15px;display:flex;align-items:center;flex-wrap:wrap;gap:8px"><span><strong>'+p.pos+'</strong> · '+p.group+' · '+(p.nat||'')+' '+(p.natText||'')+'</span>'+(birthDisplay?'<span style="font-size:13px;color:#888;">🎂 '+birthDisplay+'</span>':'')+'</div>';
-  body += '<div style="margin-top:5px"><span class="pc-st s-'+st+'">'+(st==='pretActifJaune'?'🟡 Prêté au club':st)+'</span></div>';
+  var stLabel={'actif':'Actif','pret':'Prêté','vendu':'Vendu','blesse':'Blessé','pretActifJaune':'🟡 Prêté au club'};
+  body += '<div style="margin-top:5px"><span class="pc-st s-'+st+'">'+(stLabel[st]||st)+'</span></div>';
   body += dep;
   if (p.passport) {
     var pExp = new Date(p.passport);
