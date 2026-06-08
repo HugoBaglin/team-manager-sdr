@@ -2704,6 +2704,9 @@ function toggleSusp(pid, mid) {
   if(!APP.pmd[key]) APP.pmd[key]={};
   APP.pmd[key].suspension = !APP.pmd[key].suspension;
   renderCartons();
+  try { renderCompStats(); } catch(x) {}
+  try { renderMatchList(); } catch(x) {}
+  try { sbSave(); } catch(x) {}
 }
 
 // ── RECAP ─────────────────────────────────────────────────────────────────────
@@ -3490,6 +3493,9 @@ function setCarton(key,type,mid){
   else if(d.c_j){d.carton='jaune';}
   else{d.carton='';}
   renderMPD(mid);
+  try { renderCartons(); } catch(x) {}
+  try { renderRecap(); } catch(x) {}
+  try { sbSave(); } catch(x) {}
 }
 
 
@@ -5443,6 +5449,9 @@ function showSanctionMenu(e, key, refreshFn) {
     try { renderCartons(); } catch(x) {}
     try { renderStaffCartons(); } catch(x) {}
     try { renderRecap(); } catch(x) {}
+    try { renderCompStats(); } catch(x) {}
+    try { renderMatchList(); } catch(x) {}
+    try { sbSave(); } catch(x) {}
   }
   function closeMenu() { if (menu.parentNode) menu.parentNode.removeChild(menu); }
 
