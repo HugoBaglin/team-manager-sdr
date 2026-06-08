@@ -358,8 +358,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:#111;font-size:1
   <div class="toolbar">
     <input class="si" placeholder="Rechercher..." style="flex:1" oninput="fCSearch=this.value.toLowerCase();renderCartons()">
     <div style="margin-left:auto;display:flex;gap:7px">
-      <button class="btn-exp" onclick="exportData('cartons','csv')">⬇ CSV</button>
-      <button class="btn-exp" onclick="exportData('cartons','xlsx')">⬇ Excel</button>
+      <button class="btn-exp" onclick="showCartonsExportModal()">⬇ Exporter</button>
     </div>
   </div>
   <div class="toolbar" style="flex-wrap:wrap;gap:6px;padding-top:0">
@@ -2529,9 +2528,16 @@ function renderNumerotation(seasonKey) {
     var ps = players.filter(function(x){ return parseInt(x.num) === nn; });
     var cellContent = '';
     if (ps.length > 0) {
-      cellContent = '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">'
-        + ps.map(function(p){ return _numPlayerCard(p); }).join('<span style="color:#ccc;font-size:14px">·</span>')
-        + '</div>';
+      // Sort: actif/pretActifJaune first, then pret (parti)
+      ps.sort(function(a, b) {
+        var order = function(p) {
+          var s = p.status || 'actif';
+          if (s === 'pret') return 1;
+          return 0;
+        };
+        return order(a) - order(b);
+      });
+      cellContent = ps.map(function(p){ return _numPlayerCard(p); }).join('<div style="height:4px"></div>');
     }
     var rowBg = ps.length ? (n%2===0?'#fff':'#fafafa') : (n%2===0?'#f8f8f8':'#f4f4f4');
     rows += '<tr style="border-bottom:1px solid #ececec;background:'+rowBg+'">'
@@ -4260,6 +4266,184 @@ function _exportAllMatchesSummary(format) {
       tit+rem, tit, rem, ei, buts, j, r, s];
   });
   _doExport(headers, data, 'competitions_resume_'+(APP.season||'saison'), format);
+}
+
+function showCartonsExportModal() {
+  var ex = document.getElementById('mo-export-cartons');
+  if(ex) ex.remove();
+
+  var div = document.createElement('div');
+  div.className = 'ov';
+  div.id = 'mo-export-cartons';
+  div.onclick = function(e){ if(e.target===this) this.remove(); };
+
+  function makeSection(title, desc, exportFn) {
+    var sec = document.createElement('div');
+    sec.style.cssText = 'background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px';
+    var ttl = document.createElement('div');
+    ttl.style.cssText = 'font-weight:800;font-size:14px;margin-bottom:3px';
+    ttl.textContent = title;
+    var dsc = document.createElement('div');
+    dsc.style.cssText = 'font-size:11px;color:#888;margin-bottom:10px';
+    dsc.textContent = desc;
+    var btns = document.createElement('div');
+    btns.style.cssText = 'display:flex;gap:8px';
+    ['csv','xlsx'].forEach(function(fmt) {
+      var btn = document.createElement('button');
+      btn.className = 'btn-exp';
+      btn.textContent = fmt === 'csv' ? '⬇ CSV' : '⬇ Excel';
+      btn.onclick = function(){ exportFn(fmt); document.getElementById('mo-export-cartons').remove(); };
+      btns.appendChild(btn);
+    });
+    sec.appendChild(ttl); sec.appendChild(dsc); sec.appendChild(btns);
+    return sec;
+  }
+
+  var mo = document.createElement('div');
+  mo.className = 'mo';
+  mo.style.maxWidth = '500px';
+
+  var hdr = document.createElement('div');
+  hdr.className = 'mo-hdr';
+  hdr.innerHTML = '<div class="mo-title">⬇ Exporter les Cartons</div>';
+  var xBtn = document.createElement('button');
+  xBtn.className = 'mo-x';
+  xBtn.textContent = '✕';
+  xBtn.onclick = function(){ document.getElementById('mo-export-cartons').remove(); };
+  hdr.appendChild(xBtn);
+
+  var body = document.createElement('div');
+  body.className = 'mo-body';
+  body.style.cssText = 'display:flex;flex-direction:column;gap:12px;padding:20px';
+  body.appendChild(makeSection(
+    '📊 Totaux par joueur',
+    'Une ligne par joueur · total des jaunes, rouges et suspensions sur la saison (L2 + CDF)',
+    exportCartonsParJoueur
+  ));
+  body.appendChild(makeSection(
+    '📋 Détail par match',
+    'Une ligne par joueur/match · journée, adversaire, compétition, carton(s) reçu(s), suspension — uniquement les lignes avec événement',
+    exportCartonsParMatch
+  ));
+  body.appendChild(makeSection(
+    '📑 Complet (tous matchs × tous joueurs)',
+    'Une ligne par joueur/match · toutes les combinaisons incluant les matchs sans carton',
+    exportCartonsComplet
+  ));
+
+  var foot = document.createElement('div');
+  foot.className = 'mo-foot';
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'btn-p';
+  closeBtn.textContent = 'Fermer';
+  closeBtn.onclick = function(){ document.getElementById('mo-export-cartons').remove(); };
+  foot.appendChild(closeBtn);
+
+  mo.appendChild(hdr); mo.appendChild(body); mo.appendChild(foot);
+  div.appendChild(mo);
+  document.body.appendChild(div);
+}
+
+function _cartonsGetPlayersAndMatches() {
+  var players = APP.players.filter(function(p){
+    if(fCSearch && p.name.toLowerCase().indexOf(fCSearch)<0) return false;
+    if(fCGrp!=='all' && p.group!==fCGrp) return false;
+    if(fCPos!=='all' && p.pos!==fCPos) return false;
+    if(fCStat!=='all' && (p.status||'actif')!==fCStat) return false;
+    return true;
+  });
+  players.sort(function(a,b){ return (parseInt(a.num)||999)-(parseInt(b.num)||999); });
+  var l2 = APP.matches.L2.slice();
+  var cdf = APP.matches.CDF.slice();
+  var allM = [];
+  if(fCComp==='L2') { allM = l2.map(function(m){return Object.assign({},m,{_comp:'L2'});}); }
+  else if(fCComp==='CDF') { allM = cdf.map(function(m){return Object.assign({},m,{_comp:'CDF'});}); }
+  else {
+    allM = l2.map(function(m){return Object.assign({},m,{_comp:'L2'});})
+             .concat(cdf.map(function(m){return Object.assign({},m,{_comp:'CDF'});}));
+    allM.sort(function(a,b){
+      var da=a.date||'', db=b.date||'';
+      if(da&&db&&da!==db) return da<db?-1:1;
+      return (parseInt((a.j||'').replace(/[^0-9]/g,''))||999)-(parseInt((b.j||'').replace(/[^0-9]/g,''))||999);
+    });
+  }
+  return {players:players, matches:allM};
+}
+
+function _cartonEventStr(d) {
+  var ev = [];
+  if(d.c_j) ev.push('Jaune'+(d.c_j_num?' ('+d.c_j_num+'e)':''));
+  if(d.c_j2) ev.push('2e Jaune'+(d.c_j2_num?' ('+d.c_j2_num+'e)':''));
+  if(d.c_r) ev.push('Rouge'+(d.c_r_num?' ('+d.c_r_num+'e)':''));
+  if(!d.c_j&&!d.c_j2&&!d.c_r) {
+    if(d.carton==='jaune') ev.push('Jaune'+(d.carton_num?' ('+d.carton_num+'e)':''));
+    else if(d.carton==='rouge') ev.push('Rouge'+(d.carton_num?' ('+d.carton_num+'e)':''));
+    else if(d.carton==='dj') ev.push('2e Jaune + Rouge');
+  }
+  if(d.suspension) ev.push('Suspension');
+  return ev.join(' + ');
+}
+
+function exportCartonsParJoueur(format) {
+  var res = _cartonsGetPlayersAndMatches();
+  var headers = ['N°','Joueur','Groupe','Poste','Jaunes','2e Jaunes','Rouges','Suspensions','Total événements'];
+  var data = res.players.map(function(p){
+    var tJ=0,tJ2=0,tR=0,tS=0;
+    res.matches.forEach(function(m){
+      var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
+      if(d.c_j) tJ++;
+      if(d.c_j2){tJ++;tJ2++;tR++;}
+      if(d.c_r) tR++;
+      if(!d.c_j&&!d.c_j2&&!d.c_r){
+        if(d.carton==='jaune') tJ++;
+        else if(d.carton==='rouge') tR++;
+        else if(d.carton==='dj'){tJ+=2;tJ2++;tR++;}
+      }
+      if(d.suspension) tS++;
+    });
+    return [p.num||'', p.name||'', p.group||'', p.pos||'', tJ, tJ2, tR, tS, tJ+tR+tS];
+  });
+  _doExport(headers, data, 'cartons_par_joueur_'+(APP.season||'saison'), format==='xlsx'?'xlsx':'csv');
+}
+
+function exportCartonsParMatch(format) {
+  var res = _cartonsGetPlayersAndMatches();
+  var headers = ['N°','Joueur','Groupe','Compétition','Journée','Adversaire','Date','Carton(s)','Suspension'];
+  var data = [];
+  res.players.forEach(function(p){
+    res.matches.forEach(function(m){
+      var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
+      var hasEvent = d.c_j||d.c_j2||d.c_r||d.carton||d.suspension;
+      if(!hasEvent) return;
+      var evStr = _cartonEventStr(d);
+      if(!evStr && !d.suspension) return;
+      data.push([
+        p.num||'', p.name||'', p.group||'',
+        m._comp||'', m.j||'', m.adv||m.name||'', m.date||'',
+        evStr, d.suspension?'Oui':''
+      ]);
+    });
+  });
+  if(!data.length) data.push(['','Aucun carton/suspension pour cette sélection','','','','','','','']);
+  _doExport(headers, data, 'cartons_par_match_'+(APP.season||'saison'), format==='xlsx'?'xlsx':'csv');
+}
+
+function exportCartonsComplet(format) {
+  var res = _cartonsGetPlayersAndMatches();
+  var headers = ['N°','Joueur','Groupe','Poste','Compétition','Journée','Adversaire','Date','Carton(s)','Suspension'];
+  var data = [];
+  res.players.forEach(function(p){
+    res.matches.forEach(function(m){
+      var d=(APP.pmd||{})[p.id+'_'+m.id]||{};
+      var evStr = _cartonEventStr(d);
+      data.push([
+        p.num||'', p.name||'', p.group||'', p.pos||'',
+        m._comp||'', m.j||'', m.adv||m.name||'', m.date||'',
+        evStr, d.suspension?'Oui':''
+      ]);
+    });
+  });
+  _doExport(headers, data, 'cartons_complet_'+(APP.season||'saison'), format==='xlsx'?'xlsx':'csv');
 }
 
 // Ancien point d'entrée exportData (cartons + recap inchangés)
