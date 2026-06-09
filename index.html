@@ -1079,7 +1079,7 @@ function sbApply(row) {
     } catch(e) { console.warn('SB apply seasons_archive:', e); }
     // Rebuild pmd from tit/rempl if pmd is empty
     if (!row.pmd || Object.keys(APP.pmd).length === 0) {
-      try { rebuildPmdFromMatches(); } catch(e) {}
+      // Ne PAS reconstruire pmd depuis matches — garder le pmd de Supabase
     }
 
     // Toujours s'assurer que _INIT_SEASON_2627 est dans seasonsArchive avec ses données
@@ -1397,8 +1397,7 @@ function sbWrap() {
       window[name] = function() {
         undoSnapshot(name);
         var r = orig.apply(this, arguments);
-        // Mettre à jour l'archive de la saison courante avant save
-        try { _saveCurrentToArchive(); } catch(e) {}
+        // NE PAS appeler _saveCurrentToArchive ici — risque d'écraser pmd
         // Force save (with retry si _SB.saving est verrouillé)
         if (_SB.saving) {
           setTimeout(function() { _SB.saving = false; sbSave(); }, 500);
@@ -1415,7 +1414,6 @@ function sbWrap() {
     window.logSave = function() {
       undoSnapshot('logSave');
       var r2 = _origLogSave.apply(this,arguments);
-      try { _saveCurrentToArchive(); } catch(e) {}
       if (_SB.saving) { setTimeout(function(){ _SB.saving=false; sbSave(); }, 500); } else { sbSave(); }
       return r2;
     };
@@ -1425,7 +1423,6 @@ function sbWrap() {
     window.invSetField = function() {
       undoSnapshot('invSetField');
       var r3 = _origInvSetField.apply(this,arguments);
-      try { _saveCurrentToArchive(); } catch(e) {}
       if (_SB.saving) { setTimeout(function(){ _SB.saving=false; sbSave(); }, 600); } else { sbSave(); }
       return r3;
     };
@@ -4134,7 +4131,7 @@ function _loadSeasonFromArchive(a) {
   APP.pmd         = JSON.parse(JSON.stringify(a.pmd         || {}));
   APP.logistics   = JSON.parse(JSON.stringify(a.logistics   || {}));
   APP.invitations = JSON.parse(JSON.stringify(a.invitations || {}));
-  try { rebuildPmdFromMatches(); }       catch(e) {}
+  // Ne PAS appeler rebuildPmdFromMatches ici — cela écraserait le pmd chargé
   try { rebuildLogisticsFromMatches(); } catch(e) {}
   sbRefreshUI();
   renderSeasonDropdown();
