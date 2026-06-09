@@ -4556,8 +4556,56 @@ function _buildLogisticsMatchList() {
       + dot + badge
       + '<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:13px;flex:1">'+m.j+' '+m.adv+'</span>'
       + '<button class="btn-exp" style="padding:3px 8px;font-size:11px" onclick="exportLogistiquePDF(\''+m.id+'\');">PDF</button>'
+      + '<button class="btn-exp" style="padding:3px 8px;font-size:11px" onclick="exportLogistiqueMatch(\''+m.id+'\',\''+comp+'\');">XLS</button>'
       + '</div>';
   }).join('');
+}
+
+function _logRow(m, comp) {
+  var log = (APP.logistics||{})[m.id]||{};
+  var matchLabel = (comp==='CDF'?'CDF':'L2')+' '+m.j+' — '+m.name;
+  return [
+    matchLabel, m.date||'',
+    log.type==='ext'?'Exterieur':log.type==='dom'?'Domicile':'',
+    log.programmation_statut||'', log.prog_date||'', log.prog_heure||'', log.prog_notes||'',
+    log.hotel_statut||'', log.hotel_nom||'', log.hotel_contact||'', log.hotel_notes||'',
+    log.transport_statut||'', log.transport_pax_aller||'', log.transport_pax_retour||'',
+    log.transport_prestataire||'', log.transport_ref||'', log.transport_notes||'',
+    log.jacqueson_statut||'', log.jacqueson_nom||'', log.jacqueson_tel||'', log.jacqueson_notes||'',
+    log.bus_local_statut||'', log.bus_local_nom||'', log.bus_local_tel||'',
+    log.bus_local_chauffeur||'', log.bus_local_pax||'', log.bus_local_notes||'',
+    log.catering_statut||'', log.catering_nom||'', log.catering_contact||'',
+    log.catering_repas||'', log.catering_heure||'', log.catering_notes||''
+  ];
+}
+
+var _LOG_HEADERS = [
+  'Match','Date match','Type (Dom./Ext.)',
+  'Prog. Statut','Prog. Date','Prog. Heure','Prog. Notes',
+  'Hotel Statut','Hotel Nom','Hotel Contact','Hotel Notes',
+  'Transport Statut','Transport PAX Aller','Transport PAX Retour',
+  'Transport Prestataire','Transport Ref. vol/train','Transport Notes',
+  'Bus SDR Statut','Bus SDR Chauffeur','Bus SDR Tel.','Bus SDR Notes',
+  'Bus Local Statut','Bus Local Societe','Bus Local Tel.',
+  'Bus Local Chauffeur','Bus Local PAX','Bus Local Notes',
+  'Catering Statut','Catering Entreprise','Catering Contact',
+  'Catering Nb Repas','Catering Heure livraison','Catering Notes'
+];
+
+function exportLogistiqueTous(format) {
+  var allM = APP.matches.L2.map(function(m){return{m:m,comp:'L2'};})
+    .concat(APP.matches.CDF.map(function(m){return{m:m,comp:'CDF'};}));
+  allM.sort(function(a,b){var da=a.m.date||'',db=b.m.date||'';if(da&&db&&da!==db)return da<db?-1:1;return 0;});
+  var data = allM.map(function(item){return _logRow(item.m,item.comp);});
+  _doExport(_LOG_HEADERS, data, 'logistique_'+(APP.season||'saison'), 'xlsx');
+}
+
+function exportLogistiqueMatch(mid, comp) {
+  var m = (APP.matches[comp]||[]).find(function(x){return x.id===mid;});
+  if(!m) return;
+  var data = [_logRow(m, comp)];
+  var safeName = (m.j||mid).replace(/[^a-zA-Z0-9]/g,'_');
+  _doExport(_LOG_HEADERS, data, 'logistique_'+safeName, 'xlsx');
 }
 
 function exportLogistiquePDF(target) {
@@ -4725,12 +4773,23 @@ function exportLogistiquePDF(target) {
   }
 
   // Load jsPDF from CDN if not present
-  if(typeof window.jspdf !== 'undefined' && window.jspdf.jsPDF) {
-    doRender(window.jspdf.jsPDF);
+  function _getJsPDF() {
+    if(window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+    if(window.jsPDF) return window.jsPDF;
+    return null;
+  }
+  var existing = _getJsPDF();
+  if(existing) {
+    doRender(existing);
   } else {
     var s=document.createElement('script');
     s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    s.onload=function(){ doRender(window.jspdf.jsPDF); };
+    s.onload=function(){
+      var cls=_getJsPDF();
+      if(cls){ doRender(cls); }
+      else { alert('Erreur : impossible de charger jsPDF. Vérifiez votre connexion internet.'); }
+    };
+    s.onerror=function(){ alert('Erreur chargement jsPDF. Vérifiez votre connexion internet.'); };
     document.head.appendChild(s);
   }
 }
@@ -4762,6 +4821,7 @@ function showCompExportModal(){
           '<div style="font-size:11px;color:#888;margin-bottom:10px">Exporter la logistique de tous les matchs ou match par match</div>'+
           '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
             '<button class="btn-exp" onclick="exportLogistiquePDF(\'all\');closeModal()">⬇ PDF — Tous les matchs</button>'+
+            '<button class="btn-exp" onclick="exportLogistiqueTous(\'xlsx\');closeModal()">⬇ Excel — Tous les matchs</button>'+
           '</div>'+
           '<div style="margin-top:10px" id="log-match-list">'+_buildLogisticsMatchList()+'</div>'+
         '</div>'+
