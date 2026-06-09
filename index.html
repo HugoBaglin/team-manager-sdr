@@ -4535,6 +4535,206 @@ function exportData(type, format) {
 }
 
 // Modale export compétitions
+function _buildLogisticsMatchList() {
+  var allM = APP.matches.L2.map(function(m){return {m:m,comp:'L2'};})
+    .concat(APP.matches.CDF.map(function(m){return {m:m,comp:'CDF'};}));
+  allM.sort(function(a,b){
+    var da=a.m.date||'', db=b.m.date||'';
+    if(da&&db&&da!==db) return da<db?-1:1;
+    return 0;
+  });
+  if(!allM.length) return '<div style="font-size:12px;color:#aaa">Aucun match</div>';
+  return allM.map(function(item){
+    var m=item.m, comp=item.comp;
+    var badge = comp==='CDF'
+      ? '<span style="font-size:9px;background:#f59e0b;color:#fff;border-radius:3px;padding:1px 4px;margin-right:4px">CDF</span>'
+      : '<span style="font-size:9px;background:#3b82f6;color:#fff;border-radius:3px;padding:1px 4px;margin-right:4px">L2</span>';
+    var log = (APP.logistics||{})[m.id]||{};
+    var hasLog = log._enabled;
+    var dot = hasLog ? '<span style="color:#16a34a;margin-right:4px">●</span>' : '<span style="color:#ccc;margin-right:4px">○</span>';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #f0ede8">'
+      + dot + badge
+      + '<span style="font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:13px;flex:1">'+m.j+' '+m.adv+'</span>'
+      + '<button class="btn-exp" style="padding:3px 8px;font-size:11px" onclick="exportLogistiquePDF(\''+m.id+'\');">PDF</button>'
+      + '</div>';
+  }).join('');
+}
+
+function exportLogistiquePDF(target) {
+  // Collect matches
+  var allM = APP.matches.L2.map(function(m){return{m:m,comp:'L2'};})
+    .concat(APP.matches.CDF.map(function(m){return{m:m,comp:'CDF'};}));
+  allM.sort(function(a,b){
+    var da=a.m.date||'',db=b.m.date||'';
+    if(da&&db&&da!==db) return da<db?-1:1; return 0;
+  });
+
+  var matchesToExport = target==='all' ? allM
+    : allM.filter(function(x){return x.m.id===target;});
+
+  if(!matchesToExport.length){
+    alert('Aucun match à exporter.'); return;
+  }
+
+  // ── Minimal PDF builder using jsPDF (loaded from CDN if needed) ──────────
+  function doRender(jsPDF) {
+    var RED=[200,16,46], DARK=[26,26,26], LGRAY=[245,243,239], MGRAY=[224,219,214];
+    var TGRAY=[102,102,102], GREEN_C=[22,163,74], ORANGE_C=[217,119,6], BGRAY=[156,163,175];
+
+    function statusColor(s){
+      if(s==='valide') return GREEN_C;
+      if(s==='en_cours') return ORANGE_C;
+      if(s==='non_necessaire') return BGRAY;
+      return MGRAY;
+    }
+    function statusLabel(s){
+      if(s==='valide') return 'Valide';
+      if(s==='en_cours') return 'En cours';
+      if(s==='non_necessaire') return 'Non necessaire';
+      return s||'';
+    }
+
+    var doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+    var PW=210, PH=297, ML=14, MR=14, MT=14, BH=8;
+    var CW=PW-ML-MR;
+
+    function checkPage(doc, y, need){
+      if(y+need > PH-MT-BH){
+        doc.addPage();
+        return MT;
+      }
+      return y;
+    }
+
+    function drawHeader(doc, m, comp){
+      // Red banner
+      doc.setFillColor.apply(doc, RED);
+      doc.rect(ML, MT, CW, 16, 'F');
+      // Comp badge
+      var badgeColor = comp==='CDF' ? [245,158,11] : [59,130,246];
+      doc.setFillColor.apply(doc, badgeColor);
+      doc.roundedRect(ML+3, MT+3, 18, 10, 2, 2, 'F');
+      doc.setTextColor(255,255,255);
+      doc.setFontSize(7); doc.setFont('helvetica','bold');
+      doc.text(comp+' '+m.j, ML+12, MT+9.5, {align:'center'});
+      // Match name
+      doc.setFontSize(12); doc.setFont('helvetica','bold');
+      doc.text(m.name||'', ML+24, MT+9.5, {maxWidth: CW-80});
+      // Date + type
+      var log=(APP.logistics||{})[m.id]||{};
+      var typeStr=log.type==='ext'?'Exterieur':log.type==='dom'?'Domicile':'';
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text((m.date||'')+(typeStr?' \u2022 '+typeStr:''), PW-MR-3, MT+9.5, {align:'right'});
+      return MT+20;
+    }
+
+    function drawSection(doc, y, icon, title, statut, rows){
+      y = checkPage(doc, y, 14+rows.length*8);
+      var sc = statusColor(statut);
+      // Section header bar
+      doc.setFillColor.apply(doc, LGRAY);
+      doc.rect(ML, y, CW, 8, 'F');
+      doc.setDrawColor.apply(doc, sc);
+      doc.setLineWidth(0.8);
+      doc.line(ML, y+8, ML+CW, y+8);
+      doc.setLineWidth(0.2);
+      doc.setTextColor.apply(doc, DARK);
+      doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+      doc.text(icon+' '+title, ML+3, y+5.5);
+      // Status badge
+      doc.setFillColor.apply(doc, sc);
+      var sl=statusLabel(statut);
+      doc.setFontSize(7); doc.setFont('helvetica','bold');
+      var bw=doc.getStringUnitWidth(sl)*7*0.352+6;
+      doc.roundedRect(ML+CW-bw-2, y+1.5, bw, 5, 1.5, 1.5, 'F');
+      doc.setTextColor(255,255,255);
+      doc.text(sl, ML+CW-bw/2-2, y+5.2, {align:'center'});
+      y+=10;
+      // Rows
+      var col1W=45, col2W=CW-col1W;
+      rows.forEach(function(r, i){
+        if(!r||!r[1]) return;
+        y = checkPage(doc, y, 8);
+        if(i%2===0) {
+          doc.setFillColor(255,255,255);
+        } else {
+          doc.setFillColor(250,250,249);
+        }
+        doc.rect(ML, y, CW, 7, 'F');
+        doc.setDrawColor.apply(doc, MGRAY);
+        doc.rect(ML, y, CW, 7, 'S');
+        // Label
+        doc.setFillColor.apply(doc, LGRAY);
+        doc.rect(ML, y, col1W, 7, 'F');
+        doc.setTextColor.apply(doc, TGRAY);
+        doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+        doc.text(r[0], ML+3, y+4.8);
+        // Value
+        doc.setTextColor.apply(doc, DARK);
+        doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+        var val=String(r[1]);
+        doc.text(val, ML+col1W+3, y+4.8, {maxWidth: col2W-6});
+        // Estimate if text wraps
+        var lines=doc.splitTextToSize(val, col2W-6);
+        if(lines.length>1){
+          var extra=(lines.length-1)*4;
+          doc.setFillColor(i%2===0?255:250,i%2===0?255:250,i%2===0?255:249);
+          // no special handling needed - jsPDF clips
+        }
+        y+=7;
+      });
+      return y+3;
+    }
+
+    matchesToExport.forEach(function(item, idx){
+      var m=item.m, comp=item.comp;
+      var log=(APP.logistics||{})[m.id]||{};
+      if(idx>0) doc.addPage();
+      var y=drawHeader(doc,m,comp);
+
+      y=drawSection(doc,y,'','Programmation',log.programmation_statut||'',[
+        ['Date',log.prog_date||''],['Heure',log.prog_heure||''],['Notes',log.prog_notes||'']
+      ]);
+      y=drawSection(doc,y,'','Hotel',log.hotel_statut||'',[
+        ['Nom',log.hotel_nom||''],['Contact',log.hotel_contact||''],['Notes',log.hotel_notes||'']
+      ]);
+      y=drawSection(doc,y,'','Transport principal',log.transport_statut||'',[
+        ['PAX Aller',log.transport_pax_aller||''],['PAX Retour',log.transport_pax_retour||''],
+        ['Prestataire',log.transport_prestataire||''],['Reference',log.transport_ref||''],
+        ['Notes',log.transport_notes||'']
+      ]);
+      y=drawSection(doc,y,'','Bus SDR',log.jacqueson_statut||'',[
+        ['Chauffeur',log.jacqueson_nom||''],['Tel.',log.jacqueson_tel||''],['Notes',log.jacqueson_notes||'']
+      ]);
+      y=drawSection(doc,y,'','Bus local',log.bus_local_statut||'',[
+        ['Societe',log.bus_local_nom||''],['Tel.',log.bus_local_tel||''],
+        ['Chauffeur',log.bus_local_chauffeur||''],['PAX',log.bus_local_pax||''],
+        ['Notes',log.bus_local_notes||'']
+      ]);
+      y=drawSection(doc,y,'','Catering',log.catering_statut||'',[
+        ['Entreprise',log.catering_nom||''],['Contact',log.catering_contact||''],
+        ['Nb repas',log.catering_repas||''],['Heure livraison',log.catering_heure||''],
+        ['Notes',log.catering_notes||'']
+      ]);
+    });
+
+    var fname = target==='all'
+      ? 'logistique_'+(APP.season||'saison').replace(/[^a-zA-Z0-9]/g,'_')+'.pdf'
+      : 'logistique_'+(matchesToExport[0].m.j||target).replace(/[^a-zA-Z0-9]/g,'_')+'.pdf';
+    doc.save(fname);
+  }
+
+  // Load jsPDF from CDN if not present
+  if(typeof window.jspdf !== 'undefined' && window.jspdf.jsPDF) {
+    doRender(window.jspdf.jsPDF);
+  } else {
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=function(){ doRender(window.jspdf.jsPDF); };
+    document.head.appendChild(s);
+  }
+}
+
 function showCompExportModal(){
   var listHtml = _buildMatchExportList();
   openModal(
@@ -4556,6 +4756,14 @@ function showCompExportModal(){
             '<button class="btn-exp" onclick="exportData(\'competitions_summary\',\'csv\');closeModal()">⬇ CSV</button>'+
             '<button class="btn-exp" onclick="exportData(\'competitions_summary\',\'xlsx\');closeModal()">⬇ Excel</button>'+
           '</div>'+
+        '</div>'+
+        '<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'+
+          '<div style="font-weight:800;font-size:14px;margin-bottom:3px">🚌 Logistique</div>'+
+          '<div style="font-size:11px;color:#888;margin-bottom:10px">Exporter la logistique de tous les matchs ou match par match</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+            '<button class="btn-exp" onclick="exportLogistiquePDF(\'all\');closeModal()">⬇ PDF — Tous les matchs</button>'+
+          '</div>'+
+          '<div style="margin-top:10px" id="log-match-list">'+_buildLogisticsMatchList()+'</div>'+
         '</div>'+
         '<div style="background:#f8f7f5;border:1.5px solid #e0dbd6;border-radius:10px;padding:14px 16px">'+
           '<div style="font-weight:800;font-size:14px;margin-bottom:3px">🔍 Exporter match par match</div>'+
