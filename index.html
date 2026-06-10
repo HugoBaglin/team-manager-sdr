@@ -1917,7 +1917,13 @@ function renderPlayers() {
   var html = '';
   groups.forEach(function(g) {
     var gp = list.filter(function(p){ return p.group===g; });
-    html += '<div class="grp-lbl">'+g+'</div><div class="pgrid">';
+    var gpCount = gp.filter(function(p){
+      var st = p.status||'actif';
+      return st==='actif' || st==='pretActifJaune' || st==='blesse';
+    }).length;
+    html += '<div class="grp-lbl">'+g
+      +'<span style="font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:600;opacity:.55;margin-left:9px;vertical-align:middle">'+gpCount+'</span>'
+      +'</div><div class="pgrid">';
     gp.forEach(function(p) {
       var st = p.status||'actif';
       var tm=0,tM=0,tB=0;
