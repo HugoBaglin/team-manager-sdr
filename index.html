@@ -721,7 +721,11 @@ function sbFetch(method, path, body) {
 }
 
 function sbSave() {
-  if (!_SB.enabled || _SB.saving) return; // _SB.loading ne bloque plus
+  if (!_SB.enabled || _SB.saving) return;
+  // Ne pas sauvegarder si les données viennent d'être initialisées depuis HTML
+  // et que Supabase n'a pas encore été chargé (_SB.lastTs === 0)
+  // SAUF si l'utilisateur a fait une action (undoStack non vide)
+  if (_SB.lastTs === 0 && _SB.loading) return;
   clearTimeout(_SB.saveTimer);
   _SB.saveTimer = setTimeout(function() {
     _SB.saving = true;
@@ -1017,7 +1021,8 @@ function btnSave() {
 
 // Sauvegarde immédiate sans debounce (utilisé lors des changements d'onglet, fermeture modal, etc.)
 function sbSaveNow() {
-  if (!_SB.enabled || _SB.saving) return; // NE PAS bloquer sur _SB.loading
+  if (!_SB.enabled || _SB.saving) return;
+  if (_SB.lastTs === 0 && _SB.loading) return;
   clearTimeout(_SB.saveTimer);
   _SB.saving = true;
   try { sbUpdateSaveBtn('saving'); } catch(e) {}
@@ -1082,16 +1087,15 @@ function sbApply(row) {
       // Ne PAS reconstruire pmd depuis matches — garder le pmd de Supabase
     }
 
-    // Toujours s'assurer que _INIT_SEASON_2627 est dans seasonsArchive avec ses données
+    // _INIT_SEASON_2627 : injecter UNIQUEMENT si absent de Supabase
+    // NE JAMAIS écraser des données Supabase existantes
     if (typeof _INIT_SEASON_2627 !== 'undefined') {
       var idx2627 = APP.seasonsArchive.findIndex(function(s){ return s.season === '2026/2027'; });
       if (idx2627 < 0) {
-        // Absent → ajouter
+        // Complètement absent → ajouter uniquement comme fallback
         APP.seasonsArchive.unshift(_INIT_SEASON_2627);
-      } else if (!APP.seasonsArchive[idx2627].players || APP.seasonsArchive[idx2627].players.length === 0) {
-        // Présent mais vide → restaurer depuis initData
-        APP.seasonsArchive[idx2627] = JSON.parse(JSON.stringify(_INIT_SEASON_2627));
       }
+      // Si présent → NE PAS ÉCRASER, Supabase a priorité absolue
     }
     // Toujours s'assurer que _BUILTIN_ARCHIVES (2025/26) est dans seasonsArchive
     if (typeof _BUILTIN_ARCHIVES !== 'undefined') {
@@ -2004,7 +2008,13 @@ function renderPlayers() {
   var html = '';
   groups.forEach(function(g) {
     var gp = list.filter(function(p){ return p.group===g; });
-    html += '<div class="grp-lbl">'+g+'</div><div class="pgrid">';
+    var gpCount = gp.filter(function(p){
+      var st = p.status||'actif';
+      return st==='actif' || st==='pretActifJaune' || st==='blesse';
+    }).length;
+    html += '<div class="grp-lbl">'+g
+      +'<span style="font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:600;opacity:.55;margin-left:9px;vertical-align:middle">'+gpCount+'</span>'
+      +'</div><div class="pgrid">';
     gp.forEach(function(p) {
       var st = p.status||'actif';
       var tm=0,tM=0,tB=0;
@@ -2801,11 +2811,17 @@ function renderRecap(){
 
   var rows='';
   groups.forEach(function(g){
+    var gpRecap = list.filter(function(p){return p.group===g;});
+    var gpActiveR = gpRecap.filter(function(p){
+      var st=p.status||'actif'; return st==='actif'||st==='pretActifJaune'||st==='blesse';
+    }).length;
     rows+='<tr><td colspan="19" style="'+ST+'left:0;background:#f0ede8;font-family:Barlow Condensed,sans-serif;'+
       'font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#888;'+
-      'padding:7px 14px;border-bottom:1px solid #e2ddd8">⚽ '+g+'</td></tr>';
+      'padding:7px 14px;border-bottom:1px solid #e2ddd8">⚽ '+g
+      +'<span style="font-size:11px;font-weight:600;opacity:.65;margin-left:8px;">'+gpActiveR+'</span>'
+      +'</td></tr>';
 
-    list.filter(function(p){return p.group===g;}).forEach(function(p){
+    gpRecap.forEach(function(p){
       var s=getPlayerStats(p);
       rows+='<tr data-pid="'+p.id+'">'+
         '<td style="'+ST+'left:0;'+TD+'"><div class="nbadge" onclick="showRecapDetail(\''+p.id+'\',\'matchs\')" style="cursor:pointer" title="Voir détail joueur">'+p.num+'</div></td>'+
