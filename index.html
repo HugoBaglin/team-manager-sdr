@@ -782,40 +782,46 @@ function sbSave() {
       invitations: JSON.stringify(APP.invitations || {}),
       seasons_archive: JSON.stringify(APP.seasonsArchive || [])
     };
-    sbFetch('POST', _SB.table + '?on_conflict=room_id', [row]).then(function() {
-      _SB.lastTs = ts; _SB.saving = false;
-      sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500);
-    }).catch(function(e) {
-      _SB.saving = false;
-      // Try PATCH as fallback (POST failed — row may already exist)
-      sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), row)
-        .then(function() {
-          _SB.lastTs = ts; sbStatus('saved');
-          setTimeout(function() { sbStatus('online'); }, 1500);
-        })
-        .catch(function(e2) {
-          // Last resort: save without new columns (handles old Supabase table schema)
-          var rowCompat = {
-            room_id: row.room_id, uid: row.uid, ts: row.ts,
-            season: row.season, champ_name: row.champ_name,
-            players: row.players, staff: row.staff,
-            matches_l2: row.matches_l2, matches_cdf: row.matches_cdf,
-            matches_ami: row.matches_ami, pmd: row.pmd,
-            logistics: row.logistics, invitations: row.invitations,
-            seasons_archive: row.seasons_archive
-          };
-          sbFetch('POST', _SB.table + '?on_conflict=room_id', [rowCompat])
-            .then(function() {
-              _SB.lastTs = ts; _SB.saving = false;
-              sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500);
-            })
-            .catch(function(e3) {
-              sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), rowCompat)
-                .then(function() { _SB.lastTs = ts; sbStatus('saved'); setTimeout(function() { sbStatus('online'); }, 1500); })
-                .catch(function(e4) { _SB.saving = false; console.error('SB save:', e4.message); sbStatus('error'); setTimeout(function(){if(_SB.enabled) sbStatus('online');}, 5000); });
-            });
-        });
-    });
+    // Stratégie de sauvegarde robuste :
+    // 1. POST avec upsert (crée ou met à jour)
+    // 2. Si échec → PATCH (ligne déjà existante, colonnes potentiellement manquantes)
+    // 3. Si échec → PATCH sans seasons_archive (table Supabase ancienne sans cette colonne)
+    function trySave(r, attempt) {
+      var isPost = attempt === 1;
+      var method = isPost ? 'POST' : 'PATCH';
+      var path = isPost
+        ? _SB.table + '?on_conflict=room_id'
+        : _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId);
+      var body = isPost ? [r] : r;
+      return sbFetch(method, path, body).then(function() {
+        _SB.lastTs = ts; _SB.saving = false;
+        sbStatus('saved'); setTimeout(function(){ if(_SB.enabled) sbStatus('online'); }, 1500);
+      });
+    }
+
+    trySave(row, 1)
+      .catch(function() {
+        // 2ème tentative : PATCH (contourne les problèmes de conflit sur POST)
+        return trySave(row, 2);
+      })
+      .catch(function() {
+        // 3ème tentative : PATCH sans seasons_archive (table ancienne)
+        var rowNoArch = {
+          room_id: row.room_id, uid: row.uid, ts: row.ts,
+          season: row.season, champ_name: row.champ_name,
+          players: row.players, staff: row.staff,
+          matches_l2: row.matches_l2, matches_cdf: row.matches_cdf,
+          matches_ami: row.matches_ami, pmd: row.pmd,
+          logistics: row.logistics, invitations: row.invitations
+        };
+        return trySave(rowNoArch, 2);
+      })
+      .catch(function(e4) {
+        _SB.saving = false;
+        console.error('SB save failed:', e4 && e4.message);
+        sbStatus('error');
+        setTimeout(function(){ if(_SB.enabled) sbStatus('online'); }, 5000);
+      });
   }, 300);
 }
 
@@ -1078,12 +1084,31 @@ function sbSaveNow() {
     invitations: JSON.stringify(APP.invitations || {}),
     seasons_archive: JSON.stringify(APP.seasonsArchive || [])
   };
-  sbFetch('POST', _SB.table + '?on_conflict=room_id', [row])
-    .then(function() { _SB.lastTs = ts; _SB.saving = false; sbStatus('saved'); setTimeout(function(){sbStatus('online');},1500); })
+  function trySaveNow(r, attempt) {
+    var body = attempt === 1 ? [r] : r;
+    var path = attempt === 1
+      ? _SB.table + '?on_conflict=room_id'
+      : _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId);
+    return sbFetch(attempt === 1 ? 'POST' : 'PATCH', path, body)
+      .then(function() { _SB.lastTs = ts; _SB.saving = false; sbStatus('saved'); setTimeout(function(){if(_SB.enabled)sbStatus('online');},1500); });
+  }
+  trySaveNow(row, 1)
+    .catch(function() { return trySaveNow(row, 2); })
     .catch(function() {
-      sbFetch('PATCH', _SB.table + '?room_id=eq.' + encodeURIComponent(_SB.roomId), row)
-        .then(function() { _SB.lastTs = ts; _SB.saving = false; sbStatus('saved'); setTimeout(function(){sbStatus('online');},1500); })
-        .catch(function(e) { _SB.saving = false; try { sbUpdateSaveBtn('offline'); } catch(ex) {} console.error('SB saveNow:', e.message); });
+      var r2 = {
+        room_id:row.room_id, uid:row.uid, ts:row.ts,
+        season:row.season, champ_name:row.champ_name,
+        players:row.players, staff:row.staff,
+        matches_l2:row.matches_l2, matches_cdf:row.matches_cdf,
+        matches_ami:row.matches_ami, pmd:row.pmd,
+        logistics:row.logistics, invitations:row.invitations
+      };
+      return trySaveNow(r2, 2);
+    })
+    .catch(function(e) {
+      _SB.saving = false;
+      try { sbUpdateSaveBtn('offline'); } catch(ex) {}
+      console.error('SB saveNow:', e && e.message);
     });
 }
 
